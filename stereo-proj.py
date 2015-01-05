@@ -197,8 +197,8 @@ def largeur_plan():
         k=k+1
     
     plt.plot(range(-40,41,2),la[0,:])
-    plt.xlabel('Angle de tilt')
-    plt.ylabel('largeur apparente')
+    plt.xlabel('Tilt angle')
+    plt.ylabel('Apparent width')
     plt.grid(True)
     plt.show()
 
@@ -1985,9 +1985,9 @@ angle_button.configure(pady="0")
 angle_button.configure(text='''Angle''')
 
 
-color_trace_vert=Radiobutton(master=root, text="green", variable=col_trace, value=1).place(relx=0.67,rely=0.93,height=21,width=71)
-color_trace_bleu=Radiobutton(master=root, text="blue", variable=col_trace, value=2).place(relx=0.72,rely=0.93,height=21,width=71)
-color_trace_rouge=Radiobutton(master=root, text="red", variable=col_trace, value=3).place(relx=0.77,rely=0.93,height=21,width=71)
+color_trace_vert=Radiobutton(master=root, text="green", variable=col_trace, value=1).place(relx=0.67,rely=0.93,height=21,width=73)
+color_trace_bleu=Radiobutton(master=root, text="blue", variable=col_trace, value=2).place(relx=0.73,rely=0.93,height=21,width=71)
+color_trace_rouge=Radiobutton(master=root, text="red", variable=col_trace, value=3).place(relx=0.78,rely=0.93,height=21,width=71)
 
 size_var_label= Label (master=root)
 size_var_label.place(relx=0.67,rely=0.96,height=19,width=100)
