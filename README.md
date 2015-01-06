@@ -22,7 +22,7 @@ Stereo-proj is a python script software that plots the stereographic projection 
 
 ## Interface
 
-[img1](/img1.png)
+![img1](/img1.png?raw=true)
 
 ##Plotting procedure
 ### From a set of diffraction vectors
@@ -30,7 +30,7 @@ Stereo-proj is a python script software that plots the stereographic projection 
 * Enter the crystal structure or import it from the menu bar. The structure can be modified/added by modifying the structure.txt file. The format is: name a b c alpha beta gamma space-group. 
 * Enter a diffraction vector, the tilt angle and the inclination angle determined by [Index](https://github.com/mompiou/index) for instance and press plot button below.
 * Example for Al: diffraction 2: (111), tilt: 30, inclination: 147.5 (tilt axis is vertical here). Rotate here of 47° around the diffraction vector (choose a rotation increment) to bring the diffraction vector 1 in the right position. The Euler angles are given. Running the mouse over the projection gives you the inclination and tilt angles.
-[img2](/img2.png)
+![img2](/img2.png?raw=true)
 
 ### From the Euler angles
 * Enter the angles in the "Euler angles" field and press the plot button right below.
@@ -40,14 +40,15 @@ Stereo-proj is a python script software that plots the stereographic projection 
 * Add a pole/direction by entering the indices in the "Add a pole" field and by clicking the "Add" button.
 * Draw a plane by entering the indices in the "Add a pole" field and by clicking the "Plane" button.
 * Draw equivalent poles/directions or planes by entering the indices in the "Add a pole" field and by clicking the "Symmetry" or "Sym planes" buttons, respectively.
+![img2bis](/img2bis.png?raw=true)
 * The "minus" buttons allow you to erase planes/pole/directions entered in the "Add a pole" field.
 * Calculate interplanar spacing by entering the indices in the "Add a pole" field and by clicking the "dhkl" button.
 * Draw the iso-contours of Schmid factor for a given plane by entering the indices in the "Add a pole" field and by clicking the "iso-schmid" button (straining axis along the tilt axis).
-[img3](/img3.png)
+![img3](/img3.png?raw=true)
 * Right click on the projection to draw the closest pole/direction (maximum indice 8)
 * Change the number of pole/direction drawn by increasing or decreasing the value of "d" (choose an increment)
 * Draw the apparent width variation with the tilt angle for an given plane by filling the "width" field and by clicking on the "width" button.
-[img4](/img4.png)
+![img4](/img4.png?raw=true)
 * Compute the angle between two poles by filling the angle field and by clicking on the "angle" button
 * Calculate the Schmid factor by filling the "b" (Burgers vector) and "n" (slip plane) field and by clicking on the "schmid factor" button
 * Make rotation along x, y, z by entering a rotation increment ant by clicking on "+/-" buttons in the "x,y,z rotation field
