@@ -1490,7 +1490,7 @@ button_trace.configure(text='''PLOT''')
 
 color_button = Checkbutton (master=root)
 color_button.place(relx=0.66,rely=0.415,relheight=0.03,relwidth=0.08)
-color_button.configure(text='''carre/rond''')
+color_button.configure(text='''square/circle''')
 color_button.configure(variable=var_carre)
 
 diff1_entry = Entry (master=root)
