@@ -40,6 +40,7 @@ Stereo-proj is a python script software that plots the stereographic projection 
 * Add a pole/direction by entering the indices in the "Add a pole" field and by clicking the "Add" button.
 * Draw a plane by entering the indices in the "Add a pole" field and by clicking the "Plane" button.
 * Draw equivalent poles/directions or planes by entering the indices in the "Add a pole" field and by clicking the "Symmetry" or "Sym planes" buttons, respectively.
+![img2bis](/img2bis.png?raw=true)
 * The "minus" buttons allow you to erase planes/pole/directions entered in the "Add a pole" field.
 * Calculate interplanar spacing by entering the indices in the "Add a pole" field and by clicking the "dhkl" button.
 * Draw the iso-contours of Schmid factor for a given plane by entering the indices in the "Add a pole" field and by clicking the "iso-schmid" button (straining axis along the tilt axis).
