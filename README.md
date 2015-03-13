@@ -12,14 +12,15 @@ Stereo-proj is a python script software that plots the stereographic projection 
 * Draw the apparent variation of a plane width with tilt angle
 * Save plot and import structure menu
 
-## Requirements
+## Requirements (stereo-proj)
 ### Tk version
 * Python 2.7 with Matplotlib, Numpy, Tkinter, PIL (available through [Enthought Canopy](https://store.enthought.com/downloads/) or [Anaconda](http://continuum.io/downloads) distributions for instance).
 * Mac users need to install [Active Tcl](http://www.activestate.com/activetcl/downloads).
 * Run the script python /my-path-to-the-script/stereo-proj.py
 
-### PyQt version
-* Python 2.7 with Matplotlib, Numpy, PyQt, PIL (available through [Enthought Canopy](https://store.enthought.com/downloads/) or [Anaconda](http://continuum.io/downloads) distributions for instance).
+### PyQt version (stereo-proj-pyqt)
+* Python 2.7 with Matplotlib, Numpy, PyQt, PIL (available through Canopy and Anaconda).
+* Prefer this version if you are a Mac User (does not need Tcl).
 * Run the script python /my-path-to-the-script/stereo-proj-pyqt.py
 
 # User guide
