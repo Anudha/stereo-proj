@@ -91,7 +91,7 @@ def crist():
     alp=alp*pi/180;
     bet=bet*pi/180;
     gam=gam*pi/180;
-    V=a*b*c*np.sqrt(1-(np.cos(alp)**2)-(np.cos(bet))**2-(np.cos(gam))**2+2*b*c*np.cos(alp)*np.cos(bet)*np.cos(gam))
+    V=a*b*c*np.sqrt(1-(np.cos(alp)**2)-(np.cos(bet))**2-(np.cos(gam))**2+2*np.cos(alp)*np.cos(bet)*np.cos(gam))
     D=np.array([[a,b*np.cos(gam),c*np.cos(bet)],[0,b*np.sin(gam),  c*(np.cos(alp)-np.cos(bet)*np.cos(gam))/np.sin(gam)],[0,0,V/(a*b*np.sin(gam))]])
     Dstar=np.transpose(np.linalg.inv(D))
     G=np.array([[a**2,a*b*np.cos(gam),a*c*np.cos(bet)],[a*b*np.cos(gam),b**2,b*c*np.cos(alp)],[a*c*np.cos(bet),b*c*np.cos(alp),c**2]])    
@@ -1662,7 +1662,6 @@ label_euler1.configure(highlightcolor="black")
 label_euler1.configure(text='''x y and z rotations''')
 
 rx_label = Label (master=root)
-rx_label.place(relx=0.95,rely=0.08,height=19,width=34)
 rx_label.configure(activebackground="#f9f9f9")
 rx_label.configure(activeforeground="black")
 rx_label.configure(foreground="black")
