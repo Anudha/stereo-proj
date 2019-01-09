@@ -1,29 +1,45 @@
 #!/usr/bin/python
+
+######################################################################
+#
+#
+# Stereo-Proj is a python utility to plot stereographic projetion of a given crystal. It is designed
+# to be used in electron microscopy experiments.
+# Authors: F. Mompiou, CEMES-CNRS
+#
+#######################################################################
+
+
 from __future__ import division
 import numpy as np
 from PyQt4 import QtGui, QtCore
 import sys
 import random
-import sys
 import os
-import Image
+from PIL  import Image
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib import pyplot as plt
+import matplotlib as mpl
+import stereoprojUI
 
+                 
+#font size on plot 
+mpl.rcParams['font.size'] = 12
 
-pi=np.pi
+################
+#       Misc
+################
 
-################"
 def unique_rows(a):
     b = np.ascontiguousarray(a).view(np.dtype((np.void, a.dtype.itemsize * a.shape[1])))
     return np.unique(b).view(a.dtype).reshape(-1, a.shape[1])
-##################
 
-#Image._initialized=2
+
+
 ###################################################################"
-##### Fonction projection  sur l'abaque
+##### Projection
 ####################################################################
 
 def proj(x,y,z): 
@@ -42,13 +58,13 @@ def proj(x,y,z):
     return np.array([X,Y],float) 
     
 ###################################################################"
-##### Fonction rotation 
+##### Rotation Euler
 ####################################################################
 
 def rotation(phi1,phi,phi2):
-   phi1=phi1*pi/180;
-   phi=phi*pi/180;
-   phi2=phi2*pi/180;
+   phi1=phi1*np.pi/180;
+   phi=phi*np.pi/180;
+   phi2=phi2*np.pi/180;
    R=np.array([[np.cos(phi1)*np.cos(phi2)-np.cos(phi)*np.sin(phi1)*np.sin(phi2),
             -np.cos(phi)*np.cos(phi2)*np.sin(phi1)-np.cos(phi1)*
             np.sin(phi2),np.sin(phi)*np.sin(phi1)],[np.cos(phi2)*np.sin(phi1)
@@ -58,11 +74,11 @@ def rotation(phi1,phi,phi2):
    return R
 
 ####################################################################
-##### Fonction rotation autour d'un axe 
+##### Rotation around a given axis
 ####################################################################
 
 def Rot(th,a,b,c):
-   th=th*pi/180;
+   th=th*np.pi/180;
    aa=a/np.linalg.norm([a,b,c]);
    bb=b/np.linalg.norm([a,b,c]);
    cc=c/np.linalg.norm([a,b,c]);
@@ -74,55 +90,62 @@ def Rot(th,a,b,c):
 
    return R    
 
-
+#######################
+#
+# Layout functions
+#
+#######################
 
 def color_trace():
         color_trace=1
-        if color_trace_bleu.isChecked():
+        if ui.color_trace_bleu.isChecked():
                 color_trace=1
-        if color_trace_bleu.isChecked():
+        if ui.color_trace_bleu.isChecked():
                 color_trace=2
-        if color_trace_rouge.isChecked():
+        if ui.color_trace_rouge.isChecked():
                 color_trace=3
         return color_trace
 
 def var_uvw():
         var_uvw=0
-        if uvw_button.isChecked():
+        if ui.uvw_button.isChecked():
                 var_uvw=1
         
         return var_uvw
 
 def var_hexa():
         var_hexa=0
-        if hexa_button.isChecked():
+        if ui.hexa_button.isChecked():
                 var_hexa=1
         
         return var_hexa
 
 def var_carre():
         var_carre=0
-        if style_box.isChecked():
+        if ui.style_box.isChecked():
                 var_carre=1
         
         return var_carre
 
 ####################################################################
-##### Fonction cristal
+#
+#  Crystal definition
+#
 ####################################################################
+
 def crist():
     global axes,axesh,D,Dstar,V
-    a=np.float(a_entry.text())
-    b=np.float(b_entry.text())
-    c=np.float(c_entry.text())
-    alpha=np.float(alpha_entry.text())
-    beta=np.float(beta_entry.text())
-    gamma=np.float(gamma_entry.text())
-    e=np.int(e_entry.text())
-    d2=np.float(d_label_var.text())
-    alpha=alpha*pi/180;
-    beta=beta*pi/180;
-    gamma=gamma*pi/180;
+    a=np.float(ui.a_entry.text())
+    b=np.float(ui.b_entry.text())
+    c=np.float(ui.c_entry.text())
+    alpha=np.float(ui.alpha_entry.text())
+    beta=np.float(ui.beta_entry.text())
+    gamma=np.float(ui.gamma_entry.text())
+    e=np.int(ui.e_entry.text())
+    d2=np.float(ui.d_label_var.text())
+    alpha=alpha*np.pi/180;
+    beta=beta*np.pi/180;
+    gamma=gamma*np.pi/180;
     V=a*b*c*np.sqrt(1-(np.cos(alpha)**2)-(np.cos(beta))**2-(np.cos(gamma))**2+2*np.cos(alpha)*np.cos(beta)*np.cos(gamma))
     D=np.array([[a,b*np.cos(gamma),c*np.cos(beta)],[0,b*np.sin(gamma),  c*(np.cos(alpha)-np.cos(beta)*np.cos(gamma))/np.sin(gamma)],[0,0,V/(a*b*np.sin(gamma))]])
     Dstar=np.transpose(np.linalg.inv(D))
@@ -155,44 +178,47 @@ def crist():
                     
     return axes,axesh,D,Dstar,V
 
+######################################################
+#
+# Reduce number of poles/directions as a function of d-spacing (plus or minus)
+#
+#######################################################
+
 def dm():
-    global dmip
-    a=figure.add_subplot(111)    
-    a.figure.clear()
-    a=figure.add_subplot(111)
-    dmip=dmip-np.float(d_entry.text())
-    d_label_var.setText(str(dmip))
+    global dmip,a,minx,maxx,miny,maxy
+    
+    dmip=dmip-np.float(ui.d_entry.text())
+    ui.d_label_var.setText(str(dmip))
     crist()
     trace()
     
     return dmip
+    
 def dp():
-    global dmip
-    a=figure.add_subplot(111)    
-    a.figure.clear()
-    a=figure.add_subplot(111)
-    dmip=dmip+np.float(d_entry.text())
-    d_label_var.setText(str(dmip))
+    global dmip, a
+
+    dmip=dmip+np.float(ui.d_entry.text())
+    ui.d_label_var.setText(str(dmip))
     crist()    
     trace()
     
     return dmip 
     
 
-####################################################################
-##### Fonction largeur plan
-####################################################################
-class Window(QtGui.QDialog):
+#############################################################################
+#
+#  Apparent width class for dialog box: plot the width of a plane of given normal hkl with the tilt alpha angle
+#
+##############################################################################
+
+class LargeurPlanCalc(QtGui.QDialog):
     def __init__(self, parent=None):
-        super(Window, self).__init__(parent)
+        super(LargeurPlanCalc, self).__init__(parent)
  
         self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
- 
-         
-        self.toolbar = NavigationToolbar(self.canvas, self)
+ 	self.toolbar = NavigationToolbar(self.canvas, self)
         
-                
         gridLayout = QtGui.QGridLayout()
         self.lineEdit = QtGui.QLineEdit()
         self.lineEdit.setObjectName(_fromUtf8("lineEdit"))
@@ -208,30 +234,18 @@ class Window(QtGui.QDialog):
         gridLayout.addWidget(self.buttonBox, 2, 0, 1, 3)
         gridLayout.addWidget(self.canvas, 0, 0, 1, 3)
         gridLayout.addWidget(self.toolbar, 3, 0, 1, 3)
-        
         self.buttonBox.rejected.connect(self.close)
         self.buttonBox.accepted.connect(self.plot)
-              
-        
         self.setLayout(gridLayout)
  
-    def home(self):
-        self.toolbar.home()
-    def zoom(self):
-        self.toolbar.zoom()
-    def pan(self):
-        self.toolbar.pan()
-         
     def plot(self):
-        ''' plot some random stuff '''
         global D, Dstar, M 
-    
     
         plan1=np.float(self.lineEdit.text())   
         plan2=np.float(self.lineEdit_2.text())
         plan3=np.float(self.lineEdit_3.text())
-        
         n=np.array([plan1,plan2,plan3])
+
         if var_uvw()==0: 
            n2=np.dot(Dstar,n)
            
@@ -246,13 +260,7 @@ class Window(QtGui.QDialog):
             angle=np.arccos(np.dot(nri,N)/np.linalg.norm(nri))          
             la[0,k]=np.cos(angle)
             k=k+1
-        
-#        plt.plot(range(-40,41,2),la[0,:])
-#        plt.xlabel('Tilt angle')
-#        plt.ylabel('Apparent width')
-#        plt.grid(True)
-#        plt.show()
-        
+
         ax = self.figure.add_subplot(111)
         ax.hold(False)
         ax.plot(range(-40,41,2),la[0,:])
@@ -260,7 +268,9 @@ class Window(QtGui.QDialog):
 
     
 ####################################################################
-##### Fonction facteur de Schmid
+#
+# Schmid factor
+#
 ####################################################################
 def schmid():
     global D, Dstar,M
@@ -289,23 +299,27 @@ def schmid():
     schmid_var.set(s2)
 
 ####################################################################
-##### Fonction facteur de Schmid
+#
+#  Plot iso-schmid factor, ie for a given plan the locus of b with a given schmid factor (Oy direction
+# assumed to be the straining axis
+#
 ####################################################################
+
 def schmid_trace():
-    global M,axes,axesh,T,V,D,Dstar,trP,tr_schmid
+    global M,axes,axesh,T,V,D,Dstar,trP,tr_schmid,a,minx,maxx,miny,maxy
     
-    pole1=np.float(pole1_entry.text())
-    pole2=np.float(pole2_entry.text())
-    pole3=np.float(pole3_entry.text())
+    pole1=np.float(ui.pole1_entry.text())
+    pole2=np.float(ui.pole2_entry.text())
+    pole3=np.float(ui.pole3_entry.text())
         
     tr_schmid=np.vstack((tr_schmid,np.array([pole1,pole2,pole3])))
     trace()
     
 def undo_schmid_trace():
-    global M,axes,axesh,T,V,D,Dstar,trP,tr_schmid
-    pole1=np.float(pole1_entry.text())
-    pole2=np.float(pole2_entry.text())
-    pole3=np.float(pole3_entry.text())
+    global M,axes,axesh,T,V,D,Dstar,trP,tr_schmid,a,minx,maxx,miny,maxy
+    pole1=np.float(ui.pole1_entry.text())
+    pole2=np.float(ui.pole2_entry.text())
+    pole3=np.float(ui.pole3_entry.text())
     tr_s=tr_schmid
     for i in range(1,tr_schmid.shape[0]):
 		if tr_schmid[i,0]==pole1 and tr_schmid[i,1]==pole2 and tr_schmid[i,2]==pole3:
@@ -337,7 +351,7 @@ def schmid_trace2(C):
         angleb=np.arccos(np.dot(bpr2,T)/np.linalg.norm(bpr2))
         n=300
         r=np.linspace(0,n,100)
-        t=np.linspace(0,2*pi,100)
+        t=np.linspace(0,2*np.pi,100)
         r,t=np.meshgrid(r,t)
         F=fact(angleb,r,t,n)
         lev=[-0.5,-0.4,-0.3,-0.2,0.2,0.3,0.4,0.5]
@@ -349,129 +363,235 @@ def schmid_trace2(C):
 	a.clabel(CS,fmt=fmt,fontsize=10,inline=True)						
 
     
-####################################################################
-##### Fonction rotation projection
-####################################################################
-# on definit maintenant les rotations positives et negatives selon x, y et z
-def rxp():
-    global x,M,a,trP
-    a = figure.add_subplot(111)     
-    a.figure.clear()
-    thx=np.float(rx_entry.text())
-  
-    M=np.dot(Rot(thx,1,0,0),M)
-    trace()
-    phir=np.arccos(M[2,2])*180/pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    
-    angle_euler_label.setText(t)
-    x=x+np.float(rx_entry.text())
-    rx_label.setText(str(x))
-    return x,M
-    
-    
-def rxm():
-    global x,M,a
-    a = figure.add_subplot(111)     
-    a.figure.clear()            
-    thx=-np.float(rx_entry.text())
-    
-    M=np.dot(Rot(thx,1,0,0),M)
-    trace()
-    phir=np.arccos(M[2,2])*180/pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    
-    angle_euler_label.setText(t)
-    x=x-np.float(rx_entry.text())
-    rx_label.setText(str(x))
-    return x,M
+###########################################################################
+#
+# Rotation of the sample. If Lock Axes is off rotation are along y,x,z directions. If not, the y and z axes 
+# of the sample are locked to the crystal axes when the check box is ticked. It mimics double-tilt holder (rotation of alpha along fixed x and rotation of beta along the beta tilt moving axis) or  tilt-rotation holder  (rotation of alpha along fixed # x and rotation of z along the z-rotation moving axis).
+#
+###########################################################################"
 
-def ryp():
-    global y,M,a
-    a = figure.add_subplot(111)     
-    a.figure.clear()
-    thy=np.float(ry_entry.text())
-    
-    M=np.dot(Rot(thy,0,1,0),M)
-    trace()
-    phir=np.arccos(M[2,2])*180/pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    
-    angle_euler_label.setText(t)
-    y=y+np.float(ry_entry.text())
-    ry_label.setText(str(y))
-    return y,M
-    
-def rym():
-    global y,M,a
-    a = figure.add_subplot(111)     
-    a.figure.clear()
-    thy=-np.float(ry_entry.text())
-    
-    M=np.dot(Rot(thy,0,1,0),M)
-    trace()
-    phir=np.arccos(M[2,2])*180/pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    
-    angle_euler_label.setText(t)
-    y=y-np.float(ry_entry.text())
-    ry_label.setText(str(y))
-    return y,M
+def lock():
+	global M, var_lock,M_lock
+        
+        if ui.lock_checkButton.isChecked():
+                var_lock=1
+                M_lock=M
+        else:
+        	var_lock,M_lock=0,0
+
+        return var_lock,M_lock
 
 
-def rzp():
-    global z,M,a
-    a = figure.add_subplot(111)     
-    a.figure.clear()
-    thz=np.float(rz_entry.text())
-    
-    M=np.dot(Rot(thz,0,0,1),M)
+def rot_alpha_p():
+    global angle_alpha,M,a,trP
+
+    tha=np.float(ui.angle_alpha_entry.text())
+    M=np.dot(Rot(tha,0,1,0),M)
     trace()
-    phir=np.arccos(M[2,2])*180/pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/pi
+    phir=np.arccos(M[2,2])*180/np.pi
+    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
+    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
     t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
     
-    angle_euler_label.setText(t)
-    z=z+np.float(rz_entry.text())
-    rz_label.setText(str(z))
-    return z,M
+    ui.angle_euler_label.setText(t)
+    angle_alpha=angle_alpha+np.float(ui.angle_alpha_entry.text())
+    ui.angle_alpha_label_2.setText(str(angle_alpha))
+    return angle_alpha,M
     
-def rzm():
-    global z,M,a
-    a = figure.add_subplot(111)     
-    a.figure.clear()
-    thz=-np.float(rz_entry.text())
     
-    M=np.dot(Rot(thz,0,0,1),M)
+def rot_alpha_m():
+    global angle_alpha,M,a,trP
+
+    tha=-np.float(ui.angle_alpha_entry.text())
+    M=np.dot(Rot(tha,0,1,0),M)
     trace()
-    phir=np.arccos(M[2,2])*180/pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/pi
+    phir=np.arccos(M[2,2])*180/np.pi
+    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
+    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
     t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    angle_euler_label.setText(t)
-    z=z-np.float(rz_entry.text())
-    rz_label.setText(str(z))
-    return z,M
+    
+    ui.angle_euler_label.setText(t)
+    angle_alpha=angle_alpha-np.float(ui.angle_alpha_entry.text())
+    ui.angle_alpha_label_2.setText(str(angle_alpha))
+    return angle_alpha,M
+
+    
+def rot_beta_m():
+    global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock
+   
+    if var_lock==0:
+    	AxeY=np.array([1,0,0])
+    else:
+   	A=np.dot(np.linalg.inv(M_lock),np.array([1,0,0]))
+	C=np.dot(np.linalg.inv(Dstar),A)
+	AxeY=C/np.linalg.norm(C)
+    	AxeY=np.dot(M,AxeY)
+    
+    thb=-np.float(ui.angle_beta_entry.text())
+    M=np.dot(Rot(thb,AxeY[0],AxeY[1],AxeY[2]),M)
+    trace()
+    phir=np.arccos(M[2,2])*180/np.pi
+    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
+    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
+    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
+    ui.angle_euler_label.setText(t)
+    angle_beta=angle_beta-np.float(ui.angle_beta_entry.text())
+    ui.angle_beta_label_2.setText(str(angle_beta))
+    return angle_beta,M   
+   
+def rot_beta_p():
+    global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock
+   
+    if var_lock==0:
+    	AxeY=np.array([1,0,0])
+    else:
+   	A=np.dot(np.linalg.inv(M_lock),np.array([1,0,0]))
+	C=np.dot(np.linalg.inv(Dstar),A)
+	AxeY=C/np.linalg.norm(C)
+    	AxeY=np.dot(M,AxeY)
+    
+    thb=np.float(ui.angle_beta_entry.text())
+    M=np.dot(Rot(thb,AxeY[0],AxeY[1],AxeY[2]),M)
+    trace()
+    phir=np.arccos(M[2,2])*180/np.pi
+    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
+    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
+    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
+    ui.angle_euler_label.setText(t)
+    angle_beta=angle_beta+np.float(ui.angle_beta_entry.text())
+    ui.angle_beta_label_2.setText(str(angle_beta))
+    return angle_beta,M   
+
+def rot_z_m():
+    global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock
+   
+    if var_lock==0:
+    	AxeZ=np.array([0,0,1])
+    else:
+   	A=np.dot(np.linalg.inv(M_lock),np.array([0,0,1]))
+	C=np.dot(np.linalg.inv(Dstar),A)
+	AxeZ=C/np.linalg.norm(C)
+    	AxeZ=np.dot(M,AxeZ)
+    
+    thz=-np.float(ui.angle_z_entry.text())
+    M=np.dot(Rot(thz,AxeZ[0],AxeZ[1],AxeZ[2]),M)
+    trace()
+    phir=np.arccos(M[2,2])*180/np.pi
+    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
+    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
+    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
+    ui.angle_euler_label.setText(t)
+    angle_z=angle_z-np.float(ui.angle_z_entry.text())
+    ui.angle_z_label_2.setText(str(angle_z))
+    return angle_z,M      
+   
+def rot_z_p():
+    global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock
+   
+    if var_lock==0:
+    	AxeZ=np.array([0,0,1])
+    else:
+   	A=np.dot(np.linalg.inv(M_lock),np.array([0,0,1]))
+	C=np.dot(np.linalg.inv(Dstar),A)
+	AxeZ=C/np.linalg.norm(C)
+    	AxeZ=np.dot(M,AxeZ)
+    
+    thz=np.float(ui.angle_z_entry.text())
+    M=np.dot(Rot(thz,AxeZ[0],AxeZ[1],AxeZ[2]),M)
+    trace()
+    phir=np.arccos(M[2,2])*180/np.pi
+    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
+    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
+    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
+    ui.angle_euler_label.setText(t)
+    angle_z=angle_z+np.float(ui.angle_z_entry.text())
+    ui.angle_z_label_2.setText(str(angle_z))
+    return angle_z,M      
 
 ####################################################################
-##### Fonction ajouter un pole
+#
+# Rotate around a given pole
+#
 ####################################################################
+
+
+def rotgm():
+    global g,M,Dstar,a
+
+    thg=-np.float(ui.rot_g_entry.text())
+    diff1=np.float(ui.diff1_entry.text())
+    diff2=np.float(ui.diff2_entry.text())
+    diff3=np.float(ui.diff3_entry.text())
+    A=np.array([diff1,diff2,diff3])
+    Ad=np.dot(Dstar,A)    
+    Ap=np.dot(M,Ad)/np.linalg.norm(np.dot(M,Ad))
+    M=np.dot(Rot(thg,Ap[0],Ap[1],Ap[2]),M)
+    trace()    
+    phir=np.arccos(M[2,2])*180/np.pi
+    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
+    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
+    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
+    
+    ui.angle_euler_label.setText(t)
+    g=g-np.float(ui.rot_g_entry.text())
+    ui.rg_label.setText(str(g))
+    return g,M
+    
+def rotgp():
+    global g,M,D
+
+    thg=np.float(ui.rot_g_entry.text())
+    diff1=np.float(ui.diff1_entry.text())
+    diff2=np.float(ui.diff2_entry.text())
+    diff3=np.float(ui.diff3_entry.text())
+    A=np.array([diff1,diff2,diff3])
+    Ad=np.dot(Dstar,A)    
+    Ap=np.dot(M,Ad)/np.linalg.norm(np.dot(M,Ad))
+    M=np.dot(Rot(thg,Ap[0],Ap[1],Ap[2]),M)
+    trace()    
+    phir=np.arccos(M[2,2])*180/np.pi
+    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
+    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
+    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
+    
+    ui.angle_euler_label.setText(t)
+    g=g+np.float(ui.rot_g_entry.text())
+    ui.rg_label.setText(str(g))
+    return g,M
+
+###################################################
+#
+# Mirror the sample
+#
+#############################################
+
+#def mirror():
+#    global M,a,trP
+##    a = figure.add_subplot(111)     
+##    a.figure.clear()
+#    
+#    M_r=np.array([[1,0,0],[0,1,0],[0,0,-1]])
+#    M=np.dot(M_r,M)
+#    trace()
+#    phir=np.arccos(M[2,2])*180/np.pi
+#    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
+#    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
+#    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
+#    
+#    ui.angle_euler_label.setText(t)
+#    
+#    return M
+
+
+####################################################################
+#
+# Add a given pole and equivalent ones
+#
+####################################################################
+
 def pole(pole1,pole2,pole3):
     global M,axes,axesh,T,V,D,Dstar
     
-#    fp=figure.add_subplot(111)
-#    
-#       
-#    Pp=np.zeros((1,2),float)
     if var_hexa()==1:
         if var_uvw()==1:
             pole1a=2*pole1+pole2
@@ -493,13 +613,7 @@ def pole(pole1,pole2,pole3):
         pole1=-pole1
         pole2=-pole2
         pole3=-pole3
-#    Pp=proj(S[0],S[1],S[2])*600/2
-#    l=str(int(pole1))+str(int(pole2))+str(int(pole3))
-#    fp.plot(Pp[0]+600/2,Pp[1]+600/2,'go')    
-#    fp.annotate(l,(Pp[0]+600/2,Pp[1]+600/2))
-#    fp.axis([0,600,0,600])
-#    fp.axis('off')   
-#    fp.figure.canvas.draw() 
+
     
     axes=np.vstack((axes,np.array([pole1,pole2,pole3])))
     axes=np.vstack((axes,np.array([-pole1,-pole2,-pole3])))
@@ -516,10 +630,6 @@ def pole(pole1,pole2,pole3):
 def undo_pole(pole1,pole2,pole3):
     global M,axes,axesh,T,V,D,Dstar
     
-#    fp=figure.add_subplot(111)
-#    
-#       
-#    Pp=np.zeros((1,2),float)
     if var_hexa()==1:
         if var_uvw()==1:
             pole1a=2*pole1+pole2
@@ -541,13 +651,7 @@ def undo_pole(pole1,pole2,pole3):
         pole1=-pole1
         pole2=-pole2
         pole3=-pole3
-#    Pp=proj(S[0],S[1],S[2])*600/2
-#    l=str(int(pole1))+str(int(pole2))+str(int(pole3))
-#    fp.plot(Pp[0]+600/2,Pp[1]+600/2,'go')    
-#    fp.annotate(l,(Pp[0]+600/2,Pp[1]+600/2))
-#    fp.axis([0,600,0,600])
-#    fp.axis('off')   
-#    fp.figure.canvas.draw() 
+
     
     ind=np.where((axes[:,0]==pole1) & (axes[:,1]==pole2)& (axes[:,2]==pole3))
     indm=np.where((axes[:,0]==-pole1) & (axes[:,1]==-pole2)& (axes[:,2]==-pole3))
@@ -566,37 +670,38 @@ def undo_pole(pole1,pole2,pole3):
     
 def d(pole1,pole2,pole3):
     global M,axes,axesh,T,V,D,Dstar
-    a=np.float(a_entry.text())
-    b=np.float(b_entry.text())
-    c=np.float(c_entry.text())
-    alpha=np.float(alpha_entry.text())
-    beta=np.float(beta_entry.text())
-    gamma=np.float(gamma_entry.text())
-    alpha=alpha*pi/180;
-    beta=beta*pi/180;
-    gamma=gamma*pi/180;
+    a=np.float(ui.a_entry.text())
+    b=np.float(ui.b_entry.text())
+    c=np.float(ui.c_entry.text())
+    alpha=np.float(ui.alpha_entry.text())
+    beta=np.float(ui.beta_entry.text())
+    gamma=np.float(ui.gamma_entry.text())
+    alpha=alpha*np.pi/180;
+    beta=beta*np.pi/180;
+    gamma=gamma*np.pi/180;
     G=np.array([[a**2,a*b*np.cos(gamma),a*c*np.cos(beta)],[a*b*np.cos(gamma),b**2,b*c*np.cos(alpha)],[a*c*np.cos(beta),b*c*np.cos(alpha),c**2]])    
     ds=(np.sqrt(np.dot(np.array([pole1,pole2,pole3]),np.dot(np.linalg.inv(G),np.array([pole1,pole2,pole3])))))
     return ds
+    
 def addpole_sym():
     global M,axes,axesh,T,V,D,Dstar,G    
-    pole1=np.float(pole1_entry.text())
-    pole2=np.float(pole2_entry.text())
-    pole3=np.float(pole3_entry.text())
-    a=np.float(a_entry.text())
-    b=np.float(b_entry.text())
-    c=np.float(c_entry.text())
-    alpha=np.float(alpha_entry.text())
-    beta=np.float(beta_entry.text())
-    gamma=np.float(gamma_entry.text())
-    alpha=alpha*pi/180;
-    beta=beta*pi/180;
-    gamma=gamma*pi/180;
+    pole1=np.float(ui.pole1_entry.text())
+    pole2=np.float(ui.pole2_entry.text())
+    pole3=np.float(ui.pole3_entry.text())
+    a=np.float(ui.a_entry.text())
+    b=np.float(ui.b_entry.text())
+    c=np.float(ui.c_entry.text())
+    alpha=np.float(ui.alpha_entry.text())
+    beta=np.float(ui.beta_entry.text())
+    gamma=np.float(ui.gamma_entry.text())
+    alpha=alpha*np.pi/180;
+    beta=beta*np.pi/180;
+    gamma=gamma*np.pi/180;
     G=np.array([[a**2,a*b*np.cos(gamma),a*c*np.cos(beta)],[a*b*np.cos(gamma),b**2,b*c*np.cos(alpha)],[a*c*np.cos(beta),b*c*np.cos(alpha),c**2]])     
     v=d(pole1,pole2,pole3)
     
     pole(pole1,pole2,pole3)
-    if np.abs(alpha-pi/2)<0.001 and np.abs(beta-pi/2)<0.001 and np.abs(gamma-2*pi/3)<0.001:
+    if np.abs(alpha-np.pi/2)<0.001 and np.abs(beta-np.pi/2)<0.001 and np.abs(gamma-2*np.pi/3)<0.001:
         pole(pole1,pole2,pole3)
         pole(pole1,pole2,-pole3)
         pole(pole2,pole1,pole3)
@@ -661,23 +766,23 @@ def addpole_sym():
 
 def undo_sym():
     global M,axes,axesh,T,V,D,Dstar,G    
-    pole1=np.float(pole1_entry.text())
-    pole2=np.float(pole2_entry.text())
-    pole3=np.float(pole3_entry.text())
-    a=np.float(a_entry.text())
-    b=np.float(b_entry.text())
-    c=np.float(c_entry.text())
-    alpha=np.float(alpha_entry.text())
-    beta=np.float(beta_entry.text())
-    gamma=np.float(gamma_entry.text())
-    alpha=alpha*pi/180;
-    beta=beta*pi/180;
-    gamma=gamma*pi/180;
+    pole1=np.float(ui.pole1_entry.text())
+    pole2=np.float(ui.pole2_entry.text())
+    pole3=np.float(ui.pole3_entry.text())
+    a=np.float(ui.a_entry.text())
+    b=np.float(ui.b_entry.text())
+    c=np.float(ui.c_entry.text())
+    alpha=np.float(ui.alpha_entry.text())
+    beta=np.float(ui.beta_entry.text())
+    gamma=np.float(ui.gamma_entry.text())
+    alpha=alpha*np.pi/180;
+    beta=beta*np.pi/180;
+    gamma=gamma*np.pi/180;
     G=np.array([[a**2,a*b*np.cos(gamma),a*c*np.cos(beta)],[a*b*np.cos(gamma),b**2,b*c*np.cos(alpha)],[a*c*np.cos(beta),b*c*np.cos(alpha),c**2]])     
     v=d(pole1,pole2,pole3)
     
     undo_pole(pole1,pole2,pole3)
-    if np.abs(alpha-pi/2)<0.001 and np.abs(beta-pi/2)<0.001 and np.abs(gamma-2*pi/3)<0.001:
+    if np.abs(alpha-np.pi/2)<0.001 and np.abs(beta-np.pi/2)<0.001 and np.abs(gamma-2*np.pi/3)<0.001:
         undo_pole(pole1,pole2,pole3)
         undo_pole(pole1,pole2,-pole3)
         undo_pole(pole2,pole1,pole3)
@@ -743,35 +848,38 @@ def undo_sym():
     
 def addpole():
     
-    pole1=np.float(pole1_entry.text())
-    pole2=np.float(pole2_entry.text())
-    pole3=np.float(pole3_entry.text())
+    pole1=np.float(ui.pole1_entry.text())
+    pole2=np.float(ui.pole2_entry.text())
+    pole3=np.float(ui.pole3_entry.text())
     pole(pole1,pole2,pole3)
     trace()
     
 def undo_addpole():
     global M,axes,axesh,T,V,D,Dstar,trP,tr_schmid,nn
-    pole1=np.float(pole1_entry.text())
-    pole2=np.float(pole2_entry.text())
-    pole3=np.float(pole3_entry.text())
+    pole1=np.float(ui.pole1_entry.text())
+    pole2=np.float(ui.pole2_entry.text())
+    pole3=np.float(ui.pole3_entry.text())
     undo_pole(pole1,pole2,pole3)
     
     trace()
+    
 ####################################################################
-##### Fonction tracer plan
+#
+# Plot a given plane and equivalent ones
+#
 ####################################################################
+
 def trace_plan(pole1,pole2,pole3):
     global M,axes,axesh,T,V,D,Dstar,trP
-    
     
     pole_i=0
     pole_c=color_trace()
     
     if var_hexa()==1:
         if var_uvw()==1:
-            pole1=2*np.float(pole1_entry.text())+np.float(pole2_entry.text())
-            pole2=2*np.float(pole2_entry.text())+np.float(pole1_entry.text())
-            pole3=np.float(pole3_entry.text())
+            pole1=2*np.float(ui.pole1_entry.text())+np.float(ui.pole2_entry.text())
+            pole2=2*np.float(ui.pole2_entry.text())+np.float(ui.pole1_entry.text())
+            pole3=np.float(ui.pole3_entry.text())
             pole_i=1
     
         
@@ -785,9 +893,9 @@ def trace_plan(pole1,pole2,pole3):
 def trace_addplan():
     global M,axes,axesh,T,V,D,Dstar,trP
     
-    pole1=np.float(pole1_entry.text())
-    pole2=np.float(pole2_entry.text())
-    pole3=np.float(pole3_entry.text())
+    pole1=np.float(ui.pole1_entry.text())
+    pole2=np.float(ui.pole2_entry.text())
+    pole3=np.float(ui.pole3_entry.text())
     
     trace_plan(pole1,pole2,pole3)
     trace()
@@ -795,9 +903,9 @@ def trace_addplan():
 def undo_trace_addplan():
     global M,axes,axesh,T,V,D,Dstar,trP
     
-    pole1=np.float(pole1_entry.text())
-    pole2=np.float(pole2_entry.text())
-    pole3=np.float(pole3_entry.text())
+    pole1=np.float(ui.pole1_entry.text())
+    pole2=np.float(ui.pole2_entry.text())
+    pole3=np.float(ui.pole3_entry.text())
     
     undo_trace_plan(pole1,pole2,pole3)
     trace()
@@ -817,23 +925,23 @@ def undo_trace_plan(pole1,pole2,pole3):
 
 def trace_plan_sym():
     global M,axes,axesh,T,V,D,Dstar,G    
-    pole1=np.float(pole1_entry.text())
-    pole2=np.float(pole2_entry.text())
-    pole3=np.float(pole3_entry.text())
-    a=np.float(a_entry.text())
-    b=np.float(b_entry.text())
-    c=np.float(c_entry.text())
-    alpha=np.float(alpha_entry.text())
-    beta=np.float(beta_entry.text())
-    gamma=np.float(gamma_entry.text())
-    alpha=alpha*pi/180;
-    beta=beta*pi/180;
-    gamma=gamma*pi/180;
+    pole1=np.float(ui.pole1_entry.text())
+    pole2=np.float(ui.pole2_entry.text())
+    pole3=np.float(ui.pole3_entry.text())
+    a=np.float(ui.a_entry.text())
+    b=np.float(ui.b_entry.text())
+    c=np.float(ui.c_entry.text())
+    alpha=np.float(ui.alpha_entry.text())
+    beta=np.float(ui.beta_entry.text())
+    gamma=np.float(ui.gamma_entry.text())
+    alpha=alpha*np.pi/180;
+    beta=beta*np.pi/180;
+    gamma=gamma*np.pi/180;
     G=np.array([[a**2,a*b*np.cos(gamma),a*c*np.cos(beta)],[a*b*np.cos(gamma),b**2,b*c*np.cos(alpha)],[a*c*np.cos(beta),b*c*np.cos(alpha),c**2]])     
     v=d(pole1,pole2,pole3)
     
     trace_plan(pole1,pole2,pole3)
-    if np.abs(alpha-pi/2)<0.001 and np.abs(beta-pi/2)<0.001 and np.abs(gamma-2*pi/3)<0.001:
+    if np.abs(alpha-np.pi/2)<0.001 and np.abs(beta-np.pi/2)<0.001 and np.abs(gamma-2*np.pi/3)<0.001:
         trace_plan(pole1,pole2,pole3)
         trace_plan(pole1,pole2,-pole3)
         trace_plan(pole2,pole1,pole3)
@@ -895,25 +1003,26 @@ def trace_plan_sym():
         if np.abs(d(pole3,pole2,pole1)-v)<0.001:
             trace_plan(pole3,pole2,pole1)
     trace()
+    
 def undo_trace_plan_sym():
     global M,axes,axesh,T,V,D,Dstar,G    
-    pole1=np.float(pole1_entry.text())
-    pole2=np.float(pole2_entry.text())
-    pole3=np.float(pole3_entry.text())
-    a=np.float(a_entry.text())
-    b=np.float(b_entry.text())
-    c=np.float(c_entry.text())
-    alpha=np.float(alpha_entry.text())
-    beta=np.float(beta_entry.text())
-    gamma=np.float(gamma_entry.text())
-    alpha=alpha*pi/180;
-    beta=beta*pi/180;
-    gamma=gamma*pi/180;
+    pole1=np.float(ui.pole1_entry.text())
+    pole2=np.float(ui.pole2_entry.text())
+    pole3=np.float(ui.pole3_entry.text())
+    a=np.float(ui.a_entry.text())
+    b=np.float(ui.b_entry.text())
+    c=np.float(ui.c_entry.text())
+    alpha=np.float(ui.alpha_entry.text())
+    beta=np.float(ui.beta_entry.text())
+    gamma=np.float(ui.gamma_entry.text())
+    alpha=alpha*np.pi/180;
+    beta=beta*np.pi/180;
+    gamma=gamma*np.pi/180;
     G=np.array([[a**2,a*b*np.cos(gamma),a*c*np.cos(beta)],[a*b*np.cos(gamma),b**2,b*c*np.cos(alpha)],[a*c*np.cos(beta),b*c*np.cos(alpha),c**2]])     
     v=d(pole1,pole2,pole3)
     
     undo_trace_plan(pole1,pole2,pole3)
-    if np.abs(alpha-pi/2)<0.001 and np.abs(beta-pi/2)<0.001 and np.abs(gamma-2*pi/3)<0.001:
+    if np.abs(alpha-np.pi/2)<0.001 and np.abs(beta-np.pi/2)<0.001 and np.abs(gamma-2*np.pi/3)<0.001:
         undo_trace_plan(pole1,pole2,pole3)
         undo_trace_plan(pole1,pole2,-pole3)
         undo_trace_plan(pole2,pole1,pole3)
@@ -975,11 +1084,11 @@ def undo_trace_plan_sym():
         if np.abs(d(pole3,pole2,pole1)-v)<0.001:
             undo_trace_plan(pole3,pole2,pole1)
     trace()    
+
 def trace_plan2(B):
     global M,axes,axesh,T,V,D,Dstar,a
     
    
-    
     for h in range(0,B.shape[0]):
         pole1=B[h,0]
         pole2=B[h,1]
@@ -1004,10 +1113,10 @@ def trace_plan2(B):
              t=90
              
         else:
-             t=np.arctan2(S[1],S[0])*180/pi
+             t=np.arctan2(S[1],S[0])*180/np.pi
         w=0
-        ph=np.arccos(S[2]/r)*180/pi
-        for g in np.linspace(-pi,pi-0.00001,100):
+        ph=np.arccos(S[2]/r)*180/np.pi
+        for g in np.linspace(-np.pi,np.pi-0.00001,100):
             Aa=np.dot(Rot(t,0,0,1),np.dot(Rot(ph,0,1,0),np.array([np.sin(g),np.cos(g),0])))
             A[:,w]=proj(Aa[0],Aa[1],Aa[2])*600/2
             if A[0,w]<>75000:
@@ -1021,20 +1130,26 @@ def trace_plan2(B):
             a.plot(Q[:,0]+600/2,Q[:,1]+600/2,'b')
         if B[h,4]==3:
             a.plot(Q[:,0]+600/2,Q[:,1]+600/2,'r')
+       
             
             
         
 ####################################################################
-##### Click a pole
+#
+# Click a pole 
+#
 ####################################################################    
+
 def click_a_pole(event):
         
-    global M,Dstar,D
+    global M,Dstar,D,minx,maxx,miny,maxy,a
+      
     if event.button==3:
-            x=event.x
-            y=event.y
-            x=(x-411)*2/620
-            y=(y-400)*2/620
+            x=event.xdata
+            y=event.ydata
+             
+            x=(x-300)/300
+            y=(y-300)/300
             X=2*x/(1+x**2+y**2)
             Y=2*y/(1+x**2+y**2)
             Z=(-1+x**2+y**2)/(1+x**2+y**2)
@@ -1044,8 +1159,7 @@ def click_a_pole(event):
             A=np.dot(np.linalg.inv(M),np.array([X,Y,Z]))
             n=0
             L=np.zeros((3,16**3))                      
-                                   
-                                
+                                 
             for i in range(-8,9,1):
                 for j in range(-8,9,1):
                     for k in range(-8,9,1):
@@ -1073,81 +1187,126 @@ def click_a_pole(event):
                         L[1,0]=Lb
                 #print(L[0,0],L[1,0],L[2,0])
                 pole(L[0,0],L[1,0],L[2,0])
+             
                 trace()
-        
 
 ####################################################################
-##### Fonction rotation autour g
+#
+# Inclinaison-beta indicator when the mouse is on the stereo
+#
+#################################################################### 
+  
+def coordinates(event):
+
+    if event.xdata and event.ydata:
+	    x=event.xdata
+	    y=event.ydata    
+	    x=(x-300)/300
+	    y=(y-300)/300
+	    long0=90*np.pi/180
+	    lat0=0
+	    r=np.sqrt(x**2+y**2)
+	    c=2*np.arctan(r)
+	    longi=(long0+np.arctan2(x*np.sin(c),r*np.cos(lat0)*np.cos(c)-y*np.sin(lat0)*np.sin(c)))*180/np.pi 
+	    lat=np.arcsin(np.cos(c)*np.sin(lat0)+y*np.sin(c)*np.cos(lat0)/r)*180/np.pi
+	    lat=90+lat
+	    longi=-longi+180
+	    if longi>90:
+	     longi=longi-180
+	    c=str(np.around(longi,decimals=1))+str(',')+str(np.around(lat,decimals=1))
+	    ui.coord_label.setText(str(c))
+
+########################################################
+#
+# Calculate interplanar distance 
+#
+#######################################################
+
+def dhkl():
+    i=np.float(ui.pole1_entry.text())
+    j=np.float(ui.pole2_entry.text())
+    k=np.float(ui.pole3_entry.text())
+    a=np.float(ui.a_entry.text())
+    b=np.float(ui.b_entry.text())
+    c=np.float(ui.c_entry.text())
+    alp=np.float(ui.alpha_entry.text())
+    bet=np.float(ui.beta_entry.text())
+    gam=np.float(ui.gamma_entry.text())
+    alp=alp*np.pi/180;
+    bet=bet*np.pi/180;
+    gam=gam*np.pi/180;
+    G=np.array([[a**2,a*b*np.cos(gam),a*c*np.cos(bet)],[a*b*np.cos(gam),b**2,b*c*np.cos(alp)],[a*c*np.cos(bet),b*c*np.cos(alp),c**2]])    
+    d=np.around(1/(np.sqrt(np.dot(np.array([i,j,k]),np.dot(np.linalg.inv(G),np.array([i,j,k]))))), decimals=3)
+    ui.dhkl_label.setText(str(d))
+    return        
+
 ####################################################################
+#
+# Reset view after zoom
+#
+#################################################################### 
+
+def reset_view():
+	global a
+	
+	a.axis([minx,maxx,miny,maxy])
+	trace()
+	
+####################################################################
+#
+# Enable or disable Wulff net
+#
+#################################################################### 
+
+def wulff():
+	global a
+	if ui.wulff_button.isChecked():
+		fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
+		img=Image.open(fn)
+		img= np.array(img)
+	else:
+		img = 255*np.ones([600,600,3],dtype=np.uint8)
+		circle = plt.Circle((300, 300), 300, color='black',fill=False)
+		a.add_artist(circle)
+		a.plot(300,300,'+',markersize=10,mew=3,color='black')
+	
+	a.imshow(img,interpolation="bicubic")
+	a.axis('off')
+    	a.figure.canvas.draw()  
+	
 
 
-def rotgm():
-    global g,M,Dstar
-    a = figure.add_subplot(111)     
-    a.figure.clear()
-    thg=-np.float(rot_g_entry.text())
-    diff1=np.float(diff1_entry.text())
-    diff2=np.float(diff2_entry.text())
-    diff3=np.float(diff3_entry.text())
-    A=np.array([diff1,diff2,diff3])
-    Ad=np.dot(Dstar,A)    
-    Ap=np.dot(M,Ad)/np.linalg.norm(np.dot(M,Ad))
-    #rotproj(thg,Ap[0],Ap[1],Ap[2])
-    M=np.dot(Rot(thg,Ap[0],Ap[1],Ap[2]),M)
-    trace()    
-    phir=np.arccos(M[2,2])*180/pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    
-    angle_euler_label.setText(t)
-    g=g-np.float(rot_g_entry.text())
-    rg_label.setText(str(g))
-    return g,M
-    
-def rotgp():
-    global g,M,D
-    a = figure.add_subplot(111)     
-    a.figure.clear()
-    thg=np.float(rot_g_entry.text())
-    diff1=np.float(diff1_entry.text())
-    diff2=np.float(diff2_entry.text())
-    diff3=np.float(diff3_entry.text())
-    A=np.array([diff1,diff2,diff3])
-    Ad=np.dot(Dstar,A)    
-    Ap=np.dot(M,Ad)/np.linalg.norm(np.dot(M,Ad))
-    #rotproj(thg,Ap[0],Ap[1],Ap[2])
-    M=np.dot(Rot(thg,Ap[0],Ap[1],Ap[2]),M)
-    trace()    
-    phir=np.arccos(M[2,2])*180/pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    
-    angle_euler_label.setText(t)
-    g=g+np.float(rot_g_entry.text())
-    rg_label.setText(str(g))
-    return g,M
+ #######################################################################               
+#######################################################################
+#
+# Main
+#
+#####################################################################    
+
+
 ####################################################################
-##### Fonction principale
+#
+# Refresh action on stereo
+#
 ####################################################################
+
 def trace():
     global T,x,y,z,axes,axesh,M,trP,a
+    minx,maxx=a.get_xlim()
+    miny,maxy=a.get_ylim()
     a = figure.add_subplot(111) 
     a.figure.clear()
     a = figure.add_subplot(111)
-    fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
-    img=Image.open(fn)
-#    print(axesh)
     P=np.zeros((axes.shape[0],2))
     T=np.zeros((axes.shape))
     C=[]
-
-    trace_plan2(trP)
+    
+    trace_plan2(trP)			
     schmid_trace2(tr_schmid)
+    
     for i in range(0,axes.shape[0]):
         axeshr=np.array([axesh[i,0],axesh[i,1],axesh[i,2]])
-#        print(axeshr)
+
         axeshr=axeshr/np.linalg.norm(axeshr)
         if axesh[i,4]==1:
             C.append('g')
@@ -1182,31 +1341,33 @@ def trace():
         a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
        
     if var_carre()==0:           
-        a.scatter(P[:,0]+600/2,P[:,1]+600/2,c=C,s=np.float(size_var.text()))
+        a.scatter(P[:,0]+600/2,P[:,1]+600/2,c=C,s=np.float(ui.size_var.text()))
     else:
-        a.scatter(P[:,0]+600/2,P[:,1]+600/2,edgecolor=C, s=np.float(size_var.text()), facecolors='none', linewidths=1.5)       
-    a.axis([0,600,0,600])
-    a.imshow(img)
-    a.axis('off')   
-    a.figure.canvas.draw()
-    #a.figure.clear()
-
+        a.scatter(P[:,0]+600/2,P[:,1]+600/2,edgecolor=C, s=np.float(ui.size_var.text()), facecolors='none', linewidths=1.5)       
     
+    a.axis([minx,maxx,miny,maxy])
+    wulff()
+    
+ ####################################
+ #
+ # Initial plot from a given diffraction
+ #
+ ####################################
+ 
 def princ():
-    global T,x,y,z,M,Dstar,D,g,M0,trP,axeshr,nn
+    global T,angle_alpha, angle_beta, angle_z,M,Dstar,D,g,M0,trP,axeshr,nn,a,minx,maxx,miny,maxy
     trP=np.zeros((1,5))
     crist() 
     a = figure.add_subplot(111)
     a.figure.clear()
     a = figure.add_subplot(111)
-    fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
-    img=Image.open(fn)
     
-    diff1=np.float(diff1_entry.text())
-    diff2=np.float(diff2_entry.text())
-    diff3=np.float(diff3_entry.text())
-    tilt=np.float(tilt_entry.text())
-    inclinaison=np.float(inclinaison_entry.text())    
+    
+    diff1=np.float(ui.diff1_entry.text())
+    diff2=np.float(ui.diff2_entry.text())
+    diff3=np.float(ui.diff3_entry.text())
+    tilt=np.float(ui.tilt_entry.text())
+    inclinaison=np.float(ui.inclinaison_entry.text())    
      
     d0=np.array([diff1,diff2,diff3])
     if var_uvw()==0: 
@@ -1216,14 +1377,12 @@ def princ():
        d=np.dot(Dstar,d0)
     if diff2==0 and diff1==0:
         normal=np.array([1,0,0])
-        ang=pi/2
+        ang=np.pi/2
     else:
         normal=np.array([-d[2],0,d[0]])
         ang=np.arccos(np.dot(d,np.array([0,1,0]))/np.linalg.norm(d))
     
-     
-    R=np.dot(Rot(-tilt,0,1,0),np.dot(Rot(-inclinaison,0,0,1),Rot(ang*180/pi, normal[0],normal[1],normal[2])))    
-    
+    R=np.dot(Rot(-tilt,0,1,0),np.dot(Rot(-inclinaison,0,0,1),Rot(ang*180/np.pi, normal[0],normal[1],normal[2])))    
        
     P=np.zeros((axes.shape[0],2))
     T=np.zeros((axes.shape))
@@ -1267,49 +1426,53 @@ def princ():
         a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
         
     if var_carre()==0:           
-        a.scatter(P[:,0]+600/2,P[:,1]+600/2,c=C,s=np.float(size_var.text()))
+        a.scatter(P[:,0]+600/2,P[:,1]+600/2,c=C,s=np.float(ui.size_var.text()))
     else:
-        a.scatter(P[:,0]+600/2,P[:,1]+600/2,edgecolor=C, s=np.float(size_var.text()), facecolors='none', linewidths=1.5)            
+        a.scatter(P[:,0]+600/2,P[:,1]+600/2,edgecolor=C, s=np.float(ui.size_var.text()), facecolors='none', linewidths=1.5)            
     
-    a.axis([0,600,0,600])
-    a.imshow(img)
-    a.axis('off')   
-    a.figure.canvas.draw() 
+    minx,maxx=-2,602
+    miny,maxy=-2,602
+    a.axis([minx,maxx,miny,maxy])
+    wulff()
     
-    
-    
-    x=0             #reinitialise les valeurs de rotations autour de x, y et z quand on clique sur trace
-    y=0
-    z=0
+    angle_alpha=0             
+    angle_beta=0
+    angle_z=0
     g=0
-    rx_label.setText(str(x))
-    ry_label.setText(str(y))
-    rz_label.setText(str(z))
-    rg_label.setText(str(g))
+    ui.angle_alpha_label_2.setText('0.0')
+    ui.angle_beta_label_2.setText('0.0')
+    ui.angle_z_label_2.setText('0.0')
+    ui.angle_beta_label_2.setText('0.0')
+    ui.angle_z_label_2.setText('0.0')    
+    ui.rg_label.setText('0.0')
     M=R
     M0=R
-    phir=np.arccos(M[2,2])*180/pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/pi
+    phir=np.arccos(M[2,2])*180/np.pi
+    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
+    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
     t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
     
-    angle_euler_label.setText(t)
-   
-    return T,x,y,z,g,M,M0 
+    ui.angle_euler_label.setText(t)
+    return T,angle_alpha,angle_beta,angle_z,g,M,M0
     
+##############################################"
+#
+# Plot from Euler angle
+#
+##################################################"
 
 def princ2():
-    global T,x,y,z,M,Dstar,D,g,M0,trP,axeshr,nn
+    global T,angle_alpha,angle_beta,angle_z,M,Dstar,D,g,M0,trP,a,axeshr,nn,minx,maxx,miny,maxy
     
     trP=np.zeros((1,5))
     a = figure.add_subplot(111)
     a.figure.clear()
     a = figure.add_subplot(111)
-    phi1=np.float(phi1_entry.text())
-    phi=np.float(phi_entry.text())
-    phi2=np.float(phi2_entry.text())
+    phi1=np.float(ui.phi1_entry.text())
+    phi=np.float(ui.phi_entry.text())
+    phi2=np.float(ui.phi2_entry.text())
     fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
-    img=Image.open(fn)
+    img=np.array(Image.open(fn))
     crist()    
     P=np.zeros((axes.shape[0],2))
     T=np.zeros((axes.shape))
@@ -1350,558 +1513,81 @@ def princ2():
                     s='('+str(int(axes[i,0]))+str(int(axes[i,1]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(axes[i,2]))+')'
                 if axesh[i,3]==1:
                     s='['+str(int(2*(axes[i,0])-axes[i,1]))+str(int(2*(axes[i,1])-axes[i,0]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(3*axes[i,2]))+']'
-                
-             
+              
         a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
         
-               
     if var_carre()==0:           
-        a.scatter(P[:,0]+600/2,P[:,1]+600/2,c=C,s=np.float(size_var.text()))
+        a.scatter(P[:,0]+600/2,P[:,1]+600/2,c=C,s=np.float(ui.size_var.text()))
     else:
-        a.scatter(P[:,0]+600/2,P[:,1]+600/2,edgecolor=C, s=np.float(size_var.text()), facecolors='none', linewidths=1.5)       
-    a.axis([0,600,0,600])
-    a.imshow(img)
-    a.axis('off')   
-    a.figure.canvas.draw()  
+        a.scatter(P[:,0]+600/2,P[:,1]+600/2,edgecolor=C, s=np.float(ui.size_var.text()), facecolors='none', linewidths=1.5)       
+    minx,maxx=-2,602
+    miny,maxy=-2,602
+    a.axis([minx,maxx,miny,maxy])
+    wulff()
     
-    
-    
-    x=0             #reinitialise les valeurs de rotations autour de x, y et z quand on clique sur trace
-    y=0
-    z=0
-    rx_label.setText(str(x))
-    ry_label.setText(str(y))
-    rz_label.setText(str(z))
+    angle_alpha=0             
+    angle_beta=0
+    angle_z=0
+    g=0
+    ui.angle_alpha_label_2.setText('0.0')
+    ui.angle_beta_label_2.setText('0.0')
+    ui.angle_z_label_2.setText('0.0')
+    ui.angle_beta_label_2.setText('0.0')
+    ui.angle_z_label_2.setText('0.0')    
+    ui.rg_label.setText('0.0')
     M=rotation(phi1,phi,phi2)
     t=str(np.around(phi1,decimals=1))+str(',')+str(np.around(phi,decimals=1))+str(',')+str(np.around(phi2,decimals=1))
-    angle_euler_label.setText(t)
-   
-    return T,x,y,z,M 
+    ui.angle_euler_label.setText(t)
+    
+    return T,angle_alpha,angle_beta,angle_z,g,M
 
-def dhkl():
-    i=np.float(pole1_entry.text())
-    j=np.float(pole2_entry.text())
-    k=np.float(pole3_entry.text())
-    a=np.float(a_entry.text())
-    b=np.float(b_entry.text())
-    c=np.float(c_entry.text())
-    alp=np.float(alpha_entry.text())
-    bet=np.float(beta_entry.text())
-    gam=np.float(gamma_entry.text())
-    alp=alp*pi/180;
-    bet=bet*pi/180;
-    gam=gam*pi/180;
-    G=np.array([[a**2,a*b*np.cos(gam),a*c*np.cos(bet)],[a*b*np.cos(gam),b**2,b*c*np.cos(alp)],[a*c*np.cos(bet),b*c*np.cos(alp),c**2]])    
-    d=np.around(1/(np.sqrt(np.dot(np.array([i,j,k]),np.dot(np.linalg.inv(G),np.array([i,j,k]))))), decimals=3)
-    dhkl_label.setText(str(d))
-    return          
-
-################################################################""
-###############                      GUI
-##############################################################"
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    _fromUtf8 = lambda s: s
-
-app = QtGui.QApplication(sys.argv)
-MainWindow=QtGui.QMainWindow()
-MainWindow.setWindowTitle('Application simple')
-
-centralwidget = QtGui.QWidget(MainWindow)
-centralwidget.setObjectName(_fromUtf8("centralwidget"))
-gridLayout_7 = QtGui.QGridLayout(centralwidget)
-gridLayout_7.setObjectName(_fromUtf8("gridLayout_7"))
-gridLayout = QtGui.QGridLayout()
-gridLayout.setSizeConstraint(QtGui.QLayout.SetDefaultConstraint)
-gridLayout.setObjectName(_fromUtf8("gridLayout"))
-groupBox_5 = QtGui.QGroupBox(centralwidget)
-groupBox_5.setMaximumSize(QtCore.QSize(150, 16777215))
-groupBox_5.setObjectName(_fromUtf8("groupBox_5"))
-gridLayout_6 = QtGui.QGridLayout(groupBox_5)
-gridLayout_6.setObjectName(_fromUtf8("gridLayout_6"))
-lab_coord = QtGui.QLabel(groupBox_5)
-lab_coord.setObjectName(_fromUtf8("lab_coord"))
-gridLayout_6.addWidget(lab_coord, 4, 0, 1, 3)
-button_trace2 = QtGui.QPushButton(groupBox_5)
-button_trace2.setObjectName(_fromUtf8("button_trace2"))
-gridLayout_6.addWidget(button_trace2, 1, 0, 1, 2)
-phi1_entry = QtGui.QLineEdit(groupBox_5)
-phi1_entry.setObjectName(_fromUtf8("phi1_entry"))
-gridLayout_6.addWidget(phi1_entry, 0, 0, 1, 1)
-angle_euler_label = QtGui.QLabel(groupBox_5)
-angle_euler_label.setText(_fromUtf8(""))
-angle_euler_label.setObjectName(_fromUtf8("angle_euler_label"))
-gridLayout_6.addWidget(angle_euler_label, 3, 0, 1, 3)
-phi2_entry = QtGui.QLineEdit(groupBox_5)
-phi2_entry.setObjectName(_fromUtf8("phi2_entry"))
-gridLayout_6.addWidget(phi2_entry, 0, 2, 1, 1)
-phi_entry = QtGui.QLineEdit(groupBox_5)
-phi_entry.setObjectName(_fromUtf8("phi_entry"))
-gridLayout_6.addWidget(phi_entry, 0, 1, 1, 1)
-lab_euler2 = QtGui.QLabel(groupBox_5)
-lab_euler2.setObjectName(_fromUtf8("lab_euler2"))
-gridLayout_6.addWidget(lab_euler2, 2, 0, 1, 3)
-coord_label = QtGui.QLabel(groupBox_5)
-coord_label.setText(_fromUtf8(""))
-coord_label.setObjectName(_fromUtf8("coord_label"))
-gridLayout_6.addWidget(coord_label, 5, 0, 1, 2)
-gridLayout.addWidget(groupBox_5, 3, 3, 1, 1)
-groupBox_3 = QtGui.QGroupBox(centralwidget)
-groupBox_3.setMaximumSize(QtCore.QSize(150, 16777215))
-groupBox_3.setObjectName(_fromUtf8("groupBox_3"))
-gridLayout_4 = QtGui.QGridLayout(groupBox_3)
-gridLayout_4.setMargin(5)
-gridLayout_4.setSpacing(5)
-gridLayout_4.setObjectName(_fromUtf8("gridLayout_4"))
-rx_buttonp = QtGui.QPushButton(groupBox_3)
-rx_buttonp.setObjectName(_fromUtf8("rx_buttonp"))
-gridLayout_4.addWidget(rx_buttonp, 3, 3, 1, 1)
-rx_label = QtGui.QLabel(groupBox_3)
-rx_label.setObjectName(_fromUtf8("rx_label"))
-gridLayout_4.addWidget(rx_label, 3, 0, 1, 1)
-rz_buttonm = QtGui.QPushButton(groupBox_3)
-rz_buttonm.setObjectName(_fromUtf8("rz_buttonm"))
-gridLayout_4.addWidget(rz_buttonm, 11, 1, 1, 1)
-rz_buttonp = QtGui.QPushButton(groupBox_3)
-rz_buttonp.setObjectName(_fromUtf8("rz_buttonp"))
-gridLayout_4.addWidget(rz_buttonp, 11, 3, 1, 1)
-rz_entry = QtGui.QLineEdit(groupBox_3)
-rz_entry.setObjectName(_fromUtf8("rz_entry"))
-gridLayout_4.addWidget(rz_entry, 11, 2, 1, 1)
-ry_buttonp = QtGui.QPushButton(groupBox_3)
-ry_buttonp.setObjectName(_fromUtf8("ry_buttonp"))
-gridLayout_4.addWidget(ry_buttonp, 7, 3, 1, 1)
-ry_entry = QtGui.QLineEdit(groupBox_3)
-ry_entry.setObjectName(_fromUtf8("ry_entry"))
-gridLayout_4.addWidget(ry_entry, 7, 2, 1, 1)
-rz_label = QtGui.QLabel(groupBox_3)
-rz_label.setObjectName(_fromUtf8("rz_label"))
-gridLayout_4.addWidget(rz_label, 11, 0, 1, 1)
-ry_label = QtGui.QLabel(groupBox_3)
-ry_label.setObjectName(_fromUtf8("ry_label"))
-gridLayout_4.addWidget(ry_label, 7, 0, 1, 1)
-rx_buttonm = QtGui.QPushButton(groupBox_3)
-rx_buttonm.setObjectName(_fromUtf8("rx_buttonm"))
-gridLayout_4.addWidget(rx_buttonm, 3, 1, 1, 1)
-rx_entry = QtGui.QLineEdit(groupBox_3)
-rx_entry.setObjectName(_fromUtf8("rx_entry"))
-gridLayout_4.addWidget(rx_entry, 3, 2, 1, 1)
-ry_buttonm = QtGui.QPushButton(groupBox_3)
-ry_buttonm.setObjectName(_fromUtf8("ry_buttonm"))
-gridLayout_4.addWidget(ry_buttonm, 7, 1, 1, 1)
-rx_label_2 = QtGui.QLabel(groupBox_3)
-rx_label_2.setText(_fromUtf8(""))
-rx_label_2.setObjectName(_fromUtf8("rx_label_2"))
-gridLayout_4.addWidget(rx_label_2, 5, 2, 1, 1)
-ry_label_2 = QtGui.QLabel(groupBox_3)
-ry_label_2.setText(_fromUtf8(""))
-ry_label_2.setObjectName(_fromUtf8("ry_label_2"))
-gridLayout_4.addWidget(ry_label_2, 8, 2, 1, 1)
-rz_label_2 = QtGui.QLabel(groupBox_3)
-rz_label_2.setText(_fromUtf8(""))
-rz_label_2.setObjectName(_fromUtf8("rz_label_2"))
-gridLayout_4.addWidget(rz_label_2, 12, 2, 1, 1)
-gridLayout.addWidget(groupBox_3, 1, 3, 1, 1)
-groupBox_4 = QtGui.QGroupBox(centralwidget)
-groupBox_4.setMaximumSize(QtCore.QSize(150, 16777215))
-groupBox_4.setObjectName(_fromUtf8("groupBox_4"))
-gridLayout_5 = QtGui.QGridLayout(groupBox_4)
-gridLayout_5.setObjectName(_fromUtf8("gridLayout_5"))
-undo_trace_schmid = QtGui.QPushButton(groupBox_4)
-undo_trace_schmid.setObjectName(_fromUtf8("undo_trace_schmid"))
-gridLayout_5.addWidget(undo_trace_schmid, 5, 2, 1, 1)
-norm_button = QtGui.QPushButton(groupBox_4)
-norm_button.setObjectName(_fromUtf8("norm_button"))
-gridLayout_5.addWidget(norm_button, 7, 0, 1, 1)
-undo_sym_button = QtGui.QPushButton(groupBox_4)
-undo_sym_button.setObjectName(_fromUtf8("undo_sym_button"))
-gridLayout_5.addWidget(undo_sym_button, 2, 2, 1, 1)
-trace_schmid_button = QtGui.QPushButton(groupBox_4)
-trace_schmid_button.setObjectName(_fromUtf8("trace_schmid_button"))
-gridLayout_5.addWidget(trace_schmid_button, 5, 0, 1, 2)
-addpole_button = QtGui.QPushButton(groupBox_4)
-addpole_button.setObjectName(_fromUtf8("addpole_button"))
-gridLayout_5.addWidget(addpole_button, 1, 0, 1, 2)
-dhkl_label = QtGui.QLabel(groupBox_4)
-dhkl_label.setText(_fromUtf8(""))
-dhkl_label.setObjectName(_fromUtf8("dhkl_label"))
-gridLayout_5.addWidget(dhkl_label, 7, 1, 1, 2)
-trace_plan_button = QtGui.QPushButton(groupBox_4)
-trace_plan_button.setObjectName(_fromUtf8("trace_plan_button"))
-gridLayout_5.addWidget(trace_plan_button, 3, 0, 1, 2)
-pole3_entry = QtGui.QLineEdit(groupBox_4)
-pole3_entry.setObjectName(_fromUtf8("pole3_entry"))
-gridLayout_5.addWidget(pole3_entry, 0, 2, 1, 1)
-undo_trace_plan_sym_button = QtGui.QPushButton(groupBox_4)
-undo_trace_plan_sym_button.setObjectName(_fromUtf8("undo_trace_plan_sym_button"))
-gridLayout_5.addWidget(undo_trace_plan_sym_button, 4, 2, 1, 1)
-trace_plan_sym_button = QtGui.QPushButton(groupBox_4)
-trace_plan_sym_button.setObjectName(_fromUtf8("trace_plan_sym_button"))
-gridLayout_5.addWidget(trace_plan_sym_button, 4, 0, 1, 2)
-sym_button = QtGui.QPushButton(groupBox_4)
-sym_button.setObjectName(_fromUtf8("sym_button"))
-gridLayout_5.addWidget(sym_button, 2, 0, 1, 2)
-undo_trace_plan_button = QtGui.QPushButton(groupBox_4)
-undo_trace_plan_button.setObjectName(_fromUtf8("undo_trace_plan_button"))
-gridLayout_5.addWidget(undo_trace_plan_button, 3, 2, 1, 1)
-undo_addpole_button = QtGui.QPushButton(groupBox_4)
-undo_addpole_button.setObjectName(_fromUtf8("undo_addpole_button"))
-gridLayout_5.addWidget(undo_addpole_button, 1, 2, 1, 1)
-pole2_entry = QtGui.QLineEdit(groupBox_4)
-pole2_entry.setObjectName(_fromUtf8("pole2_entry"))
-gridLayout_5.addWidget(pole2_entry, 0, 1, 1, 1)
-pole1_entry = QtGui.QLineEdit(groupBox_4)
-pole1_entry.setObjectName(_fromUtf8("pole1_entry"))
-gridLayout_5.addWidget(pole1_entry, 0, 0, 1, 1)
-largeur_button = QtGui.QPushButton(groupBox_4)
-largeur_button.setObjectName(_fromUtf8("largeur_button"))
-gridLayout_5.addWidget(largeur_button, 6, 0, 1, 3)
-gridLayout.addWidget(groupBox_4, 2, 3, 1, 1)
-groupBox_2 = QtGui.QGroupBox(centralwidget)
-groupBox_2.setEnabled(True)
-groupBox_2.setMaximumSize(QtCore.QSize(150, 16777215))
-groupBox_2.setObjectName(_fromUtf8("groupBox_2"))
-gridLayout_3 = QtGui.QGridLayout(groupBox_2)
-gridLayout_3.setMargin(5)
-gridLayout_3.setSpacing(5)
-gridLayout_3.setObjectName(_fromUtf8("gridLayout_3"))
-inclinaison_entry = QtGui.QLineEdit(groupBox_2)
-inclinaison_entry.setObjectName(_fromUtf8("inclinaison_entry"))
-gridLayout_3.addWidget(inclinaison_entry, 10, 3, 1, 1)
-button_trace = QtGui.QPushButton(groupBox_2)
-button_trace.setObjectName(_fromUtf8("button_trace"))
-gridLayout_3.addWidget(button_trace, 11, 0, 1, 3)
-diff1_entry = QtGui.QLineEdit(groupBox_2)
-diff1_entry.setObjectName(_fromUtf8("diff1_entry"))
-gridLayout_3.addWidget(diff1_entry, 3, 0, 1, 1)
-inclination_label = QtGui.QLabel(groupBox_2)
-inclination_label.setObjectName(_fromUtf8("inclination_label"))
-gridLayout_3.addWidget(inclination_label, 10, 0, 1, 3)
-rot_gp_button = QtGui.QPushButton(groupBox_2)
-rot_gp_button.setObjectName(_fromUtf8("rot_gp_button"))
-gridLayout_3.addWidget(rot_gp_button, 15, 3, 1, 1)
-rot_gm_button = QtGui.QPushButton(groupBox_2)
-rot_gm_button.setObjectName(_fromUtf8("rot_gm_button"))
-gridLayout_3.addWidget(rot_gm_button, 15, 0, 1, 1)
-diff3_entry = QtGui.QLineEdit(groupBox_2)
-diff3_entry.setObjectName(_fromUtf8("diff3_entry"))
-gridLayout_3.addWidget(diff3_entry, 3, 3, 1, 1)
-tilt_label = QtGui.QLabel(groupBox_2)
-tilt_label.setObjectName(_fromUtf8("tilt_label"))
-gridLayout_3.addWidget(tilt_label, 4, 0, 1, 1)
-rot_g_entry = QtGui.QLineEdit(groupBox_2)
-rot_g_entry.setObjectName(_fromUtf8("rot_g_entry"))
-gridLayout_3.addWidget(rot_g_entry, 15, 2, 1, 1)
-uvw_button = QtGui.QCheckBox(groupBox_2)
-uvw_button.setObjectName(_fromUtf8("uvw_button"))
-gridLayout_3.addWidget(uvw_button, 12, 0, 1, 3)
-rg_label = QtGui.QLabel(groupBox_2)
-rg_label.setText(_fromUtf8(""))
-rg_label.setObjectName(_fromUtf8("rg_label"))
-gridLayout_3.addWidget(rg_label, 16, 2, 1, 1)
-tilt_entry = QtGui.QLineEdit(groupBox_2)
-tilt_entry.setObjectName(_fromUtf8("tilt_entry"))
-gridLayout_3.addWidget(tilt_entry, 4, 3, 1, 1)
-rot_diff_label = QtGui.QLabel(groupBox_2)
-rot_diff_label.setObjectName(_fromUtf8("rot_diff_label"))
-gridLayout_3.addWidget(rot_diff_label, 14, 0, 1, 4)
-diff2_entry = QtGui.QLineEdit(groupBox_2)
-diff2_entry.setObjectName(_fromUtf8("diff2_entry"))
-gridLayout_3.addWidget(diff2_entry, 3, 2, 1, 1)
-diff_label = QtGui.QLabel(groupBox_2)
-diff_label.setObjectName(_fromUtf8("diff_label"))
-gridLayout_3.addWidget(diff_label, 0, 0, 1, 3)
-hexa_button = QtGui.QCheckBox(groupBox_2)
-hexa_button.setObjectName(_fromUtf8("hexa_button"))
-gridLayout_3.addWidget(hexa_button, 13, 0, 1, 3)
-gridLayout.addWidget(groupBox_2, 2, 1, 1, 1)
-groupBox = QtGui.QGroupBox(centralwidget)
-groupBox.setMaximumSize(QtCore.QSize(150, 16777215))
-groupBox.setObjectName(_fromUtf8("groupBox"))
-gridLayout_2 = QtGui.QGridLayout(groupBox)
-gridLayout_2.setMargin(5)
-gridLayout_2.setSpacing(5)
-gridLayout_2.setObjectName(_fromUtf8("gridLayout_2"))
-a_entry = QtGui.QLineEdit(groupBox)
-a_entry.setObjectName(_fromUtf8("a_entry"))
-gridLayout_2.addWidget(a_entry, 0, 1, 1, 1)
-b_label = QtGui.QLabel(groupBox)
-b_label.setObjectName(_fromUtf8("b_label"))
-gridLayout_2.addWidget(b_label, 1, 0, 1, 1)
-d_label = QtGui.QLabel(groupBox)
-d_label.setObjectName(_fromUtf8("d_label"))
-gridLayout_2.addWidget(d_label, 7, 0, 1, 1)
-a_label = QtGui.QLabel(groupBox)
-a_label.setObjectName(_fromUtf8("a_label"))
-gridLayout_2.addWidget(a_label, 0, 0, 1, 1)
-d_entry = QtGui.QLineEdit(groupBox)
-d_entry.setObjectName(_fromUtf8("d_entry"))
-gridLayout_2.addWidget(d_entry, 7, 2, 1, 1)
-dp_button = QtGui.QPushButton(groupBox)
-dp_button.setObjectName(_fromUtf8("dp_button"))
-gridLayout_2.addWidget(dp_button, 7, 4, 1, 1)
-c_label = QtGui.QLabel(groupBox)
-c_label.setObjectName(_fromUtf8("c_label"))
-gridLayout_2.addWidget(c_label, 2, 0, 1, 1)
-dm_button = QtGui.QPushButton(groupBox)
-dm_button.setObjectName(_fromUtf8("dm_button"))
-gridLayout_2.addWidget(dm_button, 7, 1, 1, 1)
-b_entry = QtGui.QLineEdit(groupBox)
-b_entry.setObjectName(_fromUtf8("b_entry"))
-gridLayout_2.addWidget(b_entry, 1, 1, 1, 1)
-c_entry = QtGui.QLineEdit(groupBox)
-c_entry.setObjectName(_fromUtf8("c_entry"))
-gridLayout_2.addWidget(c_entry, 2, 1, 1, 1)
-d_label_var = QtGui.QLabel(groupBox)
-d_label_var.setText(_fromUtf8(""))
-d_label_var.setObjectName(_fromUtf8("d_label_var"))
-gridLayout_2.addWidget(d_label_var, 7, 5, 1, 1)
-gamma_entry = QtGui.QLineEdit(groupBox)
-gamma_entry.setObjectName(_fromUtf8("gamma_entry"))
-gridLayout_2.addWidget(gamma_entry, 2, 5, 1, 1)
-alpha_entry = QtGui.QLineEdit(groupBox)
-alpha_entry.setObjectName(_fromUtf8("alpha_entry"))
-gridLayout_2.addWidget(alpha_entry, 0, 5, 1, 1)
-alpha_label = QtGui.QLabel(groupBox)
-alpha_label.setObjectName(_fromUtf8("alpha_label"))
-gridLayout_2.addWidget(alpha_label, 0, 2, 1, 3)
-beta_label = QtGui.QLabel(groupBox)
-beta_label.setObjectName(_fromUtf8("beta_label"))
-gridLayout_2.addWidget(beta_label, 1, 2, 1, 2)
-gamma_label = QtGui.QLabel(groupBox)
-gamma_label.setObjectName(_fromUtf8("gamma_label"))
-gridLayout_2.addWidget(gamma_label, 2, 2, 1, 3)
-beta_entry = QtGui.QLineEdit(groupBox)
-beta_entry.setObjectName(_fromUtf8("beta_entry"))
-gridLayout_2.addWidget(beta_entry, 1, 5, 1, 1)
-e_entry = QtGui.QLineEdit(groupBox)
-e_entry.setObjectName(_fromUtf8("e_entry"))
-gridLayout_2.addWidget(e_entry, 6, 5, 1, 1)
-e_label = QtGui.QLabel(groupBox)
-e_label.setObjectName(_fromUtf8("e_label"))
-gridLayout_2.addWidget(e_label, 6, 0, 1, 5)
-gridLayout.addWidget(groupBox, 1, 1, 1, 1)
-groupBox_9 = QtGui.QGroupBox(centralwidget)
-groupBox_9.setMaximumSize(QtCore.QSize(170, 16777215))
-groupBox_9.setObjectName(_fromUtf8("groupBox_9"))
-gridLayout_10 = QtGui.QGridLayout(groupBox_9)
-gridLayout_10.setObjectName(_fromUtf8("gridLayout_10"))
-size_var_label = QtGui.QLabel(groupBox_9)
-size_var_label.setObjectName(_fromUtf8("size_var_label"))
-gridLayout_10.addWidget(size_var_label, 4, 0, 1, 2)
-color_trace_rouge = QtGui.QRadioButton(groupBox_9)
-color_trace_rouge.setObjectName(_fromUtf8("color_trace_rouge"))
-gridLayout_10.addWidget(color_trace_rouge, 2, 0, 1, 1)
-size_var = QtGui.QLineEdit(groupBox_9)
-size_var.setObjectName(_fromUtf8("size_var"))
-gridLayout_10.addWidget(size_var, 4, 2, 1, 1)
-color_trace_bleu = QtGui.QRadioButton(groupBox_9)
-color_trace_bleu.setObjectName(_fromUtf8("color_trace_bleu"))
-gridLayout_10.addWidget(color_trace_bleu, 0, 0, 1, 1)
-color_trace_vert = QtGui.QRadioButton(groupBox_9)
-color_trace_vert.setObjectName(_fromUtf8("color_trace_vert"))
-gridLayout_10.addWidget(color_trace_vert, 0, 1, 1, 2)
-style_box = QtGui.QCheckBox(groupBox_9)
-style_box.setObjectName(_fromUtf8("style_box"))
-gridLayout_10.addWidget(style_box, 3, 0, 1, 3)
-gridLayout.addWidget(groupBox_9, 3, 1, 1, 1)
-gridLayout_7.addLayout(gridLayout, 0, 1, 1, 1)
-figure=plt.figure(facecolor='white',figsize=[2,2],dpi=100)
-canvas = FigureCanvas(figure)
-canvas.setMinimumSize(QtCore.QSize(800, 800))
-gridLayout_7.addWidget(canvas, 0, 0, 1, 1)
-MainWindow.setCentralWidget(centralwidget)
-menubar = QtGui.QMenuBar(MainWindow)
-#menubar.setGeometry(QtCore.QRect(0, 0, 1152, 25))
-menubar.setObjectName(_fromUtf8("menubar"))
-menuSave = QtGui.QMenu(menubar)
-menuSave.setObjectName(_fromUtf8("menuSave"))
-menuStructure = QtGui.QMenu(menubar)
-menuStructure.setObjectName(_fromUtf8("menuStructure"))
-menuAngle = QtGui.QMenu(menubar)
-menuAngle.setObjectName(_fromUtf8("menuAngle"))
-menuSchmid_factor = QtGui.QMenu(menubar)
-menuSchmid_factor.setObjectName(_fromUtf8("menuSchmid_factor"))
-menuResol = QtGui.QMenu(menubar)
-menuResol.setObjectName(_fromUtf8("menuResol"))
-MainWindow.setMenuBar(menubar)
-statusbar = QtGui.QStatusBar(MainWindow)
-statusbar.setObjectName(_fromUtf8("statusbar"))
-MainWindow.setStatusBar(statusbar)
-actionSave_figure = QtGui.QAction(MainWindow)
-actionSave_figure.setObjectName(_fromUtf8("actionSave_figure"))
-actionCalculate_Schmid_factor = QtGui.QAction(MainWindow)
-actionCalculate_Schmid_factor.setObjectName(_fromUtf8("actionCalculate_Schmid_factor"))
-actionCalculate_angle = QtGui.QAction(MainWindow)
-actionCalculate_angle.setObjectName(_fromUtf8("actionCalculate_angle"))
-menuSave.addAction(actionSave_figure)
-menuAngle.addAction(actionCalculate_angle)
-menuSchmid_factor.addAction(actionCalculate_Schmid_factor)
-menubar.addAction(menuSave.menuAction())
-menubar.addAction(menuStructure.menuAction())
-menubar.addAction(menuAngle.menuAction())
-menubar.addAction(menuSchmid_factor.menuAction())
-menubar.addAction(menuResol.menuAction())
-
-MainWindow.setWindowTitle(QtGui.QApplication.translate("Stereo-Proj", "Stereo-Proj", None, QtGui.QApplication.UnicodeUTF8))
-groupBox_5.setTitle(QtGui.QApplication.translate("MainWindow", "Euler Angles", None, QtGui.QApplication.UnicodeUTF8))
-lab_coord.setText(QtGui.QApplication.translate("MainWindow", "Tilt, Inclination", None, QtGui.QApplication.UnicodeUTF8))
-button_trace2.setText(QtGui.QApplication.translate("MainWindow", "PLOT", None, QtGui.QApplication.UnicodeUTF8))
-lab_euler2.setText(QtGui.QApplication.translate("MainWindow", "Phi 1, Phi, Phi2", None, QtGui.QApplication.UnicodeUTF8))
-groupBox_3.setTitle(QtGui.QApplication.translate("MainWindow", "Rotation", None, QtGui.QApplication.UnicodeUTF8))
-rx_buttonp.setText(QtGui.QApplication.translate("MainWindow", "+", None, QtGui.QApplication.UnicodeUTF8))
-rx_label.setText(QtGui.QApplication.translate("MainWindow", "x", None, QtGui.QApplication.UnicodeUTF8))
-rz_buttonm.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
-rz_buttonp.setText(QtGui.QApplication.translate("MainWindow", "+", None, QtGui.QApplication.UnicodeUTF8))
-ry_buttonp.setText(QtGui.QApplication.translate("MainWindow", "+", None, QtGui.QApplication.UnicodeUTF8))
-rz_label.setText(QtGui.QApplication.translate("MainWindow", "z", None, QtGui.QApplication.UnicodeUTF8))
-ry_label.setText(QtGui.QApplication.translate("MainWindow", "y", None, QtGui.QApplication.UnicodeUTF8))
-rx_buttonm.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
-ry_buttonm.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
-groupBox_4.setTitle(QtGui.QApplication.translate("MainWindow", "Pole/Plane", None, QtGui.QApplication.UnicodeUTF8))
-undo_trace_schmid.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
-norm_button.setText(QtGui.QApplication.translate("MainWindow", "dhkl", None, QtGui.QApplication.UnicodeUTF8))
-undo_sym_button.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
-trace_schmid_button.setText(QtGui.QApplication.translate("MainWindow", "Schmid", None, QtGui.QApplication.UnicodeUTF8))
-addpole_button.setText(QtGui.QApplication.translate("MainWindow", "Add", None, QtGui.QApplication.UnicodeUTF8))
-trace_plan_button.setText(QtGui.QApplication.translate("MainWindow", " Plane", None, QtGui.QApplication.UnicodeUTF8))
-undo_trace_plan_sym_button.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
-trace_plan_sym_button.setText(QtGui.QApplication.translate("MainWindow", "Sym Plane", None, QtGui.QApplication.UnicodeUTF8))
-sym_button.setText(QtGui.QApplication.translate("MainWindow", "Symmetry", None, QtGui.QApplication.UnicodeUTF8))
-undo_trace_plan_button.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
-undo_addpole_button.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
-largeur_button.setText(QtGui.QApplication.translate("MainWindow", "Width", None, QtGui.QApplication.UnicodeUTF8))
-groupBox_2.setTitle(QtGui.QApplication.translate("MainWindow", "Axis/Rotation", None, QtGui.QApplication.UnicodeUTF8))
-button_trace.setText(QtGui.QApplication.translate("MainWindow", "PLOT", None, QtGui.QApplication.UnicodeUTF8))
-inclination_label.setText(QtGui.QApplication.translate("MainWindow", "Inclination", None, QtGui.QApplication.UnicodeUTF8))
-rot_gp_button.setText(QtGui.QApplication.translate("MainWindow", "+", None, QtGui.QApplication.UnicodeUTF8))
-rot_gm_button.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
-tilt_label.setText(QtGui.QApplication.translate("MainWindow", "Tilt", None, QtGui.QApplication.UnicodeUTF8))
-uvw_button.setText(QtGui.QApplication.translate("MainWindow", "uvw", None, QtGui.QApplication.UnicodeUTF8))
-rot_diff_label.setText(QtGui.QApplication.translate("MainWindow", "Rotation along g", None, QtGui.QApplication.UnicodeUTF8))
-diff_label.setText(QtGui.QApplication.translate("MainWindow", "g-vector", None, QtGui.QApplication.UnicodeUTF8))
-hexa_button.setText(QtGui.QApplication.translate("MainWindow", "hexa", None, QtGui.QApplication.UnicodeUTF8))
-groupBox.setTitle(QtGui.QApplication.translate("MainWindow", "Crystal Parameters", None, QtGui.QApplication.UnicodeUTF8))
-b_label.setText(QtGui.QApplication.translate("MainWindow", "b", None, QtGui.QApplication.UnicodeUTF8))
-d_label.setText(QtGui.QApplication.translate("MainWindow", "d", None, QtGui.QApplication.UnicodeUTF8))
-a_label.setText(QtGui.QApplication.translate("MainWindow", "a", None, QtGui.QApplication.UnicodeUTF8))
-dp_button.setText(QtGui.QApplication.translate("MainWindow", "+", None, QtGui.QApplication.UnicodeUTF8))
-c_label.setText(QtGui.QApplication.translate("MainWindow", "c", None, QtGui.QApplication.UnicodeUTF8))
-dm_button.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
-alpha_label.setText(QtGui.QApplication.translate("MainWindow", "alpha", None, QtGui.QApplication.UnicodeUTF8))
-beta_label.setText(QtGui.QApplication.translate("MainWindow", "beta", None, QtGui.QApplication.UnicodeUTF8))
-gamma_label.setText(QtGui.QApplication.translate("MainWindow", "gamma", None, QtGui.QApplication.UnicodeUTF8))
-e_label.setText(QtGui.QApplication.translate("MainWindow", "max indices", None, QtGui.QApplication.UnicodeUTF8))
-groupBox_9.setTitle(QtGui.QApplication.translate("MainWindow", "Layout", None, QtGui.QApplication.UnicodeUTF8))
-size_var_label.setText(QtGui.QApplication.translate("MainWindow", "Marker size", None, QtGui.QApplication.UnicodeUTF8))
-color_trace_rouge.setText(QtGui.QApplication.translate("MainWindow", "red", None, QtGui.QApplication.UnicodeUTF8))
-color_trace_bleu.setText(QtGui.QApplication.translate("MainWindow", "blue", None, QtGui.QApplication.UnicodeUTF8))
-color_trace_vert.setText(QtGui.QApplication.translate("MainWindow", "green", None, QtGui.QApplication.UnicodeUTF8))
-style_box.setText(QtGui.QApplication.translate("MainWindow", "open/filled", None, QtGui.QApplication.UnicodeUTF8))
-menuSave.setTitle(QtGui.QApplication.translate("MainWindow", "Save", None, QtGui.QApplication.UnicodeUTF8))
-menuStructure.setTitle(QtGui.QApplication.translate("MainWindow", "Structure", None, QtGui.QApplication.UnicodeUTF8))
-menuAngle.setTitle(QtGui.QApplication.translate("MainWindow", "Angle", None, QtGui.QApplication.UnicodeUTF8))
-menuSchmid_factor.setTitle(QtGui.QApplication.translate("MainWindow", "Schmid factor", None, QtGui.QApplication.UnicodeUTF8))
-menuResol.setTitle(QtGui.QApplication.translate("Index", "Resolution", None, QtGui.QApplication.UnicodeUTF8))
-actionSave_figure.setText(QtGui.QApplication.translate("MainWindow", "Save figure", None, QtGui.QApplication.UnicodeUTF8))
-actionCalculate_Schmid_factor.setText(QtGui.QApplication.translate("MainWindow", "calculate Schmid factor", None, QtGui.QApplication.UnicodeUTF8))
-actionCalculate_angle.setText(QtGui.QApplication.translate("MainWindow", "Calculate angle", None, QtGui.QApplication.UnicodeUTF8))
+  
+  
+#######################################################################
+#######################################################################
+#
+# GUI
+#
+#######################################################################
 
 
-MainWindow.setTabOrder( a_entry,  b_entry)
-MainWindow.setTabOrder( b_entry,  c_entry)
-MainWindow.setTabOrder( c_entry,  alpha_entry)
-MainWindow.setTabOrder( alpha_entry,  beta_entry)
-MainWindow.setTabOrder( beta_entry,  gamma_entry)
-MainWindow.setTabOrder( gamma_entry,  e_entry)
-MainWindow.setTabOrder( e_entry,  rx_buttonm)
-MainWindow.setTabOrder( rx_buttonm,  rx_entry)
-MainWindow.setTabOrder( rx_entry,  rx_buttonp)
-MainWindow.setTabOrder( rx_buttonp,  ry_buttonm)
-MainWindow.setTabOrder( ry_buttonm,  ry_entry)
-MainWindow.setTabOrder( ry_entry,  ry_buttonp)
-MainWindow.setTabOrder( ry_buttonp,  rz_buttonm)
-MainWindow.setTabOrder( rz_buttonm,  rz_entry)
-MainWindow.setTabOrder( rz_entry,  rz_buttonp)
-MainWindow.setTabOrder( rz_buttonp,  d_entry)
-MainWindow.setTabOrder( d_entry,  dm_button)
-MainWindow.setTabOrder( dm_button,  dp_button)
-MainWindow.setTabOrder( dp_button,  diff1_entry)
-MainWindow.setTabOrder( diff1_entry,  diff2_entry)
-MainWindow.setTabOrder( diff2_entry,  diff3_entry)
-MainWindow.setTabOrder( diff3_entry,  tilt_entry)
-MainWindow.setTabOrder( tilt_entry,  inclinaison_entry)
-MainWindow.setTabOrder( inclinaison_entry,  button_trace)
-MainWindow.setTabOrder( button_trace,  uvw_button)
-MainWindow.setTabOrder( uvw_button,  hexa_button)
-MainWindow.setTabOrder( hexa_button,  rot_gm_button)
-MainWindow.setTabOrder( rot_gm_button,  rot_g_entry)
-MainWindow.setTabOrder( rot_g_entry,  rot_gp_button)
-MainWindow.setTabOrder( rot_gp_button,  pole1_entry)
-MainWindow.setTabOrder( pole1_entry,  pole2_entry)
-MainWindow.setTabOrder( pole2_entry,  pole3_entry)
-MainWindow.setTabOrder( pole3_entry,  addpole_button)
-MainWindow.setTabOrder( addpole_button,  undo_addpole_button)
-MainWindow.setTabOrder( undo_addpole_button,  sym_button)
-MainWindow.setTabOrder( sym_button,  undo_sym_button)
-MainWindow.setTabOrder( undo_sym_button,  trace_plan_button)
-MainWindow.setTabOrder( trace_plan_button,  undo_trace_plan_button)
-MainWindow.setTabOrder( undo_trace_plan_button,  trace_plan_sym_button)
-MainWindow.setTabOrder( trace_plan_sym_button,  undo_trace_plan_sym_button)
-MainWindow.setTabOrder( undo_trace_plan_sym_button,  trace_schmid_button)
-MainWindow.setTabOrder( trace_schmid_button,  undo_trace_schmid)
-MainWindow.setTabOrder( undo_trace_schmid,  largeur_button)
-MainWindow.setTabOrder( largeur_button,  norm_button)
-MainWindow.setTabOrder( norm_button,  phi1_entry)
-MainWindow.setTabOrder( phi1_entry,  phi_entry)
-MainWindow.setTabOrder( phi_entry,  phi2_entry)
-MainWindow.setTabOrder( phi2_entry,  button_trace2)
-MainWindow.setTabOrder( button_trace2,  color_trace_bleu)
-MainWindow.setTabOrder( color_trace_bleu,  color_trace_vert)
-MainWindow.setTabOrder( color_trace_vert,  color_trace_rouge)
-MainWindow.setTabOrder( color_trace_rouge,  style_box)
-MainWindow.setTabOrder( style_box,  size_var)
 
 
+######################################################
+#
+# Menu
+#
+##########################################################
+
+###########################################################
+#
+# Structure
+#
+##############################################################
 
 def structure(item):
     global x0, var_hexa, d_label_var, e_entry
     
-    a_entry.setText(str(item[1]))
-    b_entry.setText(str(item[2]))
-    c_entry.setText(str(item[3]))
-    alpha_entry.setText(str(item[4]))
-    beta_entry.setText(str(item[5]))
-    gamma_entry.setText(str(item[6]))
+    ui.a_entry.setText(str(item[1]))
+    ui.b_entry.setText(str(item[2]))
+    ui.c_entry.setText(str(item[3]))
+    ui.alpha_entry.setText(str(item[4]))
+    ui.beta_entry.setText(str(item[5]))
+    ui.gamma_entry.setText(str(item[6]))
     if eval(item[4])==90 and eval(item[5])==90 and eval(item[6])==120 :
-        hexa_button.setChecked(True)
-        e_entry.setText('2')
-        d_label_var.setText('3')
+        ui.hexa_button.setChecked(True)
+        ui.e_entry.setText('2')
+        ui.d_label_var.setText('3')
     else:
-        d_entry.setText('1')
-        e_entry.setText('1')
+        ui.d_entry.setText('1')
+        ui.e_entry.setText('1')
     
-    
-    
-file_struct=open(os.path.join(os.path.dirname(__file__), 'structure.txt') ,"r")
-
-x0=[]
-
-for line in file_struct:
-    x0.append(map(str, line.split()))
-
-i=0
-file_struct.close()            
-
-for item in x0:
-    entry = menuStructure.addAction(item[0])
-    MainWindow.connect(entry,QtCore.SIGNAL('triggered()'), lambda item=item: structure(item))
-    i=i+1
-
+ 
 
 ####################################################################
-##### Fonction angle entre deux directions
+#
+# Class for dialog box for measuring angle between two poles
+#
 ####################################################################
 
 
@@ -1932,14 +1618,10 @@ class AngleCalc(QtGui.QDialog):
         self.c22 = QtGui.QLineEdit(self)
         self.c22.setObjectName(_fromUtf8("c22"))
         self.gridLayout.addWidget(self.c22, 3, 1, 1, 1)
-        
-        
         self.label = QtGui.QLabel(self)
         self.label.setText(_fromUtf8(""))
         self.label.setObjectName(_fromUtf8("label"))
         self.gridLayout.addWidget(self.label, 4, 0, 1, 2)
-        
-        
         self.buttonBox = QtGui.QDialogButtonBox(self)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
@@ -1952,10 +1634,6 @@ class AngleCalc(QtGui.QDialog):
         self.label_3.setText("d2")
         self.label_3.setObjectName(_fromUtf8("label_3"))
         self.gridLayout.addWidget(self.label_3, 0, 1, 1, 1)
-        
-        
-
-
         self.buttonBox.rejected.connect(self.close)
         self.buttonBox.accepted.connect(self.angle)
         
@@ -1969,25 +1647,23 @@ class AngleCalc(QtGui.QDialog):
        c220=np.float(self.c22.text())
        c1=np.array([c100,c110,c120])
        c2=np.array([c200,c210,c220])
-       if uvw_button.isChecked==True: 
+       if ui.uvw_button.isChecked==True: 
            c1c=np.dot(Dstar,c1)
            c2c=np.dot(Dstar,c2)
        else:
            c1c=np.dot(Dstar,c1)
            c2c=np.dot(Dstar,c2)
        the=np.arccos(np.dot(c1c,c2c)/(np.linalg.norm(c1c)*np.linalg.norm(c2c)))                   
-       thes=str(np.around(the*180/pi,decimals=2))        
+       thes=str(np.around(the*180/np.pi,decimals=2))        
        self.label.setText(thes)
                         
         
-dialogAngleCalc = AngleCalc()
-dialogAngleCalc.setWindowTitle("Calculate Angle")
-MainWindow.connect(actionCalculate_angle, QtCore.SIGNAL('triggered()'), dialogAngleCalc.exec_)  
+
  
 ##################################################
-
-##### Schmid factor calculation
-
+#
+# Class for dialog box for Schmid factor calculation
+#
 ################################################### 
 
 class SchmidCalc(QtGui.QDialog):
@@ -2018,14 +1694,10 @@ class SchmidCalc(QtGui.QDialog):
         self.c22 = QtGui.QLineEdit(self)
         self.c22.setObjectName(_fromUtf8("c22"))
         self.gridLayout.addWidget(self.c22, 3, 1, 1, 1)
-        
-        
         self.label = QtGui.QLabel(self)
         self.label.setText(_fromUtf8(""))
         self.label.setObjectName(_fromUtf8("label"))
         self.gridLayout.addWidget(self.label, 4, 0, 1, 2)
-        
-        
         self.buttonBox = QtGui.QDialogButtonBox(self)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
@@ -2063,160 +1735,225 @@ class SchmidCalc(QtGui.QDialog):
        self.label.setText(s2)
 
                         
- 
-dialogSchmidCalc = SchmidCalc()
-dialogSchmidCalc.setWindowTitle("Calculate Schmid Factor")
-MainWindow.connect(actionCalculate_Schmid_factor, QtCore.SIGNAL('triggered()'), dialogSchmidCalc.exec_) 
-
-
+ #######################################
+ #
+ # Save stereo as png
+ #
+ ############################################"
 
 def image_save():
-    filename=QtGui.QFileDialog.getSaveFileName( MainWindow,"Save file", "", ".png")
-    pixmap = QtGui.QPixmap.grabWidget(canvas)
+    filename=QtGui.QFileDialog.getSaveFileName( Index,"Save file", "", ".png")
+    pixmap = QtGui.QPixmap.grabWidget(canvas,55,49,710,710)
     pixmap.save(str(filename)+".png")
      
+     
+##################################################
+#
+# Class for dialog box for calculating x,y,z directions
+#
+################################################### 
 
+class xyzCalc(QtGui.QDialog):
 
-MainWindow.connect(actionSave_figure, QtCore.SIGNAL('triggered()'), image_save) 
-
-              
-####################################################################
-##### Inclinaison-beta
-####################################################################   
-def coordinates(event):
-#    print(event.x,event.y)
-    x=event.x
-    y=event.y    
-    x=(x-411)*2/620
-    y=-(y-400)*2/620    
-    long0=90*pi/180
-    lat0=0
-    r=np.sqrt(x**2+y**2)
-    c=2*np.arctan(r)
-    longi=(long0+np.arctan2(x*np.sin(c),r*np.cos(lat0)*np.cos(c)-y*np.sin(lat0)*np.sin(c)))*180/pi 
-    lat=np.arcsin(np.cos(c)*np.sin(lat0)+y*np.sin(c)*np.cos(lat0)/r)*180/pi
-    lat=90+lat
-    longi=-longi+180
-    if longi>90:
-     longi=longi-180
-    c=str(np.around(longi,decimals=1))+str(',')+str(np.around(lat,decimals=1))
-    coord_label.setText(str(c))
-
-
-#########################################################################
-
-
-def resol(item):
+       
+    def __init__(self, parent=None):
         
-    #print(MainWindow.size(), np.int(item[0]))
-    canvas.setMinimumSize(QtCore.QSize(np.int(item[0]), np.int(item[2])))
-    #canvas.resize(np.int(item[0]), np.int(item[2]))    
-    MainWindow.resize(0,0)
-    print(MainWindow.size())
+        super(xyzCalc, self).__init__(parent)
+        
+	self.gridLayout = QtGui.QGridLayout(self)
+        self.gridLayout.setMargin(0)
+        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
+        self.X_label = QtGui.QLabel(self)
+        self.X_label.setObjectName(_fromUtf8("X_label"))
+        self.X_label.setText(_fromUtf8("X"))
+        self.gridLayout.addWidget(self.X_label, 0, 0, 1, 1)
+        self.Z_label = QtGui.QLabel(self)
+        self.Z_label.setObjectName(_fromUtf8("Z_label"))
+        self.Z_label.setText(_fromUtf8("Z"))
+        self.gridLayout.addWidget(self.Z_label, 4, 0, 1, 1)
+        self.X_label2 = QtGui.QLabel(self)
+        self.X_label2.setText(_fromUtf8(""))
+        self.X_label2.setObjectName(_fromUtf8("X_label2"))
+        self.gridLayout.addWidget(self.X_label2, 1, 0, 1, 1)
+        self.Y_label = QtGui.QLabel(self)
+        self.Y_label.setObjectName(_fromUtf8("Y_label"))
+        self.Y_label.setText(_fromUtf8("Y"))
+        self.gridLayout.addWidget(self.Y_label, 2, 0, 1, 1)
+        self.Y_label2 = QtGui.QLabel(self)
+        self.Y_label2.setText(_fromUtf8(""))
+        self.Y_label2.setObjectName(_fromUtf8("Y_label2"))
+        self.gridLayout.addWidget(self.Y_label2, 3, 0, 1, 1)
+        self.Z_label2 = QtGui.QLabel(self)
+        self.Z_label2.setText(_fromUtf8(""))
+        self.Z_label2.setObjectName(_fromUtf8("Z_label2"))
+        self.gridLayout.addWidget(self.Z_label2, 5, 0, 1, 1)
+        self.buttonBox = QtGui.QPushButton(self)
+        self.buttonBox.setText("Update")
+        self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
+        self.gridLayout.addWidget(self.buttonBox, 6, 0, 1, 1)
+        self.buttonBox.clicked.connect(self.center)
+   
+    def center(self):
+	global D, Dstar,M
+	A=np.dot(np.linalg.inv(M),np.array([0,0,1]))
+	A2=np.dot(np.linalg.inv(M),np.array([1,0,0]))
+	A3=np.dot(np.linalg.inv(M),np.array([0,1,0]))
+	C=np.dot(np.linalg.inv(Dstar),A)
+	Zp=C/np.linalg.norm(C)
+	C2=np.dot(np.linalg.inv(Dstar),A2)
+	Xp=C2/np.linalg.norm(C2)
+	C3=np.dot(np.linalg.inv(Dstar),A3)
+	Yp=C3/np.linalg.norm(C3)    
+	
+	self.X_label2.setText(str(Xp[0])+', '+str(Xp[1])+', '+str(Xp[2]))
+	self.Y_label2.setText(str(Yp[0])+', '+str(Yp[1])+', '+str(Yp[2]))
+	self.Z_label2.setText(str(Zp[0])+', '+str(Zp[1])+', '+str(Zp[2]))
+            
+
+##################################################
+#
+# Add matplotlib toolbar to zoom and pan
+#
+################################################### 
+
+
+class NavigationToolbar(NavigationToolbar):
+    # only display the buttons we need
+    toolitems = [t for t in NavigationToolbar.toolitems if
+                 t[0] in ('Pan', 'Zoom')]
+    def set_message(self, msg):
+        pass
+
+
+#############################################################
+#
+# Launch
+#
+#############################################################"
     
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
 
-file_resol=open(os.path.join(os.path.dirname(__file__), 'resolution.txt') ,"r")
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
+    
+if __name__ == "__main__":
+    
+	app = QtGui.QApplication(sys.argv)
+	Index = QtGui.QMainWindow()	
+	ui = stereoprojUI.Ui_StereoProj()
+	ui.setupUi(Index)
+	figure=plt.figure()
+	canvas=FigureCanvas(figure)
+	ui.mplvl.addWidget(canvas)
+	toolbar = NavigationToolbar(canvas, canvas)
+	toolbar.setMinimumWidth(601)
 
-xr=[]
+# Read structure file
+	
+	file_struct=open(os.path.join(os.path.dirname(__file__), 'structure.txt') ,"r")
+	x0=[]
+	for line in file_struct:
+	    x0.append(map(str, line.split()))
+	i=0
+	file_struct.close()            
+	for item in x0:
+	    entry = ui.menuStructure.addAction(item[0])
+	    Index.connect(entry,QtCore.SIGNAL('triggered()'), lambda item=item: structure(item))
+	    i=i+1
 
-for line in file_resol:
-    xr.append(map(str, line.split()))
+# Connect dialog boxes and buttons
 
-file_resol.close()            
+	dialogSchmidCalc = SchmidCalc()
+	dialogSchmidCalc.setWindowTitle("Calculate Schmid Factor")
+	Index.connect(ui.actionCalculate_Schmid_factor, QtCore.SIGNAL('triggered()'), dialogSchmidCalc.show) 
 
-for itemr in xr:
-    entry = menuResol.addAction(itemr[0]+itemr[1]+itemr[2])
-    MainWindow.connect(entry,QtCore.SIGNAL('triggered()'), lambda itemr=itemr: resol(itemr))    
- #######################################################################
+	Index.connect(ui.actionSave_figure, QtCore.SIGNAL('triggered()'), image_save) 
 
+	dialogAngleCalc = AngleCalc()
+	dialogAngleCalc.setWindowTitle("Calculate Angle")
+	Index.connect(ui.actionCalculate_angle, QtCore.SIGNAL('triggered()'), dialogAngleCalc.show) 	
 
-fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
-img=Image.open(fn)
-a = figure.add_subplot(111)
-a.axis('off')
-a.imshow(img)
-a.figure.canvas.draw()
+	dialog_largeur_plan=LargeurPlanCalc()
+	dialog_largeur_plan.setWindowTitle("Apparent Width")
+	Index.connect(ui.actionCalculate_apparent_width, QtCore.SIGNAL('triggered()'), dialog_largeur_plan.show) 	
+	dialog_xyz=xyzCalc()
+	dialog_xyz.setWindowTitle("X,Y,Z directions")
+	Index.connect(ui.actionCalculate_xyz, QtCore.SIGNAL('triggered()'), dialog_xyz.show) 
+	
+	ui.button_trace2.clicked.connect(princ2)
+	ui.button_trace.clicked.connect(princ)
+	ui.angle_alpha_buttonp.clicked.connect(rot_alpha_p)
+	ui.angle_alpha_buttonm.clicked.connect(rot_alpha_m)
+	ui.angle_beta_buttonp.clicked.connect(rot_beta_p)
+	ui.angle_beta_buttonm.clicked.connect(rot_beta_m)
+	ui.angle_z_buttonp.clicked.connect(rot_z_p)
+	ui.angle_z_buttonm.clicked.connect(rot_z_m)
+	ui.rot_gm_button.clicked.connect(rotgm)
+	ui.rot_gp_button.clicked.connect(rotgp)
+	ui.lock_checkButton.stateChanged.connect(lock)
+	ui.addpole_button.clicked.connect(addpole)
+	ui.undo_addpole_button.clicked.connect(undo_addpole)
+	ui.sym_button.clicked.connect(addpole_sym)
+	ui.undo_sym_button.clicked.connect(undo_sym)
+	ui.trace_plan_button.clicked.connect(trace_addplan)
+	ui.undo_trace_plan_button.clicked.connect(undo_trace_addplan)
+	ui.trace_plan_sym_button.clicked.connect(trace_plan_sym)
+	ui.undo_trace_plan_sym_button.clicked.connect(undo_trace_plan_sym)
+	ui.trace_schmid_button.clicked.connect(schmid_trace)
+	ui.undo_trace_schmid.clicked.connect(undo_schmid_trace)
+	ui.norm_button.clicked.connect(dhkl)
+	ui.dm_button.clicked.connect(dm)
+	ui.dp_button.clicked.connect(dp)
+	ui.reset_view_button.clicked.connect(reset_view)
+	figure.canvas.mpl_connect('motion_notify_event', coordinates)
+	figure.canvas.mpl_connect('button_press_event', click_a_pole)
 
-MainWindow.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding) 
+# Initialize variables
+	
+	dmip=0
+	tr_schmid=np.zeros((1,3))
+	var_lock=0
+	ui.lock_checkButton.setChecked(False)
+	ui.color_trace_bleu.setChecked(True)
+	ui.wulff_button.setChecked(True)
+	ui.wulff_button.setChecked(True)
+	ui.d_label_var.setText('0')
+	ui.alpha_entry.setText('90')
+	ui.beta_entry.setText('90')
+	ui.gamma_entry.setText('90')
+	ui.a_entry.setText('1')
+	ui.b_entry.setText('1')
+	ui.c_entry.setText('1')
+	ui.phi1_entry.setText('0')
+	ui.phi_entry.setText('0')
+	ui.phi2_entry.setText('0')
+	ui.e_entry.setText('1')
+	ui.rg_label.setText('0.0')
+	ui.angle_euler_label.setText(' ')
+	ui.size_var.setText('40')
+	ui.e_entry.setText('1')
+	ui.angle_alpha_entry.setText('5')
+	ui.angle_beta_entry.setText('5')
+	ui.angle_z_entry.setText('5')
+	ui.angle_beta_entry.setText('5')
+	ui.angle_z_entry.setText('5')	
+	ui.d_entry.setText('1')
+	ui.rot_g_entry.setText('5')
+	
+	a = figure.add_subplot(111)
+	wulff()	
+	Index.show()
+	sys.exit(app.exec_())
 
-
-button_trace2.clicked.connect(princ2)
-button_trace.clicked.connect(princ)
-
-rx_buttonp.clicked.connect(rxp)
-rx_buttonm.clicked.connect(rxm)
-ry_buttonp.clicked.connect(ryp)
-ry_buttonm.clicked.connect(rym)
-rz_buttonp.clicked.connect(rzp)
-rz_buttonm.clicked.connect(rzm)
-
-rot_gm_button.clicked.connect(rotgm)
-rot_gp_button.clicked.connect(rotgp)
-
-addpole_button.clicked.connect(addpole)
-undo_addpole_button.clicked.connect(undo_addpole)
-sym_button.clicked.connect(addpole_sym)
-undo_sym_button.clicked.connect(undo_sym)
-trace_plan_button.clicked.connect(trace_addplan)
-undo_trace_plan_button.clicked.connect(undo_trace_addplan)
-trace_plan_sym_button.clicked.connect(trace_plan_sym)
-undo_trace_plan_sym_button.clicked.connect(undo_trace_plan_sym)
-trace_schmid_button.clicked.connect(schmid_trace)
-undo_trace_schmid.clicked.connect(undo_schmid_trace)
-largeur_plan=Window()
-largeur_plan.setWindowTitle("Apparent Width")
-MainWindow.connect(largeur_button, QtCore.SIGNAL('clicked()'), largeur_plan.exec_) 
-norm_button.clicked.connect(dhkl)
-dm_button.clicked.connect(dm)
-dp_button.clicked.connect(dp)
-
-figure.canvas.mpl_connect('motion_notify_event', coordinates)
-figure.canvas.mpl_connect('button_press_event', click_a_pole)
-
-
-dmip=0
-tr_schmid=np.zeros((1,3))
-x=0
-y=0
-z=0
-g=0
-
-color_trace_bleu.setChecked(True)
-
-d_label_var.setText('0')
-alpha_entry.setText('90')
-beta_entry.setText('90')
-gamma_entry.setText('90')
-
-a_entry.setText('1')
-b_entry.setText('1')
-c_entry.setText('1')
-
-phi1_entry.setText('0')
-phi_entry.setText('0')
-phi2_entry.setText('0')
-
-e_entry.setText('1')
-
-rx_label.setText('0.0')
-ry_label.setText('0.0')
-rz_label.setText('0.0')
-rg_label.setText('0.0')
-angle_euler_label.setText(' ')
-size_var.setText('40')
-
-e_entry.setText('1')
-rx_entry.setText('5')
-ry_entry.setText('5')
-rz_entry.setText('5')
-
-d_entry.setText('1')
-rot_g_entry.setText('5')
-
-
-
-MainWindow.show()
-app.exec_()
 
 
 

@@ -6,7 +6,7 @@ Stereo-proj is a python script software that plots the stereographic projection 
 * Draw a specific plane or a set of equivalent planes
 * Click and find poles/directions
 * Select the number of poles/directions to draw
-* Rotate the crystal around x,y and z directions
+* Rotate the crystal around x,y and z fixed directions 
 * Calculate interplanar spacing dhkl, angles between directions/planes
 * Plot iso-Schmid factor lines for a given plane, and calculate Schmid factor
 * Draw the apparent variation of a plane width with tilt angle
@@ -23,7 +23,7 @@ Stereo-proj is a python script software that plots the stereographic projection 
 * Prefer this version if you are a Mac User (does not need Tcl).
 * Run the script python /my-path-to-the-script/stereo-proj-pyqt.py
 
-# User guide
+# User guide for stereo-proj
 
 ## Interface
 
@@ -62,3 +62,15 @@ Stereo-proj is a python script software that plots the stereographic projection 
 
 ## Export
 * Save the projection from the menu bar (jpeg default, works with pdf)
+
+# User guide for stereo-proj-qt
+
+Additional features for Qt version.
+
+* Mimic α,β double tilt/α, z tilt-rot holders motions by locking y and z axes to crystal axes
+* Zoom/Pan in the stereo and reset view
+* Enable/disable Wulff net
+* Calculate x,y,z directions in crystal coordinate
+
+![img1](/img-qt.png?raw=true)
+
