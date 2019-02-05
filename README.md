@@ -71,6 +71,10 @@ Additional features for Qt version.
 * Zoom/Pan in the stereo and reset view
 * Enable/disable Wulff net
 * Calculate x,y,z directions in crystal coordinate
+* Plot cones with a given aperture
+* Get Schmid factors for a couple (b,n) (and equivalent couples) for arbitrary axis
+* Plot apparent width and traces directions
+
 
 ![img1](/img-qt.png?raw=true)
 
