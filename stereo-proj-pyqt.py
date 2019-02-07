@@ -53,8 +53,8 @@ def proj(x,y,z):
         X=0
         Y=0
     elif z<-0.000001:
-        X=250
-        Y=250
+        X='nan'
+        Y='nan'
     else: 
             
         X=x/(1+z)
@@ -75,7 +75,7 @@ def proj2(x,y,z):
         X=x/(1+z)
         Y=y/(1+z)
     
-    return np.array([X,Y],float)     
+    return np.array([X,Y,z],float)     
 ###################################################################
 # Rotation Euler
 #
@@ -1107,27 +1107,12 @@ def trace_plan2(B):
     		w=w+1
         
         Q=np.delete(Q,0,0)   
-        Qp=np.diff(Q, axis=1) 
-        asign = np.sign(Qp)
-	signchange = ((np.roll(asign, 1) - asign) != 0).astype(int)
-	ww=np.where(signchange==1)[0]
-	indi=np.zeros(np.shape(ww)[0]+2)
-
-	if np.shape(ww)[0]!=0:
-		for ii in range(0,np.shape(ww)[0]): 
-			indi[ii+1]=np.where(signchange==1)[0][ii]
-			
-		indi[-1]=100
-	else:
-		indi=np.array([0,100])	
-
-	for tt in range(1, np.shape(indi)[0]-3):       
-		if B[h,4]==1:
-			a.plot(Q[int(indi[tt-1]):int(indi[tt+1]),0]+600/2,Q[int(indi[tt-1]):int(indi[tt+1]),1]+600/2,'g')			
-		if B[h,4]==2:
-			a.plot(Q[int(indi[tt-1]):int(indi[tt+1]),0]+600/2,Q[int(indi[tt-1]):int(indi[tt+1]),1]+600/2,'b')						
-		if B[h,4]==3:
-			a.plot(Q[int(indi[tt-1]):int(indi[tt+1]),0]+600/2,Q[int(indi[tt-1]):int(indi[tt+1]),1]+600/2,'r')
+	if B[h,4]==1:
+		a.plot(Q[:,0]+600/2,Q[:,1]+600/2,'g')
+	if B[h,4]==2:
+		a.plot(Q[:,0]+600/2,Q[:,1]+600/2,'b')
+	if B[h,4]==3:
+		a.plot(Q[:,0]+600/2,Q[:,1]+600/2,'r')
        
 def trace_cone2(B):
     global M,axes,axesh,T,V,D,Dstar,a
@@ -1151,8 +1136,8 @@ def trace_cone2(B):
             pole2=-pole2
             pole3=-pole3
         r=np.sqrt(S[0]**2+S[1]**2+S[2]**2)
-        A=np.zeros((2,100))
-        Q=np.zeros((1,2))
+        A=np.zeros((3,100))
+        Q=np.zeros((1,3))
         if S[2]==0:
              t=90
         else:
@@ -1168,27 +1153,21 @@ def trace_cone2(B):
     		w=w+1
         
         Q=np.delete(Q,0,0)   
-        Qp=np.diff(Q, axis=1) 
-        asign = np.sign(Qp)
+        
+        asign = np.sign(Q[:,2])
 	signchange = ((np.roll(asign, 1) - asign) != 0).astype(int)
-	ww=np.where(signchange==1)[0]
-	indi=np.zeros(np.shape(ww)[0]+2)
+	wp=np.where(signchange==1)[0]
+        wp=np.append(0,wp)
+        wp=np.append(wp,99)
 
-	if np.shape(ww)[0]!=0:
-		for ii in range(0,np.shape(ww)[0]): 
-			indi[ii+1]=np.where(signchange==1)[0][ii]
-			
-		indi[-1]=100
-	else:
-		indi=np.array([0,100])	
-
-	for tt in range(1, np.shape(indi)[0]):       
+	for tt in range(0, np.shape(wp)[0]-1):       
 		if B[h,4]==1:
-			a.plot(Q[int(indi[tt-1]):int(indi[tt]),0]+600/2,Q[int(indi[tt-1]):int(indi[tt]),1]+600/2,'g')
+			a.plot(Q[int(wp[tt]):int(wp[tt+1]),0]+600/2,Q[int(wp[tt]):int(wp[tt+1]),1]+600/2,'g')
 		if B[h,4]==2:
-			a.plot(Q[int(indi[tt-1]):int(indi[tt]),0]+600/2,Q[int(indi[tt-1]):int(indi[tt]),1]+600/2,'b')
+			a.plot(Q[int(wp[tt]):int(wp[tt+1]),0]+600/2,Q[int(wp[tt]):int(wp[tt+1]),1]+600/2,'b')
 		if B[h,4]==3:
-			a.plot(Q[int(indi[tt-1]):int(indi[tt]),0]+600/2,Q[int(indi[tt-1]):int(indi[tt]),1]+600/2,'r')      
+			a.plot(Q[int(wp[tt]):int(wp[tt+1]),0]+600/2,Q[int(wp[tt]):int(wp[tt+1]),1]+600/2,'r')
+            
             
         
 ####################################################################
