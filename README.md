@@ -74,6 +74,10 @@ Additional features for Qt version.
 * Plot cones with a given aperture
 * Get Schmid factors for a couple (b,n) (and equivalent couples) for arbitrary axis
 * Plot apparent width and traces directions
+* Get intersections between planes, proj. dir. w. a plane, plane w/ cone
+* Convert hkl to uvw and vice versa
+* Copy results for easy plotting of poles
+* Unclick poles with ``Ctrl+z`` shortcut
 
 
 ![img1](/img-qt.png?raw=true)

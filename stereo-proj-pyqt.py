@@ -7,6 +7,7 @@
 # to be used in electron microscopy experiments.
 # Author: F. Mompiou, CEMES-CNRS
 #
+#
 #######################################################################
 
 
@@ -27,6 +28,7 @@ import intersectionsUI
 import angleUI
 import schmidUI
 import xyzUI
+import hkl_uvwUI
 import widthUI
                  
 #font size on plot 
@@ -75,7 +77,8 @@ def proj2(x,y,z):
         X=x/(1+z)
         Y=y/(1+z)
     
-    return np.array([X,Y,z],float)     
+    return np.array([X,Y,z],float)
+         
 ###################################################################
 # Rotation Euler
 #
@@ -94,6 +97,7 @@ def rotation(phi1,phi,phi2):
    return R
 
 ###################################################################
+
 # Rotation around a given axis
 #
 ##################################################################
@@ -295,7 +299,9 @@ def schmid_trace2(C):
 ###########################################################################
 #
 # Rotation of the sample. If Lock Axes is off rotation are along y,x,z directions. If not, the y and z axes 
-# of the sample are locked to the crystal axes when the check box is ticked. It mimics double-tilt holder (rotation of alpha along fixed x and rotation of beta along the beta tilt moving axis) or  tilt-rotation holder  (rotation of alpha along fixed # x and rotation of z along the z-rotation moving axis).
+# of the sample are locked to the crystal axes when the check box is ticked.
+# It mimics double-tilt holder (rotation of alpha along fixed x and rotation of beta along the beta tilt moving axis)
+# or  tilt-rotation holder  (rotation of alpha along fixed # x and rotation of z along the z-rotation moving axis).
 #
 ##########################################################################
 
@@ -1178,7 +1184,7 @@ def trace_cone2(B):
 
 def click_a_pole(event):
         
-    global M,Dstar,D,minx,maxx,miny,maxy,a
+    global M,Dstar,D,minx,maxx,miny,maxy,a,Stc
       
     if event.button==3:
             x=event.xdata
@@ -1223,7 +1229,14 @@ def click_a_pole(event):
                         L[1,0]=Lb
 
                 pole(L[0,0],L[1,0],L[2,0])
+                Stc=np.vstack((Stc, np.array([L[0,0],L[1,0],L[2,0]])))
                 trace()
+                
+def undo_click_a_pole():
+	global Stc
+	undo_pole(Stc[-1,0],Stc[-1,1],Stc[-1,2])
+	Stc=Stc[:-1,:]
+	trace()
 
 ####################################################################
 #
@@ -1391,9 +1404,10 @@ def trace():
  ####################################
  
 def princ():
-    global T,angle_alpha, angle_beta, angle_z,M,Dstar,D,g,M0,trP,axeshr,nn,a,minx,maxx,miny,maxy,trC
+    global T,angle_alpha, angle_beta, angle_z,M,Dstar,D,g,M0,trP,axeshr,nn,a,minx,maxx,miny,maxy,trC,Stc
     trP=np.zeros((1,5))
     trC=np.zeros((1,6))
+    Stc=np.zeros((1,3))
     crist() 
     a = figure.add_subplot(111)
     a.figure.clear()
@@ -1499,10 +1513,11 @@ def princ():
 ##################################################"
 
 def princ2():
-    global T,angle_alpha,angle_beta,angle_z,M,Dstar,D,g,M0,trP,a,axeshr,nn,minx,maxx,miny,maxy,trC
+    global T,angle_alpha,angle_beta,angle_z,M,Dstar,D,g,M0,trP,a,axeshr,nn,minx,maxx,miny,maxy,trC,Stc
     
     trP=np.zeros((1,5))
     trC=np.zeros((1,6))
+    Stc=np.zeros((1,3))
     a = figure.add_subplot(111)
     a.figure.clear()
     a = figure.add_subplot(111)
@@ -1649,14 +1664,13 @@ def angle():
 	ui_angle.angle_label.setText(thes)
 
                         
-
- 
 ##################################################
 #
 # Schmid factor calculation (for the Schmid dialog box). Calculate the Schmid factor for a 
 # given b,n couple or for equivalent couples
 #
 ################################################### 
+
 def prod_scal(c1,c2):
     global M, Dstar, D
     alp=np.float(ui.alpha_entry.text())
@@ -1818,7 +1832,7 @@ def image_save():
      
 ##################################################
 #
-# Calculating x,y,z direction (for xyz dialog box)
+# Calculating x,y,z direction and hkl<>uvw  (for xyz dialog box)
 #
 ################################################### 
 
@@ -1839,8 +1853,31 @@ def center():
 	ui_xyz.Y_text.setText(str(Yp[0]*100)+', '+str(Yp[1]*100)+', '+str(Yp[2]*100))
 	ui_xyz.Z_text.setText(str(Zp[0]*100)+', '+str(Zp[1]*100)+', '+str(Zp[2]*100))
  
-
- 
+def to_uvw():
+	global Dstar, D, M
+	plane=np.array([np.float( ui_hkl_uvw.h.text()),np.float( ui_hkl_uvw.k.text()),np.float( ui_hkl_uvw.l.text())])
+	plane=plane/np.linalg.norm(plane)
+	direction=np.dot(np.linalg.inv(D),np.dot(Dstar,plane))
+	if var_hexa()==1:
+	            na=(2*direction[0]-direction[1])/3
+		    n2a=(2*direction[1]-direction[0])/3
+		    direction[0]=na
+		    direction[1]=n2a
+	ui_hkl_uvw.uvw_entry.setText(str(np.round(100*direction[0],decimals=3))+', '+str(np.round(100*direction[1],decimals=3))+', '+str(np.round(100*direction[2],decimals=3)))
+	
+def to_hkl():
+	global Dstar, D, M
+	direction=np.array([np.float( ui_hkl_uvw.u.text()),np.float( ui_hkl_uvw.v.text()),np.float( ui_hkl_uvw.w.text())])
+	if var_hexa()==1:
+	            na=2*direction[0]+direction[1]
+		    n2a=2*direction[1]+direction[0]
+		    direction[0]=na
+		    direction[1]=n2a
+	direction=direction/np.linalg.norm(direction)
+	plane=np.dot(np.linalg.inv(Dstar),np.dot(D,direction))
+	ui_hkl_uvw.hkl_entry.setText(str(np.round(100*plane[0],decimals=3))+', '+str(np.round(100*plane[1],decimals=3))+', '+str(np.round(100*plane[2],decimals=3)))
+	
+	
 ##########################################################################
 #
 #  Apparent width class for dialog box: plot the width of a plane of given normal hkl with the tilt alpha angle. Plot trace direction with respect to the tilt axis
@@ -1896,9 +1933,147 @@ def plot_width():
 	
 	ui_width.canvas.draw_idle()
 	
+####################################################
+#
+# Copy results
+#
+#######################################################
+def copy_to_pole(r):
+	if r==0:
+		A=str(ui_inter.intersection_planes.text())
+		if ui_inter.checkBox.isChecked():
+			ui.uvw_button.setChecked(True)
+		else:
+			ui.uvw_button.setChecked(False)
+	if r==1:
+		A=str(ui_inter.intersection_dir_proj.text())
+		if ui_inter.checkBox_2.isChecked():
+			ui.uvw_button.setChecked(True)
+		else:
+			ui.uvw_button.setChecked(False)
+	
+	if r=='x':
+		A=str(ui_xyz.X_text.text())
+	if r=='y':
+		A=str(ui_xyz.Y_text.text())	
+	if r=='z':
+		A=str(ui_xyz.Z_text.text())
+	if r=='c1':
+		A=str(ui_inter.intersection_cone.text())
+		if ui_inter.checkBox_3.isChecked():
+			ui.uvw_button.setChecked(True)
+		else:
+			ui.uvw_button.setChecked(False)
+	if r=='c2':
+		A=str(ui_inter.intersection_cone2.text())
+		if ui_inter.checkBox_3.isChecked():
+			ui.uvw_button.setChecked(True)
+		else:
+			ui.uvw_button.setChecked(False)
+	if r=='uvw':
+		A=str(ui_hkl_uvw.uvw_entry.text())
+		ui.uvw_button.setChecked(True)
+	if r=='hkl':
+		A=str(ui_hkl_uvw.hkl_entry.text())
+		ui.uvw_button.setChecked(False)
+		
+	result = [x.strip() for x in A.split(',')]
+	ui.pole1_entry.setText(result[0])
+	ui.pole2_entry.setText(result[1])
+	ui.pole3_entry.setText(result[2])
+
+def copy_to_euler():
+	A=str(ui.angle_euler_label.text())
+	result = [x.strip() for x in A.split(',')]
+	ui.phi1_entry.setText(result[0])
+	ui.phi_entry.setText(result[1])
+	ui.phi2_entry.setText(result[2])	
+
+####################################################
+#
+# Intersections
+#
+#######################################################
+
+def intersect_norm(n1,n2,d):
+	global Dstar, D, M
+	n1=n1/np.linalg.norm(n1)
+	n1=np.dot(Dstar,n1)
+	
+	if d==0:
+		l=ui_inter.checkBox.isChecked()
+		n2=n2/np.linalg.norm(n2)
+		n2=np.dot(Dstar,n2)
+	else:
+		l=ui_inter.checkBox_2.isChecked()
+		n2=np.dot(np.linalg.inv(M), n2)
+
+	n=np.cross(n1,n2)	
+	if l:
+		n=np.dot(np.linalg.inv(D),n)
+		if var_hexa()==1:
+	            na=(2*n[0]-n[1])/3
+		    n2a=(2*n[1]-n[0])/3
+		    n[0]=na
+		    n[1]=n2a
+	else:
+		n=np.dot(np.linalg.inv(Dstar),n)
+	return n
 	
 
-
+def intersections_plans():
+	n1=np.array([np.float( ui_inter.n10.text()),np.float( ui_inter.n11.text()),np.float( ui_inter.n12.text())])
+	n2=np.array([np.float( ui_inter.n20.text()),np.float( ui_inter.n21.text()),np.float( ui_inter.n22.text())])
+	n=intersect_norm(n1,n2,0)
+	ui_inter.intersection_planes.setText(str(np.round(100*n[0],decimals=3))+', '+str(np.round(100*n[1],decimals=3))+', '+str(np.round(100*n[2],decimals=3)))
+	           
+def intersection_dir_proj():
+	global M
+	n=np.array([np.float( ui_inter.n_proj0.text()),np.float( ui_inter.n_proj1.text()),np.float( ui_inter.n_proj2.text())])
+	angle=np.float(ui_inter.angle_proj.text())*np.pi/180
+	norm_xyz=np.array([np.cos(angle),-np.sin(angle),0])
+	n_intersect=intersect_norm(n,norm_xyz,1)
+	ui_inter.intersection_dir_proj.setText(str(np.round(100*n_intersect[0],decimals=3))+', '+str(np.round(100*n_intersect[1],decimals=3))+', '+str(np.round(100*n_intersect[2],decimals=3)))
+		
+def intersection_cone():
+	global Dstar,D
+	n=np.array([np.float( ui_inter.n0.text()),np.float( ui_inter.n1.text()),np.float( ui_inter.n2.text())])
+	c=np.array([np.float( ui_inter.c0.text()),np.float( ui_inter.c1.text()),np.float( ui_inter.c2.text())])
+	r=np.cos(np.float(ui_inter.c_angle.text())*np.pi/180)
+	n=np.dot(Dstar,n)
+	n=n/np.linalg.norm(n)
+	c=np.dot(Dstar,c)
+	c=c/np.linalg.norm(c)
+	
+	x1=(c[0]*n[1]**2*r + c[0]*n[2]**2*r - c[1]*n[0]*n[1]*r - c[1]*n[2]*np.sqrt(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2 - n[0]**2*r**2 - n[1]**2*r**2 - n[2]**2*r**2) - c[2]*n[0]*n[2]*r + c[2]*n[1]*np.sqrt(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2 - n[0]**2*r**2 - n[1]**2*r**2 - n[2]**2*r**2))/(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2)
+	y1=(-c[0]*n[0]*n[1]*r + c[0]*n[2]*np.sqrt(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2 - n[0]**2*r**2 - n[1]**2*r**2 - n[2]**2*r**2) + c[1]*n[0]**2*r + c[1]*n[2]**2*r - c[2]*n[0]*np.sqrt(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2 - n[0]**2*r**2 - n[1]**2*r**2 - n[2]**2*r**2) - c[2]*n[1]*n[2]*r)/(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2)
+	z1=(-r*(c[0]*n[0]*n[2] + c[1]*n[1]*n[2] - c[2]*n[0]**2 - c[2]*n[1]**2) + (-c[0]*n[1] + c[1]*n[0])*np.sqrt(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2 - n[0]**2*r**2 - n[1]**2*r**2 - n[2]**2*r**2))/(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2)
+	x2=(c[0]*n[1]**2*r + c[0]*n[2]**2*r - c[1]*n[0]*n[1]*r + c[1]*n[2]*np.sqrt(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2 - n[0]**2*r**2 - n[1]**2*r**2 - n[2]**2*r**2) - c[2]*n[0]*n[2]*r - c[2]*n[1]*np.sqrt(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2 - n[0]**2*r**2 - n[1]**2*r**2 - n[2]**2*r**2))/(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2)
+	y2=(-c[0]*n[0]*n[1]*r - c[0]*n[2]*np.sqrt(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2 - n[0]**2*r**2 - n[1]**2*r**2 - n[2]**2*r**2) + c[1]*n[0]**2*r + c[1]*n[2]**2*r + c[2]*n[0]*np.sqrt(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2 - n[0]**2*r**2 - n[1]**2*r**2 - n[2]**2*r**2) - c[2]*n[1]*n[2]*r)/(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2)
+	z2=(-r*(c[0]*n[0]*n[2] + c[1]*n[1]*n[2] - c[2]*n[0]**2 - c[2]*n[1]**2) + (c[0]*n[1] - c[1]*n[0])*np.sqrt(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2 - n[0]**2*r**2 - n[1]**2*r**2 - n[2]**2*r**2))/(c[0]**2*n[1]**2 + c[0]**2*n[2]**2 - 2*c[0]*c[1]*n[0]*n[1] - 2*c[0]*c[2]*n[0]*n[2] + c[1]**2*n[0]**2 + c[1]**2*n[2]**2 - 2*c[1]*c[2]*n[1]*n[2] + c[2]**2*n[0]**2 + c[2]**2*n[1]**2)
+	
+	r1=np.array([x1,y1,z1])
+	r2=np.array([x2,y2,z2])
+	
+	if ui_inter.checkBox_3.isChecked():
+		r1=np.dot(np.linalg.inv(D),r1)
+		r2=np.dot(np.linalg.inv(D),r2)
+		if var_hexa()==1:
+	            na=(2*r1[0]-r1[1])/3
+		    n2a=(2*r1[1]-r1[0])/3
+		    r1[0]=na
+		    r1[1]=n2a
+		    na2=(2*r2[0]-r2[1])/3
+		    n2a2=(2*r2[1]-r2[0])/3
+		    r2[0]=na2
+		    r2[1]=n2a2
+	else:
+		r1=np.dot(np.linalg.inv(Dstar),r1)
+		r2=np.dot(np.linalg.inv(Dstar),r2)
+	
+	ui_inter.intersection_cone.setText(str(np.round(100*r1[0], decimals=3))+','+str(np.round(100*r1[1], decimals=3))+','+str(np.round(100*r1[2], decimals=3)))
+	ui_inter.intersection_cone2.setText(str(np.round(100*r2[0], decimals=3))+','+str(np.round(100*r2[1], decimals=3))+','+str(np.round(100*r2[2], decimals=3)))
+	
 
 ##################################################
 #
@@ -1960,10 +2135,15 @@ if __name__ == "__main__":
 	    Index.connect(entry,QtCore.SIGNAL('triggered()'), lambda item=item: structure(item))
 	    i=i+1
 
+# Ctrl+z shortcut to remove clicked pole
+
+	shortcut = QtGui.QShortcut(QtGui.QKeySequence("Ctrl+z"), Index)
+        shortcut.activated.connect(undo_click_a_pole)
+
 # Connect dialog boxes and buttons
 
 	Index.connect(ui.actionSave_figure, QtCore.SIGNAL('triggered()'), image_save) 
-
+	
 	Angle=QtGui.QDialog()
 	ui_angle=angleUI.Ui_Angle()
 	ui_angle.setupUi(Angle)
@@ -1976,6 +2156,18 @@ if __name__ == "__main__":
 	ui_xyz.setupUi(Xyz)
 	Index.connect(ui.actionCalculate_xyz, QtCore.SIGNAL('triggered()'), Xyz.show)
 	ui_xyz.xyz_button.clicked.connect(center)
+	ui_xyz.pushButton_copyX.clicked.connect(lambda: copy_to_pole('x'))
+	ui_xyz.pushButton_copyY.clicked.connect(lambda: copy_to_pole('y'))
+	ui_xyz.pushButton_copyZ.clicked.connect(lambda: copy_to_pole('z'))	
+	
+	Hkl_uvw=QtGui.QDialog()
+	ui_hkl_uvw=hkl_uvwUI.Ui_hkl_uvw()
+	ui_hkl_uvw.setupUi(Hkl_uvw)
+	Index.connect(ui.actionHkl_uvw, QtCore.SIGNAL('triggered()'),Hkl_uvw.show)
+	ui_hkl_uvw.pushButton_to_uvw.clicked.connect(to_uvw)
+	ui_hkl_uvw.pushButton_to_hkl.clicked.connect(to_hkl)
+	ui_hkl_uvw.pushButton_copy1.clicked.connect(lambda: copy_to_pole('uvw'))
+	ui_hkl_uvw.pushButton_copy2.clicked.connect(lambda: copy_to_pole('hkl'))
 	
 	Schmid=QtGui.QDialog()
 	ui_schmid=schmidUI.Ui_Schmid()
@@ -1995,9 +2187,13 @@ if __name__ == "__main__":
 	ui_inter=intersectionsUI.Ui_Intersections()
 	ui_inter.setupUi(Intersections)
 	Index.connect(ui.actionCalculate_intersections, QtCore.SIGNAL('triggered()'), Intersections.show) 
-	def center():
-	    print 'a'  
-	ui_inter.pushButton_3.clicked.connect(center)            
+	ui_inter.pushButton_intersections_plans.clicked.connect(intersections_plans)            
+	ui_inter.pushButton_intersection_proj.clicked.connect(intersection_dir_proj)
+	ui_inter.pushButton_intersection_cone.clicked.connect(intersection_cone)
+	ui_inter.pushButton_copy.clicked.connect(lambda: copy_to_pole(0))
+	ui_inter.pushButton_copy2.clicked.connect(lambda: copy_to_pole(1))
+	ui_inter.pushButton_copy3.clicked.connect(lambda: copy_to_pole('c1'))
+	ui_inter.pushButton_copy4.clicked.connect(lambda: copy_to_pole('c2'))
 	
 	
 	ui.button_trace2.clicked.connect(princ2)
@@ -2026,6 +2222,7 @@ if __name__ == "__main__":
 	ui.norm_button.clicked.connect(dhkl)
 	ui.dm_button.clicked.connect(dm)
 	ui.dp_button.clicked.connect(dp)
+	ui.pushButton_copy_to_euler.clicked.connect(copy_to_euler)
 	ui.reset_view_button.clicked.connect(reset_view)
 	figure.canvas.mpl_connect('motion_notify_event', coordinates)
 	figure.canvas.mpl_connect('button_press_event', click_a_pole)
