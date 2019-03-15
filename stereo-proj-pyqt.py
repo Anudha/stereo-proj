@@ -1894,11 +1894,10 @@ def plot_width():
 	plan2=np.float(ui_width.n1.text())
 	plan3=np.float(ui_width.n2.text())
 	n=np.array([plan1,plan2,plan3])
-	n2=np.dot(Dstar,n)
-	n2=n2/np.linalg.norm(n2)
+	nr=np.dot(Dstar,n)
+	nr=nr/np.linalg.norm(nr)
 	B=np.dot(Dstar,B)
 	B=B/np.linalg.norm(B)
-	nr=np.dot(M,n2)
 	la=np.zeros((1,41))
 	la2=np.zeros((2,41))
 	k=0
@@ -1911,8 +1910,7 @@ def plot_width():
 	    Bi=np.dot(np.linalg.inv(Mi),np.array([0,0,1]))
 	    Bi=np.dot(Dstar,Bi)
 	    Bi=Bi/np.linalg.norm(Bi)
-	    Ti=np.dot(Rot(t,0,1,0),T)
-	    
+	    Ti=np.dot(Mi,T)
 	    la[0,k]=np.dot(nr,Bi)
 	    la2[1,k]=np.arctan(Ti[0]/Ti[1])*180/np.pi
 	    la2[0,k]=np.dot(nr,Bi)/np.sqrt(1-np.dot(T,Bi)**2)
@@ -1922,15 +1920,21 @@ def plot_width():
 	ax1 = ui_width.figure.add_subplot(111)
 	ax1.set_xlabel('alpha tilt angle')
 
-	ax1.set_ylabel('w/w(0)', color='black')
+	
 	ax1.tick_params('y', colors='black')
 	if ui_width.trace_radio_button.isChecked():
 		ax2 = ax1.twinx()
 		ax2.plot(range(-40,41,2),la2[1,:],'b-')
 		ax2.set_ylabel('trace angle', color='b')
 		ax2.tick_params('y', colors='b')
-	ax1.plot(range(-40,41,2),la2[0,:],'r-')
-	
+	if ui_width.thickness_checkBox.isChecked():
+		t=np.float(ui_width.thickness.text())
+		d=t/np.sqrt(1-np.dot(nr,B)**2)
+		ax1.plot(range(-40,41,2),la2[0,:]*d,'r-')
+		ax1.set_ylabel('w (nm)', color='black')
+	else:
+		ax1.plot(range(-40,41,2),la2[0,:],'r-')
+		ax1.set_ylabel('w/d', color='black')
 	ui_width.canvas.draw_idle()
 	
 ####################################################
