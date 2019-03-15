@@ -203,6 +203,14 @@ def crist():
                     
     return axes,axesh,D,Dstar,V
 
+###############################################
+#
+# Switch to reciprocal indices with size indicating the intensity
+#  Need as input a file with the atoms in the cells to get the structure factor
+#
+###############################################"
+
+
 ######################################################
 #
 # Reduce number of poles/directions as a function of d-spacing (plus or minus)
