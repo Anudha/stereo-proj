@@ -165,7 +165,7 @@ def var_carre():
 ##################################################################
 
 def crist():
-    global axes,axesh,D,Dstar,V,naxes
+    global axes,axesh,D,Dstar,V,naxes,G
     a=np.float(ui.a_entry.text())
     b=np.float(ui.b_entry.text())
     c=np.float(ui.c_entry.text())
@@ -174,15 +174,15 @@ def crist():
     gamma=np.float(ui.gamma_entry.text())
     e=np.int(ui.e_entry.text())
     d2=np.float(ui.d_label_var.text())
-    alpha=alpha*np.pi/180;
-    beta=beta*np.pi/180;
-    gamma=gamma*np.pi/180;
+    alpha=alpha*np.pi/180
+    beta=beta*np.pi/180
+    gamma=gamma*np.pi/180
     V=a*b*c*np.sqrt(1-(np.cos(alpha)**2)-(np.cos(beta))**2-(np.cos(gamma))**2+2*np.cos(alpha)*np.cos(beta)*np.cos(gamma))
     D=np.array([[a,b*np.cos(gamma),c*np.cos(beta)],[0,b*np.sin(gamma),  c*(np.cos(alpha)-np.cos(beta)*np.cos(gamma))/np.sin(gamma)],[0,0,V/(a*b*np.sin(gamma))]])
     Dstar=np.transpose(np.linalg.inv(D))
     G=np.array([[a**2,a*b*np.cos(gamma),a*c*np.cos(beta)],[a*b*np.cos(gamma),b**2,b*c*np.cos(alpha)],[a*c*np.cos(beta),b*c*np.cos(alpha),c**2]])    
     axes=np.zeros(((2*e+1)**3-1,3))
-    axesh=np.zeros(((2*e+1)**3-1,6))
+    axesh=np.zeros(((2*e+1)**3-1,7))
     axesh[:,4]=color_trace()
     id=0
     for i in range(-e,e+1):
@@ -193,8 +193,10 @@ def crist():
                     if d>d2*0.1*np.amax([a,b,c]):
 				if var_uvw()==0:                    
 				            Ma=np.dot(Dstar,np.array([i,j,k],float))
+				            axesh[id,3]=0
 				else:
 			 		    Ma=np.dot(D,np.array([i,j,k],float))
+			 		    axesh[id,3]=1
 			 	
 				m=reduce(lambda x,y:GCD(x,y),[i,j,k])
 				if (np.around(i/m)==i/m) & (np.around(j/m)==j/m) & (np.around(k/m)==k/m):
@@ -202,8 +204,10 @@ def crist():
 				else:
 					axes[id,:]=np.array([i,j,k])
 				axesh[id,0:3]=Ma/np.linalg.norm(Ma)
-				axesh[id,3]=0
+				axesh[id,5]=1
+				axesh[id,6]=1
 			       	id=id+1
+    
     axesh=axesh[~np.all(axesh[:,0:3]==0, axis=1)]
     axes=axes[~np.all(axes==0, axis=1)]
 
@@ -233,34 +237,48 @@ def crist_reciprocal():
 			I,h,k,l=extinction(ui.space_group_Box.currentText(),axes[z,0],axes[z,1],axes[z,2],10000)
 		
 		if I>0:
-		 	axesh[z,3]=0
+		 	if var_uvw()==0:      
+		 		axesh[z,3]=0
+		 	else:
+		 		axesh[z,3]=1
         	        axesh[z,5]=I
+        	        axesh[z,6]=1
         	        axes[z,:]=np.array([h,k,l])
 		else:
 			axesh[z,0:3]=np.array([0,0,0])
-			axesh[z,3]=0
-        	        axesh[z,5]=0
+			if var_uvw()==0:      
+		 		axesh[z,3]=0
+		 	else:
+		 		axesh[z,3]=1
+        	        axesh[z,5]=1
+        	        axesh[z,6]=1
         	        axes[z,:]=np.array([0,0,0])
         axesh=axesh[~np.all(axesh[:,0:3]==0, axis=1)]
     	axes=axes[~np.all(axes==0, axis=1)]
-    	
     	
     	return axes,axesh,naxes
 
 def undo_crist_reciprocal():
 	global axes,axesh,naxes,dmip
 	if naxes!=0:
-		extra_axes=axes[naxes:,:]
-		extra_axesh=axesh[naxes:,:]
-	for i in range(0,np.shape(extra_axes)[0]):
-		m=reduce(lambda x,y:GCD(x,y),extra_axes[i,:])
-		extra_axes[i,:]=extra_axes[i,:]/m
-		extra_axesh[i,3]=0
-	
-	crist()
-	axes=np.vstack((axes,extra_axes))
-	axesh=np.vstack((axesh,extra_axesh))
-	
+		extra_axes=axes[-naxes:,:]
+		extra_axesh=axesh[-naxes:,:]
+		for i in range(0,np.shape(extra_axes)[0]):
+			m=reduce(lambda x,y:GCD(x,y),extra_axes[i,:])
+			extra_axes[i,:]=extra_axes[i,:]/m
+			if var_uvw()==0:      
+		 		extra_axesh[i,3]=0
+		 	else:
+		 		extra_axesh[i,3]=1
+		 	extra_axesh[i,5]=1
+		 	extra_axesh[i,6]=1
+			
+		crist()
+		axes=np.vstack((axes,extra_axes))
+		axesh=np.vstack((axesh,extra_axesh))
+	else:
+		crist()
+		
 	return axes, axesh,naxes
 
 def extinction(space_group,h,k,l,lim):
@@ -299,24 +317,36 @@ def extinction(space_group,h,k,l,lim):
 # Reduce number of poles/directions as a function of d-spacing (plus or minus)
 #
 #######################################################
+def dist_restrict():
+	global G,axes,axesh
+	a=np.float(ui.a_entry.text())
+	b=np.float(ui.b_entry.text())
+	c=np.float(ui.c_entry.text())
+	d2=np.float(ui.d_label_var.text())
+	for i in range(0,np.shape(axes)[0]):
+    		d=1/(np.sqrt(np.dot(axes[i,:],np.dot(np.linalg.inv(G),axes[i,:]))))
+    		if d<d2*0.1*np.amax([a,b,c]):
+    			axesh[i,6]=0
+    		else:
+    			axesh[i,6]=1
+    	
+    	trace()
 
 def dm():
-    global dmip,a,minx,maxx,miny,maxy
+    global dmip
     
     dmip=dmip-np.float(ui.d_entry.text())
     ui.d_label_var.setText(str(dmip))
-    lattice_reciprocal()
-    trace()
+    dist_restrict()   
     
     return dmip
     
 def dp():
-    global dmip, a
-
+    global dmip, a,axes,axesh
+    
     dmip=dmip+np.float(ui.d_entry.text())
     ui.d_label_var.setText(str(dmip))
-    lattice_reciprocal()
-    trace()
+    dist_restrict()
     
     return dmip 
     
@@ -646,8 +676,8 @@ def pole(pole1,pole2,pole3):
 	I,h,k,l=extinction(ui.space_group_Box.currentText(),pole1,pole2,pole3,100000)
 
 	if I>0:
-		axesh=np.vstack((axesh,np.array([Gsh[0],Gsh[1],Gsh[2],0,color_trace(),I])))
-		axesh=np.vstack((axesh,np.array([-Gsh[0],-Gsh[1],-Gsh[2],0,color_trace(),I])))
+		axesh=np.vstack((axesh,np.array([Gsh[0],Gsh[1],Gsh[2],0,color_trace(),I,1])))
+		axesh=np.vstack((axesh,np.array([-Gsh[0],-Gsh[1],-Gsh[2],0,color_trace(),I,1])))
 		axes=np.vstack((axes,np.array([h,k,l])))
 		axes=np.vstack((axes,np.array([-h,-k,-l])))
 
@@ -655,8 +685,8 @@ def pole(pole1,pole2,pole3):
 	m=reduce(lambda x,y:GCD(x,y),[pole1,pole2,pole3])
 	axes=np.vstack((axes,np.array([pole1,pole2,pole3])/m))
 	axes=np.vstack((axes,np.array([-pole1,-pole2,-pole3])/m))
-	axesh=np.vstack((axesh,np.array([Gsh[0],Gsh[1],Gsh[2],0,color_trace(),0])))
-	axesh=np.vstack((axesh,np.array([-Gsh[0],-Gsh[1],-Gsh[2],0,color_trace(),0])))
+	axesh=np.vstack((axesh,np.array([Gsh[0],Gsh[1],Gsh[2],0,color_trace(),0,1])))
+	axesh=np.vstack((axesh,np.array([-Gsh[0],-Gsh[1],-Gsh[2],0,color_trace(),0,1])))
     naxes=naxes+2
    
     return axes,axesh,T,naxes
@@ -1402,7 +1432,7 @@ def dhkl():
 
 def reset_view():
 	global a
-	lattice_reciprocal()
+	#lattice_reciprocal()
 	a.axis([minx,maxx,miny,maxy])
 	trace()
 	
@@ -1460,31 +1490,36 @@ def trace():
     schmid_trace2(tr_schmid)
     
     for i in range(0,axes.shape[0]):
-        axeshr=np.array([axesh[i,0],axesh[i,1],axesh[i,2]])
-        T[i,:]=np.dot(M,axeshr)
-        P[i,:]=proj(T[i,0],T[i,1],T[i,2])*600/2
-        axeshr=axeshr/np.linalg.norm(axeshr)
-        
-        if axesh[i,4]==1:
-            C.append('g')
-        if axesh[i,4]==2:
-            C.append('b')
-        if axesh[i,4]==3:
-            C.append('r')
+    	if axesh[i,6]==1:
+		axeshr=np.array([axesh[i,0],axesh[i,1],axesh[i,2]])
+		T[i,:]=np.dot(M,axeshr)
+		P[i,:]=proj(T[i,0],T[i,1],T[i,2])*600/2
+		axeshr=axeshr/np.linalg.norm(axeshr)
+		
+		if axesh[i,4]==1:
+		    C.append('g')
+		if axesh[i,4]==2:
+		    C.append('b')
+		if axesh[i,4]==3:
+		    C.append('r')
 
-	if var_hexa()==0:
-		s=str(int(axes[i,0]))+str(int(axes[i,1]))+str(int(axes[i,2]))
-	if var_hexa()==1:
-		if axesh[i,3]==0:
-	   		 s='('+str(int(axes[i,0]))+str(int(axes[i,1]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(axes[i,2]))+')'
-		if axesh[i,3]==1:
-	    		s='['+str(int(2*(axes[i,0])-axes[i,1]))+str(int(2*(axes[i,1])-axes[i,0]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(3*axes[i,2]))+']'
-              
-        a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
+		if var_hexa()==0:
+			s=str(int(axes[i,0]))+str(int(axes[i,1]))+str(int(axes[i,2]))
+		if var_hexa()==1:
+			if axesh[i,3]==0:
+		   		 s='('+str(int(axes[i,0]))+str(int(axes[i,1]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(axes[i,2]))+')'
+			if axesh[i,3]==1:
+		    		s='['+str(int(2*(axes[i,0])-axes[i,1]))+str(int(2*(axes[i,1])-axes[i,0]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(3*axes[i,2]))+']'
+		      
+		a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
     if ui.reciprocal_checkBox.isChecked():
-    	s0=axesh[:,5]/np.amax(axesh[:,5])
+    	if np.shape(axes)[0]>0:
+    		s0=axesh[:,6]*axesh[:,5]/np.amax(axesh[:,5])
+    	else:
+    		s0=axesh[:,6]
     else:
-    	s0=1
+    	s0=axesh[:,6]
+
     if var_carre()==0:           
         a.scatter(P[:,0]+600/2,P[:,1]+600/2,c=C,s=s0*np.float(ui.size_var.text()))
     else:
@@ -1501,11 +1536,15 @@ def trace():
  ####################################
  
 def princ():
-    global T,angle_alpha, angle_beta, angle_z,M,Dstar,D,g,M0,trP,axeshr,nn,a,minx,maxx,miny,maxy,trC,Stc
+    global T,angle_alpha, angle_beta, angle_z,M,Dstar,D,g,M0,trP,axeshr,nn,a,minx,maxx,miny,maxy,trC,Stc, naxes,dmip
     trP=np.zeros((1,5))
     trC=np.zeros((1,6))
     Stc=np.zeros((1,3))
+    dmip=0
+    ui.d_label_var.setText("0")
+    naxes=0
     crist() 
+    
     if ui.reciprocal_checkBox.isChecked():
     	crist_reciprocal()
     a = figure.add_subplot(111)
@@ -1539,33 +1578,36 @@ def princ():
     nn=axes.shape[0]
     C=[]
     for i in range(0,axes.shape[0]):
-        axeshr=np.array([axesh[i,0],axesh[i,1],axesh[i,2]])
-        T[i,:]=np.dot(R,axeshr)
-        P[i,:]=proj(T[i,0],T[i,1],T[i,2])*600/2
+    	if axesh[i,5]!=-1:
+		axeshr=np.array([axesh[i,0],axesh[i,1],axesh[i,2]])
+		T[i,:]=np.dot(R,axeshr)
+		P[i,:]=proj(T[i,0],T[i,1],T[i,2])*600/2
+		axeshr=axeshr/np.linalg.norm(axeshr)
+		
+		if axesh[i,4]==1:
+		    C.append('g')
+		if axesh[i,4]==2:
+		    C.append('b')
+		if axesh[i,4]==3:
+		    C.append('r')
 
-        if color_trace()==1:
-            C.append('g')
-            axesh[i,4]=1
-        if color_trace()==2:
-            C.append('b')
-            axesh[i,4]=2
-        if color_trace()==3:
-            C.append('r')
-            axesh[i,4]=3
-        
-	if var_hexa()==0:
-		s=str(int(axes[i,0]))+str(int(axes[i,1]))+str(int(axes[i,2]))
-	if var_hexa()==1:
-		if axesh[i,3]==0:
-	   		 s='('+str(int(axes[i,0]))+str(int(axes[i,1]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(axes[i,2]))+')'
-		if axesh[i,3]==1:
-	    		s='['+str(int(2*(axes[i,0])-axes[i,1]))+str(int(2*(axes[i,1])-axes[i,0]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(3*axes[i,2]))+']'
-              
-        a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
+		if var_hexa()==0:
+			s=str(int(axes[i,0]))+str(int(axes[i,1]))+str(int(axes[i,2]))
+		if var_hexa()==1:
+			if axesh[i,3]==0:
+		   		 s='('+str(int(axes[i,0]))+str(int(axes[i,1]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(axes[i,2]))+')'
+			if axesh[i,3]==1:
+		    		s='['+str(int(2*(axes[i,0])-axes[i,1]))+str(int(2*(axes[i,1])-axes[i,0]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(3*axes[i,2]))+']'
+		      
+		a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
     if ui.reciprocal_checkBox.isChecked():
-    	s0=axesh[:,5]/np.amax(axesh[:,5])
+    	if np.shape(axes)[0]>0:
+    		s0=axesh[:,6]*axesh[:,5]/np.amax(axesh[:,5])
+    	else:
+    		s0=axesh[:,6]
     else:
-    	s0=1
+    	s0=axesh[:,6]
+
     if var_carre()==0:           
         a.scatter(P[:,0]+600/2,P[:,1]+600/2,c=C,s=s0*np.float(ui.size_var.text()))
     else:
@@ -1603,7 +1645,7 @@ def princ():
 ##################################################"
 
 def princ2():
-    global T,angle_alpha,angle_beta,angle_z,M,Dstar,D,g,M0,trP,a,axeshr,nn,minx,maxx,miny,maxy,trC,Stc,naxes
+    global T,angle_alpha,angle_beta,angle_z,M,Dstar,D,g,M0,trP,a,axeshr,nn,minx,maxx,miny,maxy,trC,Stc,naxes,dmip
     
     trP=np.zeros((1,5))
     trC=np.zeros((1,6))
@@ -1616,11 +1658,13 @@ def princ2():
     phi2=np.float(ui.phi2_entry.text())
     fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
     img=np.array(Image.open(fn))
-    crist()    
+    dmip=0
+    ui.d_label_var.setText("0")
+    naxes=0 
+    crist()   
     if ui.reciprocal_checkBox.isChecked():
     	crist_reciprocal()
-    
-    naxes=0
+        
     P=np.zeros((axes.shape[0],2))
     T=np.zeros((axes.shape))
     nn=axes.shape[0]
@@ -1702,13 +1746,15 @@ def princ2():
 
 def structure(item):
     global x0, var_hexa, d_label_var, e_entry
-    
+    print item
     ui.a_entry.setText(str(item[1]))
     ui.b_entry.setText(str(item[2]))
     ui.c_entry.setText(str(item[3]))
     ui.alpha_entry.setText(str(item[4]))
     ui.beta_entry.setText(str(item[5]))
     ui.gamma_entry.setText(str(item[6]))
+    ii=ui.space_group_Box.findText(str(item[7]))
+    ui.space_group_Box.setCurrentIndex(ii)
     if eval(item[4])==90 and eval(item[5])==90 and eval(item[6])==120 :
         ui.hexa_button.setChecked(True)
         ui.e_entry.setText('2')
