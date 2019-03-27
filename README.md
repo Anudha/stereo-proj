@@ -14,12 +14,12 @@ Stereo-proj is a python script software that plots the stereographic projection 
 
 ## Requirements 
 ### Tk version (stereo-proj)
-* Python 2.7 with Matplotlib, Numpy, Tkinter, PIL (available through [Enthought Canopy](https://store.enthought.com/downloads/) or [Anaconda](http://continuum.io/downloads) distributions for instance).
+* Python 2.7 with Matplotlib 2.1.1, Numpy 1.13.3, Tkinter, Pillow 5.3.0 (available through [Enthought Canopy](https://store.enthought.com/downloads/) or [Anaconda](http://continuum.io/downloads) distributions for instance).
 * Mac users need to install [Active Tcl](http://www.activestate.com/activetcl/downloads).
 * Run the script python /my-path-to-the-script/stereo-proj.py
 
 ### PyQt version (stereo-proj-pyqt)
-* Python 2.7 with Matplotlib, Numpy, PyQt, PIL (available through Canopy and Anaconda).
+* Python 2.7 with Matplotlib 2.1.1, Numpy 1.13.3, PyQt 4.12.1 , Pillow 5.3.0 (available through Canopy and Anaconda).
 * Prefer this version if you are a Mac User (does not need Tcl).
 * Run the script python /my-path-to-the-script/stereo-proj-pyqt.py
 

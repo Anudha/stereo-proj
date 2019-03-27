@@ -6,13 +6,14 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 from matplotlib import pyplot as plt
 from PIL import Image
-import PngImagePlugin
+from PIL import PngImagePlugin
 import ttk
 import sys
 from tkFileDialog import *
 import os
-#import pdb
-
+import matplotlib as mpl
+#font size on plot 
+mpl.rcParams['font.size'] = 12
 pi=np.pi
 
 ################"
@@ -1101,6 +1102,7 @@ def trace():
     a = f.add_subplot(111)
     fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
     img=Image.open(fn)
+    img= np.array(img)
 #    print(axesh)
     P=np.zeros((axes.shape[0],2))
     T=np.zeros((axes.shape))
@@ -1149,7 +1151,7 @@ def trace():
     else:
         a.scatter(P[:,0]+600/2,P[:,1]+600/2,edgecolor=C, s=eval(size_var.get()), facecolors='none', linewidths=1.5)       
     a.axis([0,600,0,600])
-    a.imshow(img)
+    a.imshow(img,interpolation="bicubic")
     a.axis('off')   
     a.figure.canvas.draw()
     #a.figure.clear()
@@ -1164,7 +1166,7 @@ def princ():
     a = f.add_subplot(111)
     fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
     img=Image.open(fn)
-    
+    img= np.array(img)
     diff1=eval(diff1_entry.get())
     diff2=eval(diff2_entry.get())
     diff3=eval(diff3_entry.get())
@@ -1235,7 +1237,7 @@ def princ():
         a.scatter(P[:,0]+600/2,P[:,1]+600/2,edgecolor=C, s=eval(size_var.get()), facecolors='none', linewidths=1.5)            
     
     a.axis([0,600,0,600])
-    a.imshow(img)
+    a.imshow(img,interpolation="bicubic")
     a.axis('off')   
     a.figure.canvas.draw() 
     
@@ -1273,6 +1275,7 @@ def princ2():
     phi2=eval(phi2_entry.get())
     fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
     img=Image.open(fn)
+    img= np.array(img)
     crist()    
     P=np.zeros((axes.shape[0],2))
     T=np.zeros((axes.shape))
@@ -1323,7 +1326,7 @@ def princ2():
     else:
         a.scatter(P[:,0]+600/2,P[:,1]+600/2,edgecolor=C, s=eval(size_var.get()), facecolors='none', linewidths=1.5)       
     a.axis([0,600,0,600])
-    a.imshow(img)
+    a.imshow(img,interpolation="bicubic")
     a.axis('off')   
     a.figure.canvas.draw()  
     
@@ -1357,9 +1360,10 @@ def init():
     global x,y,z,cx,cy,cz,cg,g,var_uvw,var_hexa, d_label_var,dmip,angle_euler_var,coord_label_var,angle_var,schmid_var,dhkl_var,trP,tr_schmid,var_carre, col_trace
     fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
     img=Image.open(fn)
+    img= np.array(img)
     a = f.add_subplot(111)
     a.axis('off')
-    a.imshow(img)
+    a.imshow(img,interpolation="bicubic")
     a.figure.canvas.draw()
     #T=np.zeros(axes.shape)
     x=0
