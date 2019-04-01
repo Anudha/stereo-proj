@@ -282,11 +282,12 @@ def undo_crist_reciprocal():
 	return axes, axesh,naxes
 
 def extinction(space_group,h,k,l,lim):
-    global x_space
+    global x_space,G,x_scatt
     
     h0=h
     k0=k
     l0=l
+    
     
     for i in range(0,len(x_space)):
         if space_group==x_space[i][0]:
@@ -295,10 +296,19 @@ def extinction(space_group,h,k,l,lim):
     while np.amax([np.abs(h0),np.abs(k0),np.abs(l0)])<=lim:
     	    F=0
     	    s=s0
+    	    
 	    while (s<(len(x_space)-1) and (len(x_space[s+1])==4)):
-			f=eval(x_space[s+1][0])
+	    		q=2*np.pi*np.sqrt(np.dot(np.array([h0,k0,l0]),np.dot(np.linalg.inv(G),np.array([h0,k0,l0]))))
+	    		f=str(x_space[s+1][0])
+	    		for z in range(0,len(x_scatt)):
+	    			
+	    			if f==x_scatt[z][0]:
+	    				f=eval(x_scatt[z][1])*np.exp(-eval(x_scatt[z][2])*(q/4/np.pi)**2)+eval(x_scatt[z][3])*np.exp(-eval(x_scatt[z][4])*(q/4/np.pi)**2)+eval(x_scatt[z][5])*np.exp(-eval(x_scatt[z][6])*(q/4/np.pi)**2)+eval(x_scatt[z][7])*np.exp(-eval(x_scatt[z][8])*(q/4/np.pi)**2)+eval(x_scatt[z][9])
+	    				
+			
 			F=F+f*np.exp(2j*np.pi*(eval(x_space[s+1][1])*h0+eval(x_space[s+1][2])*k0+eval(x_space[s+1][3])*l0))        
 			s=s+1
+			
 	    
 	    I=np.around(float(np.real(F*np.conj(F))),decimals=2)
 	    if I>0:
@@ -307,7 +317,7 @@ def extinction(space_group,h,k,l,lim):
 	    	h0=2*h0
 	    	k0=2*k0
 	    	l0=2*l0
-	    	
+    
     return I,h0,k0,l0
 
 
@@ -1746,7 +1756,7 @@ def princ2():
 
 def structure(item):
     global x0, var_hexa, d_label_var, e_entry
-    print item
+    
     ui.a_entry.setText(str(item[1]))
     ui.b_entry.setText(str(item[2]))
     ui.c_entry.setText(str(item[3]))
@@ -2285,6 +2295,16 @@ if __name__ == "__main__":
 		
 	f_space.close()
 	
+# Read scattering factor file
+	f_scatt=open(os.path.join(os.path.dirname(__file__), 'scattering.txt'),"r")
+
+	x_scatt=[]
+
+	for line in f_scatt:
+	    x_scatt.append(map(str, line.split()))
+	    
+		
+	f_scatt.close()		
 	
 # Ctrl+z shortcut to remove clicked pole
 
