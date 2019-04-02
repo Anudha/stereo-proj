@@ -30,6 +30,7 @@ import schmidUI
 import xyzUI
 import hkl_uvwUI
 import widthUI
+import kikuchiUI
                  
 #font size on plot 
 mpl.rcParams['font.size'] = 12
@@ -1245,10 +1246,7 @@ def trace_plan2(B):
         r=np.sqrt(S[0]**2+S[1]**2+S[2]**2)
         A=np.zeros((2,100))
         Q=np.zeros((1,2))
-        if S[2]==0:
-             t=90
-        else:
-             t=np.arctan2(S[1],S[0])*180/np.pi
+        t=np.arctan2(S[1],S[0])*180/np.pi
         w=0
         ph=np.arccos(S[2]/r)*180/np.pi
 	
@@ -1290,10 +1288,7 @@ def trace_cone2(B):
         r=np.sqrt(S[0]**2+S[1]**2+S[2]**2)
         A=np.zeros((3,100))
         Q=np.zeros((1,3))
-        if S[2]==0:
-             t=90
-        else:
-             t=np.arctan2(S[1],S[0])*180/np.pi
+        t=np.arctan2(S[1],S[0])*180/np.pi
         w=0
         ph=np.arccos(S[2]/r)*180/np.pi
 	
@@ -1460,7 +1455,7 @@ def wulff():
 		img= np.array(img)
 	else:
 		img = 255*np.ones([600,600,3],dtype=np.uint8)
-		circle = plt.Circle((300, 300), 300, color='black',fill=False)
+		circle = plt.Circle((300, 300), 300, color='black',fill=fFalse)
 		a.add_artist(circle)
 		a.plot(300,300,'+',markersize=10,mew=3,color='black')
 	
@@ -1504,7 +1499,6 @@ def trace():
 		axeshr=np.array([axesh[i,0],axesh[i,1],axesh[i,2]])
 		T[i,:]=np.dot(M,axeshr)
 		P[i,:]=proj(T[i,0],T[i,1],T[i,2])*600/2
-		axeshr=axeshr/np.linalg.norm(axeshr)
 		
 		if axesh[i,4]==1:
 		    C.append('g')
@@ -1992,6 +1986,7 @@ def center():
 	ui_xyz.X_text.setText(str(Xp[0]*100)+', '+str(Xp[1]*100)+', '+str(Xp[2]*100))
 	ui_xyz.Y_text.setText(str(Yp[0]*100)+', '+str(Yp[1]*100)+', '+str(Yp[2]*100))
 	ui_xyz.Z_text.setText(str(Zp[0]*100)+', '+str(Zp[1]*100)+', '+str(Zp[2]*100))
+	return Xp,Yp,Zp
  
 def to_uvw():
 	global Dstar, D, M
@@ -2217,6 +2212,80 @@ def intersection_cone():
 	
 	ui_inter.intersection_cone.setText(str(np.round(100*r1[0], decimals=3))+','+str(np.round(100*r1[1], decimals=3))+','+str(np.round(100*r1[2], decimals=3)))
 	ui_inter.intersection_cone2.setText(str(np.round(100*r2[0], decimals=3))+','+str(np.round(100*r2[1], decimals=3))+','+str(np.round(100*r2[2], decimals=3)))
+
+###################################################
+#
+# Plot Kikuchi bands
+#
+#################################################
+
+def plot_kikuchi():
+	global axes,axesh,M,G
+	a_k = figure_kikuchi.add_subplot(111)
+	a_k.clear()
+	a_k = figure_kikuchi.add_subplot(111)
+    	E=np.float(ui_kikuchi.E_entry.text())
+    	lamb=6.6e-34/np.sqrt(2*9.1e-31*1.6e-19*E*1e3)
+    	
+	ang=np.float(ui_kikuchi.angle_entry.text())*np.pi/180
+	Z=np.array([0,0,1])
+	s=np.sin(ang)/(1+np.cos(ang))
+	
+	L=np.array([0,0])
+	m=np.max(axesh[:,5])
+	for t in range(0,np.shape(axesh)[0]):
+		if axesh[t,6]==1:
+			T=np.dot(M,axesh[t,0:3])
+			P=np.dot(T,Z)
+			#L=np.vstack((L,proj(T[0],T[1],T[2])*300))
+			if np.abs(P)<np.sin(ang):
+				
+				r=np.sqrt(T[0]**2+T[1]**2+T[2]**2)
+				A=np.zeros((2,50))
+				B=np.zeros((2,50))
+				Qa=np.zeros((1,2))
+				Qb=np.zeros((1,2))
+				th=np.arctan2(T[1],T[0])*180/np.pi
+				w=0
+				ph=np.arccos(T[2]/r)*180/np.pi
+				d=1e-10/(np.sqrt(np.dot(axes[t,:],np.dot(np.linalg.inv(G),axes[t,:]))))
+				tb=np.arcsin(lamb/2/d)*180/np.pi/2
+				
+				for g in np.linspace(-np.pi/2,np.pi/2,50):
+	    				Aa=np.dot(Rot(th,0,0,1),np.dot(Rot(ph-tb,0,1,0),np.array([np.sin(g),np.cos(g),0])))
+	    				Ab=np.dot(Rot(th,0,0,1),np.dot(Rot(ph+tb,0,1,0),np.array([np.sin(g),np.cos(g),0])))
+	    				A[:,w]=proj(Aa[0],Aa[1],Aa[2])*600/2
+	    				B[:,w]=proj(Ab[0],Ab[1],Ab[2])*600/2
+	    				Qa=np.vstack((Qa,A[:,w]))
+	    				Qb=np.vstack((Qb,B[:,w]))
+	    			w=w+1
+	    			Qa=np.delete(Qa,0,0)
+	    			Qb=np.delete(Qb,0,0)   
+	    			st=str(int(axes[t,0]))+','+str(int(axes[t,1]))+','+str(int(axes[t,2]))
+	    			if ui_kikuchi.label_checkBox.isChecked():
+	    				a_k.annotate(st,(Qa[2,0]+300,Qa[2,1]+300),ha='center', va='center',rotation=th-90, color="white")
+	    			
+				a_k.plot(Qa[:,0]+300,Qa[:,1]+300,'w-', linewidth=axesh[t,5]/m)
+				a_k.plot(Qb[:,0]+300,Qb[:,1]+300,'w-', linewidth=axesh[t,5]/m)
+				a_k.plot(300,300,'wo')
+			
+    			
+#	L=L[1:,:]  
+#	a_k.plot(L[:,0]+600/2,L[:,1]+600/2,'ro')
+	
+	fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
+	img=Image.open(fn)
+	img= np.array(img)
+	
+#	a_k.imshow(img,interpolation="bicubic")
+	a_k.axis('off')
+#	a_k.axis([minx,maxx,miny,maxy])
+	
+	a_k.axis([300*(1-s),300*(1+s),300*(1-s),300*(1+s)])
+    	a_k.figure.canvas.draw()  
+    	
+	
+	
 	
 
 ##################################################
@@ -2365,6 +2434,21 @@ if __name__ == "__main__":
 	ui_inter.pushButton_copy2.clicked.connect(lambda: copy_to_pole(1))
 	ui_inter.pushButton_copy3.clicked.connect(lambda: copy_to_pole('c1'))
 	ui_inter.pushButton_copy4.clicked.connect(lambda: copy_to_pole('c2'))
+
+	Kikuchi=QtGui.QDialog()
+	ui_kikuchi=kikuchiUI.Ui_Kikuchi()
+	ui_kikuchi.setupUi(Kikuchi)
+	Index.connect(ui.actionPlot_Kikuchi_lines, QtCore.SIGNAL('triggered()'), Kikuchi.show) 
+	ui_kikuchi.buttonBox.rejected.connect(Kikuchi.close)
+	ui_kikuchi.buttonBox.accepted.connect(plot_kikuchi)
+	ui_kikuchi.E_entry.setText('200')
+	ui_kikuchi.angle_entry.setText('3')
+	figure_kikuchi=plt.figure()
+	figure_kikuchi.patch.set_facecolor('black')
+	canvas_kikuchi=FigureCanvas(figure_kikuchi)
+	ui_kikuchi.mplvl.addWidget(canvas_kikuchi)
+	toolbar_kikuchi = NavigationToolbar(canvas_kikuchi, canvas_kikuchi)
+	toolbar_kikuchi.setMinimumWidth(601)
 	
 	
 	ui.button_trace2.clicked.connect(princ2)

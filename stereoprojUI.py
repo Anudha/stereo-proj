@@ -25,7 +25,7 @@ except AttributeError:
 class Ui_StereoProj(object):
     def setupUi(self, StereoProj):
         StereoProj.setObjectName(_fromUtf8("StereoProj"))
-        StereoProj.resize(1152, 863)
+        StereoProj.resize(1152, 867)
         self.centralwidget = QtGui.QWidget(StereoProj)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout_7 = QtGui.QGridLayout(self.centralwidget)
@@ -378,6 +378,8 @@ class Ui_StereoProj(object):
         self.menuWidth.setObjectName(_fromUtf8("menuWidth"))
         self.menuIntersections = QtGui.QMenu(self.menubar)
         self.menuIntersections.setObjectName(_fromUtf8("menuIntersections"))
+        self.menuDiffraction = QtGui.QMenu(self.menubar)
+        self.menuDiffraction.setObjectName(_fromUtf8("menuDiffraction"))
         StereoProj.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(StereoProj)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
@@ -402,6 +404,8 @@ class Ui_StereoProj(object):
         self.actionCalculate_intersections.setObjectName(_fromUtf8("actionCalculate_intersections"))
         self.actionHkl_uvw = QtGui.QAction(StereoProj)
         self.actionHkl_uvw.setObjectName(_fromUtf8("actionHkl_uvw"))
+        self.actionPlot_Kikuchi_lines = QtGui.QAction(StereoProj)
+        self.actionPlot_Kikuchi_lines.setObjectName(_fromUtf8("actionPlot_Kikuchi_lines"))
         self.menuSave.addAction(self.actionSave_figure)
         self.menuAngle.addAction(self.actionCalculate_angle)
         self.menuSchmid_factor.addAction(self.actionCalculate_Schmid_factor)
@@ -409,6 +413,7 @@ class Ui_StereoProj(object):
         self.menuXyz_directions.addAction(self.actionHkl_uvw)
         self.menuWidth.addAction(self.actionCalculate_apparent_width)
         self.menuIntersections.addAction(self.actionCalculate_intersections)
+        self.menuDiffraction.addAction(self.actionPlot_Kikuchi_lines)
         self.menubar.addAction(self.menuSave.menuAction())
         self.menubar.addAction(self.menuStructure.menuAction())
         self.menubar.addAction(self.menuAngle.menuAction())
@@ -416,6 +421,7 @@ class Ui_StereoProj(object):
         self.menubar.addAction(self.menuXyz_directions.menuAction())
         self.menubar.addAction(self.menuWidth.menuAction())
         self.menubar.addAction(self.menuIntersections.menuAction())
+        self.menubar.addAction(self.menuDiffraction.menuAction())
 
         self.retranslateUi(StereoProj)
         QtCore.QMetaObject.connectSlotsByName(StereoProj)
@@ -541,6 +547,7 @@ class Ui_StereoProj(object):
         self.menuXyz_directions.setTitle(_translate("StereoProj", "xyz directions", None))
         self.menuWidth.setTitle(_translate("StereoProj", "Width", None))
         self.menuIntersections.setTitle(_translate("StereoProj", "intersections", None))
+        self.menuDiffraction.setTitle(_translate("StereoProj", "Diffraction", None))
         self.actionSave_figure.setText(_translate("StereoProj", "Save figure", None))
         self.actionCalculate_Schmid_factor.setText(_translate("StereoProj", "calculate Schmid factor", None))
         self.actionCalculate_angle.setText(_translate("StereoProj", "Calculate angle", None))
@@ -551,4 +558,5 @@ class Ui_StereoProj(object):
         self.actionPlane_cone.setText(_translate("StereoProj", "plane-cone", None))
         self.actionCalculate_intersections.setText(_translate("StereoProj", "Calculate intersections", None))
         self.actionHkl_uvw.setText(_translate("StereoProj", "hkl <> uvw", None))
+        self.actionPlot_Kikuchi_lines.setText(_translate("StereoProj", "plot Kikuchi lines", None))
 
