@@ -44,12 +44,11 @@ def unique_rows(a):
     unique_a = np.unique(a.view([('', a.dtype)]*a.shape[1]))
     return unique_a.view(a.dtype).reshape((unique_a.shape[0], a.shape[1]))
 
-def GCD(a, b):
-
-    if b == 0:
-        return a
-    else:
-        return GCD(b, a % b)
+def GCD(a, b, rtol = 1e-05, atol = 1e-08):
+    t = min(abs(a), abs(b))
+    while abs(b) > rtol * t + atol:
+        a, b = b, a % b
+    return a
   
 
 ###################################################################"
@@ -167,9 +166,9 @@ def var_carre():
 
 def crist():
     global axes,axesh,D,Dstar,V,naxes,G
-    a=np.float(ui.a_entry.text())
-    b=np.float(ui.b_entry.text())
-    c=np.float(ui.c_entry.text())
+    a=np.float(ui.a_entry.text())*1e-10
+    b=np.float(ui.b_entry.text())*1e-10
+    c=np.float(ui.c_entry.text())*1e-10
     alpha=np.float(ui.alpha_entry.text())
     beta=np.float(ui.beta_entry.text())
     gamma=np.float(ui.gamma_entry.text())
@@ -233,9 +232,9 @@ def crist_reciprocal():
 	
 	for z in range(0, np.shape(axes)[0]):
 		if z<(np.shape(axes)[0]-naxes):
-			I,h,k,l=extinction(ui.space_group_Box.currentText(),axes[z,0],axes[z,1],axes[z,2],np.int(ui.e_entry.text()))
+			I,h,k,l=extinction(ui.space_group_Box.currentText(),axes[z,0],axes[z,1],axes[z,2],np.int(ui.e_entry.text()),0)
 		else:
-			I,h,k,l=extinction(ui.space_group_Box.currentText(),axes[z,0],axes[z,1],axes[z,2],10000)
+			I,h,k,l=extinction(ui.space_group_Box.currentText(),axes[z,0],axes[z,1],axes[z,2],10000,0)
 		
 		if I>0:
 		 	if var_uvw()==0:      
@@ -282,18 +281,17 @@ def undo_crist_reciprocal():
 		
 	return axes, axesh,naxes
 
-def extinction(space_group,h,k,l,lim):
+def extinction(space_group,h,k,l,lim,diff):
     global x_space,G,x_scatt
     
     h0=h
     k0=k
     l0=l
-    
-    
+   
     for i in range(0,len(x_space)):
         if space_group==x_space[i][0]:
             s0=i
-    
+   
     while np.amax([np.abs(h0),np.abs(k0),np.abs(l0)])<=lim:
     	    F=0
     	    s=s0
@@ -312,12 +310,15 @@ def extinction(space_group,h,k,l,lim):
 			
 	    
 	    I=np.around(float(np.real(F*np.conj(F))),decimals=2)
-	    if I>0:
-	    	break
-	    else:
-	    	h0=2*h0
-	    	k0=2*k0
-	    	l0=2*l0
+	    if diff==0:
+		    if I>0:
+		    	break
+		    else:
+		    	h0=2*h0
+		    	k0=2*k0
+		    	l0=2*l0
+	    else: 
+	    		break
     
     return I,h0,k0,l0
 
@@ -330,9 +331,9 @@ def extinction(space_group,h,k,l,lim):
 #######################################################
 def dist_restrict():
 	global G,axes,axesh
-	a=np.float(ui.a_entry.text())
-	b=np.float(ui.b_entry.text())
-	c=np.float(ui.c_entry.text())
+	a=np.float(ui.a_entry.text())*1e-10
+	b=np.float(ui.b_entry.text())*1e-10
+	c=np.float(ui.c_entry.text())*1e-10
 	d2=np.float(ui.d_label_var.text())
 	for i in range(0,np.shape(axes)[0]):
     		d=1/(np.sqrt(np.dot(axes[i,:],np.dot(np.linalg.inv(G),axes[i,:]))))
@@ -684,7 +685,7 @@ def pole(pole1,pole2,pole3):
     T=np.vstack((T,np.array([S[0],S[1],S[2]])))
 
     if ui.reciprocal_checkBox.isChecked():
-	I,h,k,l=extinction(ui.space_group_Box.currentText(),pole1,pole2,pole3,100000)
+	I,h,k,l=extinction(ui.space_group_Box.currentText(),pole1,pole2,pole3,100000,0)
 
 	if I>0:
 		axesh=np.vstack((axesh,np.array([Gsh[0],Gsh[1],Gsh[2],0,color_trace(),I,1])))
@@ -728,14 +729,18 @@ def undo_pole(pole1,pole2,pole3):
         pole3=-pole3
     
     if ui.reciprocal_checkBox.isChecked():
-	I,h,k,l=extinction(ui.space_group_Box.currentText(),pole1,pole2,pole3,100000)
+	I,h,k,l=extinction(ui.space_group_Box.currentText(),pole1,pole2,pole3,100000,0)
 	if I>0:
 		pole1=h
 		pole2=k
-		pole3=l	
-    
-    ind=np.where((axes[:,0]==pole1) & (axes[:,1]==pole2)& (axes[:,2]==pole3))
-    indm=np.where((axes[:,0]==-pole1) & (axes[:,1]==-pole2)& (axes[:,2]==-pole3))
+		pole3=l
+		ind=np.where((axes[:,0]==pole1) & (axes[:,1]==pole2)& (axes[:,2]==pole3))
+    		indm=np.where((axes[:,0]==-pole1) & (axes[:,1]==-pole2)& (axes[:,2]==-pole3))
+			
+    else:
+    	m=reduce(lambda x,y:GCD(x,y),[pole1,pole2,pole3])
+    	ind=np.where((axes[:,0]==pole1/m) & (axes[:,1]==pole2/m)& (axes[:,2]==pole3/m))
+    	indm=np.where((axes[:,0]==-pole1/m) & (axes[:,1]==-pole2/m)& (axes[:,2]==-pole3/m))
     axes=np.delete(axes,ind,0)
     axes=np.delete(axes,indm,0)
     T=np.delete(T,ind,0)
@@ -770,9 +775,9 @@ def addpole_sym():
     pole1=np.float(ui.pole1_entry.text())
     pole2=np.float(ui.pole2_entry.text())
     pole3=np.float(ui.pole3_entry.text())
-    a=np.float(ui.a_entry.text())
-    b=np.float(ui.b_entry.text())
-    c=np.float(ui.c_entry.text())
+    a=np.float(ui.a_entry.text())*1e-10
+    b=np.float(ui.b_entry.text())*1e-10
+    c=np.float(ui.c_entry.text())*1e-10
     alpha=np.float(ui.alpha_entry.text())
     beta=np.float(ui.beta_entry.text())
     gamma=np.float(ui.gamma_entry.text())
@@ -851,9 +856,9 @@ def undo_sym():
     pole1=np.float(ui.pole1_entry.text())
     pole2=np.float(ui.pole2_entry.text())
     pole3=np.float(ui.pole3_entry.text())
-    a=np.float(ui.a_entry.text())
-    b=np.float(ui.b_entry.text())
-    c=np.float(ui.c_entry.text())
+    a=np.float(ui.a_entry.text())*1e-10
+    b=np.float(ui.b_entry.text())*1e-10
+    c=np.float(ui.c_entry.text())*1e-10
     alpha=np.float(ui.alpha_entry.text())
     beta=np.float(ui.beta_entry.text())
     gamma=np.float(ui.gamma_entry.text())
@@ -1066,9 +1071,9 @@ def trace_plan_sym():
     pole1=np.float(ui.pole1_entry.text())
     pole2=np.float(ui.pole2_entry.text())
     pole3=np.float(ui.pole3_entry.text())
-    a=np.float(ui.a_entry.text())
-    b=np.float(ui.b_entry.text())
-    c=np.float(ui.c_entry.text())
+    a=np.float(ui.a_entry.text())*1e-10
+    b=np.float(ui.b_entry.text())*1e-10
+    c=np.float(ui.c_entry.text())*1e-10
     alpha=np.float(ui.alpha_entry.text())
     beta=np.float(ui.beta_entry.text())
     gamma=np.float(ui.gamma_entry.text())
@@ -1147,9 +1152,9 @@ def undo_trace_plan_sym():
     pole1=np.float(ui.pole1_entry.text())
     pole2=np.float(ui.pole2_entry.text())
     pole3=np.float(ui.pole3_entry.text())
-    a=np.float(ui.a_entry.text())
-    b=np.float(ui.b_entry.text())
-    c=np.float(ui.c_entry.text())
+    a=np.float(ui.a_entry.text())*1e-10
+    b=np.float(ui.b_entry.text())*1e-10
+    c=np.float(ui.c_entry.text())*1e-10
     alpha=np.float(ui.alpha_entry.text())
     beta=np.float(ui.beta_entry.text())
     gamma=np.float(ui.gamma_entry.text())
@@ -1252,17 +1257,17 @@ def trace_plan2(B):
 	
         for g in np.linspace(-np.pi,np.pi,100):
     		Aa=np.dot(Rot(t,0,0,1),np.dot(Rot(ph,0,1,0),np.array([np.sin(g),np.cos(g),0])))
-    		A[:,w]=proj(Aa[0],Aa[1],Aa[2])*600/2
+    		A[:,w]=proj(Aa[0],Aa[1],Aa[2])*300
     		Q=np.vstack((Q,A[:,w]))
     		w=w+1
         
         Q=np.delete(Q,0,0)   
 	if B[h,4]==1:
-		a.plot(Q[:,0]+600/2,Q[:,1]+600/2,'g')
+		a.plot(Q[:,0]+300,Q[:,1]+300,'g')
 	if B[h,4]==2:
-		a.plot(Q[:,0]+600/2,Q[:,1]+600/2,'b')
+		a.plot(Q[:,0]+300,Q[:,1]+300,'b')
 	if B[h,4]==3:
-		a.plot(Q[:,0]+600/2,Q[:,1]+600/2,'r')
+		a.plot(Q[:,0]+300,Q[:,1]+300,'r')
        
 def trace_cone2(B):
     global M,axes,axesh,T,V,D,Dstar,a
@@ -1295,7 +1300,7 @@ def trace_cone2(B):
 
         for g in np.linspace(-np.pi,np.pi,100):
     		Aa=np.dot(Rot(t,0,0,1),np.dot(Rot(ph,0,1,0),np.array([np.sin(g)*np.sin(i*np.pi/180),np.cos(g)*np.sin(i*np.pi/180),np.cos(i*np.pi/180)])))
-    		A[:,w]=proj2(Aa[0],Aa[1],Aa[2])*600/2
+    		A[:,w]=proj2(Aa[0],Aa[1],Aa[2])*300
     		Q=np.vstack((Q,A[:,w]))
     		w=w+1
         
@@ -1309,11 +1314,11 @@ def trace_cone2(B):
 
 	for tt in range(0, np.shape(wp)[0]-1):       
 		if B[h,4]==1:
-			a.plot(Q[int(wp[tt]):int(wp[tt+1]),0]+600/2,Q[int(wp[tt]):int(wp[tt+1]),1]+600/2,'g')
+			a.plot(Q[int(wp[tt]):int(wp[tt+1]),0]+300,Q[int(wp[tt]):int(wp[tt+1]),1]+300,'g')
 		if B[h,4]==2:
-			a.plot(Q[int(wp[tt]):int(wp[tt+1]),0]+600/2,Q[int(wp[tt]):int(wp[tt+1]),1]+600/2,'b')
+			a.plot(Q[int(wp[tt]):int(wp[tt+1]),0]+300,Q[int(wp[tt]):int(wp[tt+1]),1]+300,'b')
 		if B[h,4]==3:
-			a.plot(Q[int(wp[tt]):int(wp[tt+1]),0]+600/2,Q[int(wp[tt]):int(wp[tt+1]),1]+600/2,'r')
+			a.plot(Q[int(wp[tt]):int(wp[tt+1]),0]+300,Q[int(wp[tt]):int(wp[tt+1]),1]+300,'r')
             
             
         
@@ -1498,7 +1503,7 @@ def trace():
     	if axesh[i,6]==1:
 		axeshr=np.array([axesh[i,0],axesh[i,1],axesh[i,2]])
 		T[i,:]=np.dot(M,axeshr)
-		P[i,:]=proj(T[i,0],T[i,1],T[i,2])*600/2
+		P[i,:]=proj(T[i,0],T[i,1],T[i,2])*300
 		
 		if axesh[i,4]==1:
 		    C.append('g')
@@ -1515,7 +1520,7 @@ def trace():
 			if axesh[i,3]==1:
 		    		s='['+str(int(2*(axes[i,0])-axes[i,1]))+str(int(2*(axes[i,1])-axes[i,0]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(3*axes[i,2]))+']'
 		      
-		a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
+		a.annotate(s,(P[i,0]+300,P[i,1]+300))
     if ui.reciprocal_checkBox.isChecked():
     	if np.shape(axes)[0]>0:
     		s0=axesh[:,6]*axesh[:,5]/np.amax(axesh[:,5])
@@ -1525,9 +1530,9 @@ def trace():
     	s0=axesh[:,6]
 
     if var_carre()==0:           
-        a.scatter(P[:,0]+600/2,P[:,1]+600/2,c=C,s=s0*np.float(ui.size_var.text()))
+        a.scatter(P[:,0]+300,P[:,1]+300,c=C,s=s0*np.float(ui.size_var.text()))
     else:
-        a.scatter(P[:,0]+600/2,P[:,1]+600/2,edgecolor=C, s=s0*np.float(ui.size_var.text()), facecolors='none', linewidths=1.5)               
+        a.scatter(P[:,0]+300,P[:,1]+300,edgecolor=C, s=s0*np.float(ui.size_var.text()), facecolors='none', linewidths=1.5)               
 
     
     a.axis([minx,maxx,miny,maxy])
@@ -1585,7 +1590,7 @@ def princ():
     	if axesh[i,5]!=-1:
 		axeshr=np.array([axesh[i,0],axesh[i,1],axesh[i,2]])
 		T[i,:]=np.dot(R,axeshr)
-		P[i,:]=proj(T[i,0],T[i,1],T[i,2])*600/2
+		P[i,:]=proj(T[i,0],T[i,1],T[i,2])*300
 		axeshr=axeshr/np.linalg.norm(axeshr)
 		
 		if axesh[i,4]==1:
@@ -1603,7 +1608,7 @@ def princ():
 			if axesh[i,3]==1:
 		    		s='['+str(int(2*(axes[i,0])-axes[i,1]))+str(int(2*(axes[i,1])-axes[i,0]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(3*axes[i,2]))+']'
 		      
-		a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
+		a.annotate(s,(P[i,0]+300,P[i,1]+300))
     if ui.reciprocal_checkBox.isChecked():
     	if np.shape(axes)[0]>0:
     		s0=axesh[:,6]*axesh[:,5]/np.amax(axesh[:,5])
@@ -1613,9 +1618,9 @@ def princ():
     	s0=axesh[:,6]
 
     if var_carre()==0:           
-        a.scatter(P[:,0]+600/2,P[:,1]+600/2,c=C,s=s0*np.float(ui.size_var.text()))
+        a.scatter(P[:,0]+300,P[:,1]+300,c=C,s=s0*np.float(ui.size_var.text()))
     else:
-        a.scatter(P[:,0]+600/2,P[:,1]+600/2,edgecolor=C, s=s0*np.float(ui.size_var.text()), facecolors='none', linewidths=1.5)               
+        a.scatter(P[:,0]+300,P[:,1]+300,edgecolor=C, s=s0*np.float(ui.size_var.text()), facecolors='none', linewidths=1.5)               
     
     minx,maxx=-2,602
     miny,maxy=-2,602
@@ -1677,7 +1682,7 @@ def princ2():
     for i in range(0,axes.shape[0]):
         axeshr=np.array([axesh[i,0],axesh[i,1],axesh[i,2]])
         T[i,:]=np.dot(rotation(phi1,phi,phi2),axeshr)
-        P[i,:]=proj(T[i,0],T[i,1],T[i,2])*600/2
+        P[i,:]=proj(T[i,0],T[i,1],T[i,2])*300
         if color_trace()==1:
             C.append('g')
             axesh[i,4]=1
@@ -1696,15 +1701,15 @@ def princ2():
 		if axesh[i,3]==1:
 	    		s='['+str(int(2*(axes[i,0])-axes[i,1]))+str(int(2*(axes[i,1])-axes[i,0]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(3*axes[i,2]))+']'
               
-        a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
+        a.annotate(s,(P[i,0]+300,P[i,1]+300))
     if ui.reciprocal_checkBox.isChecked():
     	s0=axesh[:,5]/np.amax(axesh[:,5])
     else:
     	s0=1
     if var_carre()==0:           
-        a.scatter(P[:,0]+600/2,P[:,1]+600/2,c=C,s=s0*np.float(ui.size_var.text()))
+        a.scatter(P[:,0]+300,P[:,1]+300,c=C,s=s0*np.float(ui.size_var.text()))
     else:
-        a.scatter(P[:,0]+600/2,P[:,1]+600/2,edgecolor=C, s=s0*np.float(ui.size_var.text()), facecolors='none', linewidths=1.5)       
+        a.scatter(P[:,0]+300,P[:,1]+300,edgecolor=C, s=s0*np.float(ui.size_var.text()), facecolors='none', linewidths=1.5)       
     minx,maxx=-2,602
     miny,maxy=-2,602
     a.axis([minx,maxx,miny,maxy])
@@ -2215,74 +2220,115 @@ def intersection_cone():
 
 ###################################################
 #
-# Plot Kikuchi bands
+# Plot Kikuchi bands  / Diffraction pattern
 #
 #################################################
+def diff_reciprocal():
+	global axesh_diff,axes_diff,G,V,Dstar
+	
+	e=np.int(ui_kikuchi.indices_entry.text())
+	E=np.float(ui_kikuchi.E_entry.text())
+    	lamb=6.6e-34/np.sqrt(2*9.1e-31*1.6e-19*E*1e3*(1+1.6e-19*E*1e3/2/9.31e-31/9e16))
+	ang=np.float(ui_kikuchi.angle_entry.text())*np.pi/180
+	d2=np.tan(ang)/lamb
+	axes_diff=np.zeros((1,3))
+	axesh_diff=np.zeros((1,4))
+
+	for i in range(-e,e+1):
+		for j in range(-e,e+1):
+	    		for k in range(-e,e+1):
+				if (i,j,k)!=(0,0,0):
+				    d=1/(np.sqrt(np.dot(np.array([i,j,k]),np.dot(np.linalg.inv(G),np.array([i,j,k])))))
+				    if d<d2:
+				    		I=extinction(ui.space_group_Box.currentText(),i,j,k,10000,1)[0]
+				    		if I>0:
+					         	Ma=np.dot(Dstar,np.array([i,j,k],float))
+					         	axes_diff=np.vstack((axes_diff,np.array([i,j,k])))
+							axesh_diff=np.vstack((axesh_diff,np.array([Ma[0]/np.linalg.norm(Ma),Ma[1]/np.linalg.norm(Ma),Ma[2]/np.linalg.norm(Ma),I])))
+							
+	
+	axes_diff=axes_diff[1:,:]					
+	axesh_diff=axesh_diff[1:,:]
+	print axes_diff
+	return axes_diff, axesh_diff
+
 
 def plot_kikuchi():
-	global axes,axesh,M,G
+	global axes,axesh,M,G,V,axesh_diff,axes_diff
 	a_k = figure_kikuchi.add_subplot(111)
 	a_k.clear()
 	a_k = figure_kikuchi.add_subplot(111)
     	E=np.float(ui_kikuchi.E_entry.text())
-    	lamb=6.6e-34/np.sqrt(2*9.1e-31*1.6e-19*E*1e3)
-    	
-	ang=np.float(ui_kikuchi.angle_entry.text())*np.pi/180
-	Z=np.array([0,0,1])
-	s=np.sin(ang)/(1+np.cos(ang))
-	
-	L=np.array([0,0])
+    	lamb=6.6e-34/np.sqrt(2*9.1e-31*1.6e-19*E*1e3*(1+1.6e-19*E*1e3/2/9.31e-31/9e16))
+    	ang=np.float(ui_kikuchi.angle_entry.text())*np.pi/180
+	ap=np.sin(ang)/(1+np.cos(ang))
+	lim=np.tan(ang)/lamb*1e-9
 	m=np.max(axesh[:,5])
-	for t in range(0,np.shape(axesh)[0]):
-		if axesh[t,6]==1:
-			T=np.dot(M,axesh[t,0:3])
-			P=np.dot(T,Z)
-			#L=np.vstack((L,proj(T[0],T[1],T[2])*300))
-			if np.abs(P)<np.sin(ang):
-				
-				r=np.sqrt(T[0]**2+T[1]**2+T[2]**2)
-				A=np.zeros((2,50))
-				B=np.zeros((2,50))
-				Qa=np.zeros((1,2))
-				Qb=np.zeros((1,2))
-				th=np.arctan2(T[1],T[0])*180/np.pi
-				w=0
-				ph=np.arccos(T[2]/r)*180/np.pi
-				d=1e-10/(np.sqrt(np.dot(axes[t,:],np.dot(np.linalg.inv(G),axes[t,:]))))
-				tb=np.arcsin(lamb/2/d)*180/np.pi/2
-				
-				for g in np.linspace(-np.pi/2,np.pi/2,50):
-	    				Aa=np.dot(Rot(th,0,0,1),np.dot(Rot(ph-tb,0,1,0),np.array([np.sin(g),np.cos(g),0])))
-	    				Ab=np.dot(Rot(th,0,0,1),np.dot(Rot(ph+tb,0,1,0),np.array([np.sin(g),np.cos(g),0])))
-	    				A[:,w]=proj(Aa[0],Aa[1],Aa[2])*600/2
-	    				B[:,w]=proj(Ab[0],Ab[1],Ab[2])*600/2
-	    				Qa=np.vstack((Qa,A[:,w]))
-	    				Qb=np.vstack((Qb,B[:,w]))
-	    			w=w+1
-	    			Qa=np.delete(Qa,0,0)
-	    			Qb=np.delete(Qb,0,0)   
-	    			st=str(int(axes[t,0]))+','+str(int(axes[t,1]))+','+str(int(axes[t,2]))
-	    			if ui_kikuchi.label_checkBox.isChecked():
-	    				a_k.annotate(st,(Qa[2,0]+300,Qa[2,1]+300),ha='center', va='center',rotation=th-90, color="white")
-	    			
-				a_k.plot(Qa[:,0]+300,Qa[:,1]+300,'w-', linewidth=axesh[t,5]/m)
-				a_k.plot(Qb[:,0]+300,Qb[:,1]+300,'w-', linewidth=axesh[t,5]/m)
-				a_k.plot(300,300,'wo')
+	thick=np.float(ui_kikuchi.t_entry.text())*1e-9
+	
+	if ui_kikuchi.diff_checkBox.isChecked():
+		for t in range(0,np.shape(axesh_diff)[0]):
 			
-    			
-#	L=L[1:,:]  
-#	a_k.plot(L[:,0]+600/2,L[:,1]+600/2,'ro')
+			T=np.dot(M,axesh_diff[t,0:3])
+			
+			if np.abs(T[2])<np.sin(ang):
+				print  axes_diff[t,:]
+				Fg=np.sqrt(axesh_diff[t,3])*1e-10
+				d=1/(np.sqrt(np.dot(axes_diff[t,:],np.dot(np.linalg.inv(G),axes_diff[t,:]))))
+				tb=np.arcsin(lamb/2/d)*180/np.pi
+				S=(np.dot(Rot(2*tb,-T[1],T[0],0),np.array([0,0,1]))-np.array([0,0,1]))/lamb-T/d
+				s=np.linalg.norm(S)
+				xi=np.pi*V*np.cos(tb*np.pi/180)/lamb/Fg
+				se=np.sqrt(s**2+1/xi**2)
+				#I=(np.pi*thick/xi)**2*np.sinc(se*thick)**2
+				I=axesh_diff[t,3]*(np.pi*thick/xi)**2*np.sinc(se*thick)**2
+				#Tp=proj(T[0],T[1],T[2])
+				a_k.plot(T[0]/d*1e-9,T[1]/d*1e-9,'wo',markersize=I*1000)
+				a_k.plot(0,0,'w+',markersize=10)
+				if ui_kikuchi.label_checkBox.isChecked():
+					a_k.annotate(str(axes_diff[t,:]),(T[0]/d*1e-9,T[1]/d*1e-9),color="white")
+			
+		a_k.axis([-lim,lim,-lim,lim])
+	else:
 	
-	fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
-	img=Image.open(fn)
-	img= np.array(img)
+		for t in range(0,np.shape(axesh)[0]):
+			if axesh[t,6]==1:
+				T=np.dot(M,axesh[t,0:3])
+				if np.abs(T[2])<np.sin(ang):
+						r=np.sqrt(T[0]**2+T[1]**2+T[2]**2)
+						A=np.zeros((2,50))
+						B=np.zeros((2,50))
+						Qa=np.zeros((1,2))
+						Qb=np.zeros((1,2))
+						th=np.arctan2(T[1],T[0])*180/np.pi
+						w=0
+						ph=np.arccos(T[2]/r)*180/np.pi
+						d=1/(np.sqrt(np.dot(axes[t,:],np.dot(np.linalg.inv(G),axes[t,:]))))
+						tb=np.arcsin(lamb/2/d)*180/np.pi/2
+						
+						for g in np.linspace(-np.pi/2,np.pi/2,50):
+			    				Aa=np.dot(Rot(th,0,0,1),np.dot(Rot(ph-tb,0,1,0),np.array([np.sin(g),np.cos(g),0])))
+			    				Ab=np.dot(Rot(th,0,0,1),np.dot(Rot(ph+tb,0,1,0),np.array([np.sin(g),np.cos(g),0])))
+			    				A[:,w]=proj(Aa[0],Aa[1],Aa[2])*300
+			    				B[:,w]=proj(Ab[0],Ab[1],Ab[2])*300
+			    				Qa=np.vstack((Qa,A[:,w]))
+			    				Qb=np.vstack((Qb,B[:,w]))
+			    			w=w+1
+			    			Qa=np.delete(Qa,0,0)
+			    			Qb=np.delete(Qb,0,0)   
+			    			st=str(int(axes[t,0]))+','+str(int(axes[t,1]))+','+str(int(axes[t,2]))
+			    			if ui_kikuchi.label_checkBox.isChecked():
+			    				a_k.annotate(st,(Qa[2,0]+300,Qa[2,1]+300),ha='center', va='center',rotation=th-90, color="white")
+			    			
+						a_k.plot(Qa[:,0]+300,Qa[:,1]+300,'w-', linewidth=axesh[t,5]/m)
+						a_k.plot(Qb[:,0]+300,Qb[:,1]+300,'w-', linewidth=axesh[t,5]/m)
+						a_k.plot(300,300,'wo')
+						a_k.axis([300*(1-ap),300*(1+ap),300*(1-ap),300*(1+ap)])
+				
+
 	
-#	a_k.imshow(img,interpolation="bicubic")
 	a_k.axis('off')
-#	a_k.axis([minx,maxx,miny,maxy])
-	
-	a_k.axis([300*(1-s),300*(1+s),300*(1-s),300*(1+s)])
-    	a_k.figure.canvas.draw()  
+	a_k.figure.canvas.draw()  
     	
 	
 	
@@ -2441,8 +2487,12 @@ if __name__ == "__main__":
 	Index.connect(ui.actionPlot_Kikuchi_lines, QtCore.SIGNAL('triggered()'), Kikuchi.show) 
 	ui_kikuchi.buttonBox.rejected.connect(Kikuchi.close)
 	ui_kikuchi.buttonBox.accepted.connect(plot_kikuchi)
+	ui_kikuchi.diff_checkBox.stateChanged.connect(diff_reciprocal)
 	ui_kikuchi.E_entry.setText('200')
 	ui_kikuchi.angle_entry.setText('3')
+	ui_kikuchi.t_entry.setText('100')
+	ui_kikuchi.indices_entry.setText('5')
+	ui_kikuchi.spot_size_entry.setText('100')
 	figure_kikuchi=plt.figure()
 	figure_kikuchi.patch.set_facecolor('black')
 	canvas_kikuchi=FigureCanvas(figure_kikuchi)

@@ -406,6 +406,8 @@ class Ui_StereoProj(object):
         self.actionHkl_uvw.setObjectName(_fromUtf8("actionHkl_uvw"))
         self.actionPlot_Kikuchi_lines = QtGui.QAction(StereoProj)
         self.actionPlot_Kikuchi_lines.setObjectName(_fromUtf8("actionPlot_Kikuchi_lines"))
+        self.actionPlot_diffraction_pattern = QtGui.QAction(StereoProj)
+        self.actionPlot_diffraction_pattern.setObjectName(_fromUtf8("actionPlot_diffraction_pattern"))
         self.menuSave.addAction(self.actionSave_figure)
         self.menuAngle.addAction(self.actionCalculate_angle)
         self.menuSchmid_factor.addAction(self.actionCalculate_Schmid_factor)
@@ -558,5 +560,6 @@ class Ui_StereoProj(object):
         self.actionPlane_cone.setText(_translate("StereoProj", "plane-cone", None))
         self.actionCalculate_intersections.setText(_translate("StereoProj", "Calculate intersections", None))
         self.actionHkl_uvw.setText(_translate("StereoProj", "hkl <> uvw", None))
-        self.actionPlot_Kikuchi_lines.setText(_translate("StereoProj", "plot Kikuchi lines", None))
+        self.actionPlot_Kikuchi_lines.setText(_translate("StereoProj", "plot Kikuchi lines or diffraction pattern", None))
+        self.actionPlot_diffraction_pattern.setText(_translate("StereoProj", "plot diffraction pattern", None))
 
