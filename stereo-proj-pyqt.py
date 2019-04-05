@@ -297,13 +297,13 @@ def extinction(space_group,h,k,l,lim,diff):
     	    s=s0
     	    
 	    while (s<(len(x_space)-1) and (len(x_space[s+1])==4)):
-	    		q=2*np.pi*np.sqrt(np.dot(np.array([h0,k0,l0]),np.dot(np.linalg.inv(G),np.array([h0,k0,l0]))))
+	    		q=2*np.pi*np.sqrt(np.dot(np.array([h0,k0,l0]),np.dot(np.linalg.inv(G),np.array([h0,k0,l0]))))*1e-10
 	    		f=str(x_space[s+1][0])
 	    		for z in range(0,len(x_scatt)):
 	    			
 	    			if f==x_scatt[z][0]:
 	    				f=eval(x_scatt[z][1])*np.exp(-eval(x_scatt[z][2])*(q/4/np.pi)**2)+eval(x_scatt[z][3])*np.exp(-eval(x_scatt[z][4])*(q/4/np.pi)**2)+eval(x_scatt[z][5])*np.exp(-eval(x_scatt[z][6])*(q/4/np.pi)**2)+eval(x_scatt[z][7])*np.exp(-eval(x_scatt[z][8])*(q/4/np.pi)**2)+eval(x_scatt[z][9])
-	    				
+	    			
 			
 			F=F+f*np.exp(2j*np.pi*(eval(x_space[s+1][1])*h0+eval(x_space[s+1][2])*k0+eval(x_space[s+1][3])*l0))        
 			s=s+1
@@ -2227,10 +2227,6 @@ def diff_reciprocal():
 	global axesh_diff,axes_diff,G,V,Dstar
 	
 	e=np.int(ui_kikuchi.indices_entry.text())
-	E=np.float(ui_kikuchi.E_entry.text())
-    	lamb=6.6e-34/np.sqrt(2*9.1e-31*1.6e-19*E*1e3*(1+1.6e-19*E*1e3/2/9.31e-31/9e16))
-	ang=np.float(ui_kikuchi.angle_entry.text())*np.pi/180
-	d2=np.tan(ang)/lamb
 	axes_diff=np.zeros((1,3))
 	axesh_diff=np.zeros((1,4))
 
@@ -2238,41 +2234,51 @@ def diff_reciprocal():
 		for j in range(-e,e+1):
 	    		for k in range(-e,e+1):
 				if (i,j,k)!=(0,0,0):
-				    d=1/(np.sqrt(np.dot(np.array([i,j,k]),np.dot(np.linalg.inv(G),np.array([i,j,k])))))
-				    if d<d2:
-				    		I=extinction(ui.space_group_Box.currentText(),i,j,k,10000,1)[0]
-				    		if I>0:
-					         	Ma=np.dot(Dstar,np.array([i,j,k],float))
-					         	axes_diff=np.vstack((axes_diff,np.array([i,j,k])))
-							axesh_diff=np.vstack((axesh_diff,np.array([Ma[0]/np.linalg.norm(Ma),Ma[1]/np.linalg.norm(Ma),Ma[2]/np.linalg.norm(Ma),I])))
-							
-	
-	axes_diff=axes_diff[1:,:]					
+					if ui_kikuchi.diff_radioButton.isChecked():
+				    		I,h,l,n=extinction(ui.space_group_Box.currentText(),i,j,k,e,1)
+				    		
+					if ui_kikuchi.kikuchi_radioButton.isChecked():
+							m=reduce(lambda x,y:GCD(x,y),[i,j,k])
+							if (np.around(i/m)==i/m) & (np.around(j/m)==j/m) & (np.around(k/m)==k/m):
+								i=i/m
+								j=j/m
+								k=k/m
+							I,h,l,n=extinction(ui.space_group_Box.currentText(),i,j,k,10000,0)
+				    	if I>0:
+				    		Ma=np.dot(Dstar,np.array([h,l,n],float))
+						axes_diff=np.vstack((axes_diff,np.array([h,l,n])))
+						axesh_diff=np.vstack((axesh_diff,np.array([Ma[0]/np.linalg.norm(Ma),Ma[1]/np.linalg.norm(Ma),Ma[2]/np.linalg.norm(Ma),I])))			
+						
+	axes_diff=axes_diff[1:,:]
+	#axes_diff=np.unique(axes_diff,axis=0)					
 	axesh_diff=axesh_diff[1:,:]
-	print axes_diff
+	#axesh_diff=np.unique(axesh_diff,axis=0)
+	
 	return axes_diff, axesh_diff
 
 
 def plot_kikuchi():
-	global axes,axesh,M,G,V,axesh_diff,axes_diff
+	global M,G,V,axesh_diff,axes_diff
+	if np.shape(axesh_diff)[0]==0:
+		diff_reciprocal()
+		
 	a_k = figure_kikuchi.add_subplot(111)
 	a_k.clear()
 	a_k = figure_kikuchi.add_subplot(111)
     	E=np.float(ui_kikuchi.E_entry.text())
     	lamb=6.6e-34/np.sqrt(2*9.1e-31*1.6e-19*E*1e3*(1+1.6e-19*E*1e3/2/9.31e-31/9e16))
     	ang=np.float(ui_kikuchi.angle_entry.text())*np.pi/180
+	smax=np.float(ui_kikuchi.error_entry.text())*1e9
+	ang_max=np.arccos(1-lamb*smax)
 	ap=np.sin(ang)/(1+np.cos(ang))
 	lim=np.tan(ang)/lamb*1e-9
-	m=np.max(axesh[:,5])
+	m=np.max(axesh_diff[:,3])
 	thick=np.float(ui_kikuchi.t_entry.text())*1e-9
 	
-	if ui_kikuchi.diff_checkBox.isChecked():
+	if ui_kikuchi.diff_radioButton.isChecked():
 		for t in range(0,np.shape(axesh_diff)[0]):
-			
 			T=np.dot(M,axesh_diff[t,0:3])
-			
-			if np.abs(T[2])<np.sin(ang):
-				print  axes_diff[t,:]
+			if np.abs(T[2])<np.sin(ang_max):
 				Fg=np.sqrt(axesh_diff[t,3])*1e-10
 				d=1/(np.sqrt(np.dot(axes_diff[t,:],np.dot(np.linalg.inv(G),axes_diff[t,:]))))
 				tb=np.arcsin(lamb/2/d)*180/np.pi
@@ -2280,56 +2286,67 @@ def plot_kikuchi():
 				s=np.linalg.norm(S)
 				xi=np.pi*V*np.cos(tb*np.pi/180)/lamb/Fg
 				se=np.sqrt(s**2+1/xi**2)
-				#I=(np.pi*thick/xi)**2*np.sinc(se*thick)**2
-				I=axesh_diff[t,3]*(np.pi*thick/xi)**2*np.sinc(se*thick)**2
-				#Tp=proj(T[0],T[1],T[2])
-				a_k.plot(T[0]/d*1e-9,T[1]/d*1e-9,'wo',markersize=I*1000)
-				a_k.plot(0,0,'w+',markersize=10)
-				if ui_kikuchi.label_checkBox.isChecked():
-					a_k.annotate(str(axes_diff[t,:]),(T[0]/d*1e-9,T[1]/d*1e-9),color="white")
-			
-		a_k.axis([-lim,lim,-lim,lim])
-	else:
-	
-		for t in range(0,np.shape(axesh)[0]):
-			if axesh[t,6]==1:
-				T=np.dot(M,axesh[t,0:3])
-				if np.abs(T[2])<np.sin(ang):
-						r=np.sqrt(T[0]**2+T[1]**2+T[2]**2)
-						A=np.zeros((2,50))
-						B=np.zeros((2,50))
-						Qa=np.zeros((1,2))
-						Qb=np.zeros((1,2))
-						th=np.arctan2(T[1],T[0])*180/np.pi
-						w=0
-						ph=np.arccos(T[2]/r)*180/np.pi
-						d=1/(np.sqrt(np.dot(axes[t,:],np.dot(np.linalg.inv(G),axes[t,:]))))
-						tb=np.arcsin(lamb/2/d)*180/np.pi/2
-						
-						for g in np.linspace(-np.pi/2,np.pi/2,50):
-			    				Aa=np.dot(Rot(th,0,0,1),np.dot(Rot(ph-tb,0,1,0),np.array([np.sin(g),np.cos(g),0])))
-			    				Ab=np.dot(Rot(th,0,0,1),np.dot(Rot(ph+tb,0,1,0),np.array([np.sin(g),np.cos(g),0])))
-			    				A[:,w]=proj(Aa[0],Aa[1],Aa[2])*300
-			    				B[:,w]=proj(Ab[0],Ab[1],Ab[2])*300
-			    				Qa=np.vstack((Qa,A[:,w]))
-			    				Qb=np.vstack((Qb,B[:,w]))
-			    			w=w+1
-			    			Qa=np.delete(Qa,0,0)
-			    			Qb=np.delete(Qb,0,0)   
-			    			st=str(int(axes[t,0]))+','+str(int(axes[t,1]))+','+str(int(axes[t,2]))
-			    			if ui_kikuchi.label_checkBox.isChecked():
-			    				a_k.annotate(st,(Qa[2,0]+300,Qa[2,1]+300),ha='center', va='center',rotation=th-90, color="white")
-			    			
-						a_k.plot(Qa[:,0]+300,Qa[:,1]+300,'w-', linewidth=axesh[t,5]/m)
-						a_k.plot(Qb[:,0]+300,Qb[:,1]+300,'w-', linewidth=axesh[t,5]/m)
-						a_k.plot(300,300,'wo')
-						a_k.axis([300*(1-ap),300*(1+ap),300*(1-ap),300*(1+ap)])
+				I=axesh_diff[t,3]*(thick*np.pi/xi)**2*np.sinc(se*thick)**2
+				#I=axesh_diff[t,3]*np.sinc(s*thick)**2
+				#spot=np.vstack((spot,np.array([T[0]/d*1e-9,T[1]/d*1e-9,I])))
+				a_k.scatter(T[0]/d*1e-9,T[1]/d*1e-9,s=I*np.float(ui_kikuchi.spot_size_entry.text()), color="white")
+				a_k.axis([-lim,lim,-lim,lim])
+				a_k.axis('off')
+				#a_k.axis('equal')
 				
+	if ui_kikuchi.kikuchi_radioButton.isChecked():
+		for t in range(0,np.shape(axesh_diff)[0]):
+				T=np.dot(M,axesh_diff[t,0:3])
+				if np.abs(T[2])<np.sin(ang):
+					r=np.sqrt(T[0]**2+T[1]**2+T[2]**2)
+					A=np.zeros((2,50))
+					B=np.zeros((2,50))
+					Qa=np.zeros((1,2))
+					Qb=np.zeros((1,2))
+					th=np.arctan2(T[1],T[0])*180/np.pi
+					w=0
+					ph=np.arccos(T[2]/r)*180/np.pi
+					d=1/(np.sqrt(np.dot(axes_diff[t,:],np.dot(np.linalg.inv(G),axes_diff[t,:]))))
+					tb=np.arcsin(lamb/2/d)*180/np.pi/2
+					
+					for g in np.linspace(-np.pi,np.pi,50):
+		    				Aa=np.dot(Rot(th,0,0,1),np.dot(Rot(ph-tb,0,1,0),np.array([np.sin(g),np.cos(g),0])))
+		    				Ab=np.dot(Rot(th,0,0,1),np.dot(Rot(ph+tb,0,1,0),np.array([np.sin(g),np.cos(g),0])))
+		    				A[:,w]=proj(Aa[0],Aa[1],Aa[2])*300
+		    				B[:,w]=proj(Ab[0],Ab[1],Ab[2])*300
+		    				Qa=np.vstack((Qa,A[:,w]))
+		    				Qb=np.vstack((Qb,B[:,w]))
+		    			w=w+1
+		    			Qa=np.delete(Qa,0,0)
+		    			Qb=np.delete(Qb,0,0)
+		    			st=str(int(axes_diff[t,0]))+','+str(int(axes_diff[t,1]))+','+str(int(axes_diff[t,2]))
+		    			if ui_kikuchi.label_checkBox.isChecked():
+		    				a_k.annotate(st,(Qa[2,0]+300,Qa[2,1]+300),ha='center', va='center',rotation=th-90, color="white")
+		    			
+					a_k.plot(Qa[:,0]+300,Qa[:,1]+300,'w-', linewidth=axesh_diff[t,3]/m)
+					a_k.plot(Qb[:,0]+300,Qb[:,1]+300,'w-', linewidth=axesh_diff[t,3]/m)
+					a_k.plot(300,300,'wo')
+					a_k.set_facecolor('black')
+				
+					a_k.axis([300*(1-ap),300*(1+ap),300*(1-ap),300*(1+ap)])
+					
+			
+	#imin=np.amin(spot[1:,2])
+	#imin=1
+	#print spot,lim
+	#a_k.scatter(spot[:,0],spot[:,1],s=spot[:,2]/imin*np.int(ui_kikuchi.spot_size_entry.text()),color="white")
+	#a_k.plot(0,0,"w+", markersize=10)
+#	for o in range(0,np.shape(spot)[0]):
 
+#		if ui_kikuchi.label_checkBox.isChecked():
+#			a_k.annotate(str(axes_diff[t,:]),(T[0]/d*1e-9,T[1]/d*1e-9),color="white")
+
+#	a_k.axis([-lim,lim,-lim,lim])
+#	a_k.axis('off')
+#	a_k.axis('equal')
+	a_k.figure.canvas.draw() 
 	
-	a_k.axis('off')
-	a_k.figure.canvas.draw()  
-    	
+   
 	
 	
 	
@@ -2487,10 +2504,11 @@ if __name__ == "__main__":
 	Index.connect(ui.actionPlot_Kikuchi_lines, QtCore.SIGNAL('triggered()'), Kikuchi.show) 
 	ui_kikuchi.buttonBox.rejected.connect(Kikuchi.close)
 	ui_kikuchi.buttonBox.accepted.connect(plot_kikuchi)
-	ui_kikuchi.diff_checkBox.stateChanged.connect(diff_reciprocal)
+	ui_kikuchi.Diff_button.clicked.connect(diff_reciprocal)
 	ui_kikuchi.E_entry.setText('200')
 	ui_kikuchi.angle_entry.setText('3')
-	ui_kikuchi.t_entry.setText('100')
+	ui_kikuchi.error_entry.setText('1')
+	ui_kikuchi.t_entry.setText('1')
 	ui_kikuchi.indices_entry.setText('5')
 	ui_kikuchi.spot_size_entry.setText('100')
 	figure_kikuchi=plt.figure()
