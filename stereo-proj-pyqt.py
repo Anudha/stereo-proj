@@ -2221,6 +2221,9 @@ def intersection_cone():
 ###################################################
 #
 # Plot Kikuchi bands  / Diffraction pattern
+# The diff spots/Kikuchi bands are computed within the kinematical approximation, owing the structure factor and scattering factors. 
+# indicated in the corresponding txt files. The scattering factor is computed for every elements according to 
+# a sum of Gaussian functions (see http://lampx.tugraz.at/~hadley/ss1/crystaldiffraction/atomicformfactors/formfactors.php)
 #
 #################################################
 def diff_reciprocal():
@@ -2272,7 +2275,7 @@ def set_diff_cond():
 	ui_kikuchi.t_entry.setText('100')
 	ui_kikuchi.indices_entry.setText('5')
 	ui_kikuchi.angle_entry.setText('3')
-	ui_kikuchi.spot_size_entry.setText('10')
+	ui_kikuchi.spot_size_entry.setText('100')
 	ui_kikuchi.error_entry.setText('1')
 
 def set_kikuchi_cond():
@@ -2285,8 +2288,6 @@ def set_kikuchi_cond():
 	
 def plot_kikuchi():
 	global M,G,V,axesh_diff,axes_diff
-	if np.shape(axesh_diff)[0]==0:
-		diff_reciprocal()
 		
 	a_k = figure_kikuchi.add_subplot(111)
 	a_k.clear()
@@ -2294,7 +2295,6 @@ def plot_kikuchi():
     	E=np.float(ui_kikuchi.E_entry.text())
     	lamb=6.6e-34/np.sqrt(2*9.1e-31*1.6e-19*E*1e3*(1+1.6e-19*E*1e3/2/9.31e-31/9e16))
     	ang=np.float(ui_kikuchi.angle_entry.text())*np.pi/180
-	
 	ap=np.sin(ang)/(1+np.cos(ang))
 	lim=np.tan(ang)/lamb*1e-9
 	m=np.max(axesh_diff[:,3])
@@ -2314,8 +2314,7 @@ def plot_kikuchi():
 				s=np.linalg.norm(S)
 				xi=np.pi*V*np.cos(tb*np.pi/180)/lamb/Fg
 				se=np.sqrt(s**2+1/xi**2)
-				I=axesh_diff[t,3]*(thick*np.pi/xi)**2*np.sinc(se*thick)**2
-				
+				I=(thick*np.pi/xi)**2*np.sinc(se*thick)**2
 				st=str(int(axes_diff[t,0]))+','+str(int(axes_diff[t,1]))+','+str(int(axes_diff[t,2]))
 		    		if ui_kikuchi.label_checkBox.isChecked():
 		    			a_k.annotate(st,(T[0]/d*1e-9,T[1]/d*1e-9), color="white")
@@ -2363,25 +2362,9 @@ def plot_kikuchi():
 					a_k.axis([300*(1-ap),300*(1+ap),300*(1-ap),300*(1+ap)])
 					
 			
-	#imin=np.amin(spot[1:,2])
-	#imin=1
-	#print spot,lim
-	#a_k.scatter(spot[:,0],spot[:,1],s=spot[:,2]/imin*np.int(ui_kikuchi.spot_size_entry.text()),color="white")
-	#a_k.plot(0,0,"w+", markersize=10)
-#	for o in range(0,np.shape(spot)[0]):
-
-#		if ui_kikuchi.label_checkBox.isChecked():
-#			a_k.annotate(str(axes_diff[t,:]),(T[0]/d*1e-9,T[1]/d*1e-9),color="white")
-
-#	a_k.axis([-lim,lim,-lim,lim])
-#	a_k.axis('off')
-#	a_k.axis('equal')
 	a_k.figure.canvas.draw() 
 	
-   
-	
-	
-	
+ 	
 
 ##################################################
 #
@@ -2546,7 +2529,7 @@ if __name__ == "__main__":
 	ui_kikuchi.mplvl.addWidget(canvas_kikuchi)
 	toolbar_kikuchi = NavigationToolbar(canvas_kikuchi, canvas_kikuchi)
 	toolbar_kikuchi.setMinimumWidth(601)
-	
+
 	
 	ui.button_trace2.clicked.connect(princ2)
 	ui.button_trace.clicked.connect(princ)
