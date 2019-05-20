@@ -358,9 +358,7 @@ def rot_beta_m():
     	AxeY=np.array([1,0,0])
     else:
    	A=np.dot(np.linalg.inv(M_lock),np.array([1,0,0]))
-	C=np.dot(np.linalg.inv(Dstar),A)
-	AxeY=C/np.linalg.norm(C)
-    	AxeY=np.dot(M,AxeY)
+	AxeY=np.dot(M,A)
     
     thb=-np.float(ui.angle_beta_entry.text())
     M=np.dot(Rot(thb,AxeY[0],AxeY[1],AxeY[2]),M)
@@ -381,9 +379,7 @@ def rot_beta_p():
     	AxeY=np.array([1,0,0])
     else:
    	A=np.dot(np.linalg.inv(M_lock),np.array([1,0,0]))
-	C=np.dot(np.linalg.inv(Dstar),A)
-	AxeY=C/np.linalg.norm(C)
-    	AxeY=np.dot(M,AxeY)
+	AxeY=np.dot(M,A)
     
     thb=np.float(ui.angle_beta_entry.text())
     M=np.dot(Rot(thb,AxeY[0],AxeY[1],AxeY[2]),M)
@@ -404,9 +400,7 @@ def rot_z_m():
     	AxeZ=np.array([0,0,1])
     else:
    	A=np.dot(np.linalg.inv(M_lock),np.array([0,0,1]))
-	C=np.dot(np.linalg.inv(Dstar),A)
-	AxeZ=C/np.linalg.norm(C)
-    	AxeZ=np.dot(M,AxeZ)
+	AxeZ=np.dot(M,A)
     
     thz=-np.float(ui.angle_z_entry.text())
     M=np.dot(Rot(thz,AxeZ[0],AxeZ[1],AxeZ[2]),M)
@@ -427,10 +421,8 @@ def rot_z_p():
     	AxeZ=np.array([0,0,1])
     else:
    	A=np.dot(np.linalg.inv(M_lock),np.array([0,0,1]))
-	C=np.dot(np.linalg.inv(Dstar),A)
-	AxeZ=C/np.linalg.norm(C)
-    	AxeZ=np.dot(M,AxeZ)
-    
+	AxeZ=np.dot(M,A)
+	
     thz=np.float(ui.angle_z_entry.text())
     M=np.dot(Rot(thz,AxeZ[0],AxeZ[1],AxeZ[2]),M)
     trace()
