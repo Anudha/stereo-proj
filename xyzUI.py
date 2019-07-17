@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'xyz.ui'
+# Form implementation generated from reading ui file 'xyzUI.ui'
 #
 # Created by: PyQt4 UI code generator 4.12.1
 #
@@ -25,25 +25,16 @@ except AttributeError:
 class Ui_xyz_dialog(object):
     def setupUi(self, xyz_dialog):
         xyz_dialog.setObjectName(_fromUtf8("xyz_dialog"))
-        xyz_dialog.resize(394, 216)
+        xyz_dialog.resize(396, 220)
         self.gridLayoutWidget = QtGui.QWidget(xyz_dialog)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 10, 381, 201))
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 10, 381, 205))
         self.gridLayoutWidget.setObjectName(_fromUtf8("gridLayoutWidget"))
         self.gridLayout = QtGui.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setMargin(0)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
-        self.pushButton_copyY = QtGui.QPushButton(self.gridLayoutWidget)
-        self.pushButton_copyY.setObjectName(_fromUtf8("pushButton_copyY"))
-        self.gridLayout.addWidget(self.pushButton_copyY, 4, 1, 1, 1)
-        self.pushButton_copyX = QtGui.QPushButton(self.gridLayoutWidget)
-        self.pushButton_copyX.setObjectName(_fromUtf8("pushButton_copyX"))
-        self.gridLayout.addWidget(self.pushButton_copyX, 1, 1, 1, 1)
         self.Y_label = QtGui.QLabel(self.gridLayoutWidget)
         self.Y_label.setObjectName(_fromUtf8("Y_label"))
         self.gridLayout.addWidget(self.Y_label, 3, 0, 1, 2)
-        self.pushButton_copyZ = QtGui.QPushButton(self.gridLayoutWidget)
-        self.pushButton_copyZ.setObjectName(_fromUtf8("pushButton_copyZ"))
-        self.gridLayout.addWidget(self.pushButton_copyZ, 8, 1, 1, 1)
         self.xyz_button = QtGui.QPushButton(self.gridLayoutWidget)
         self.xyz_button.setObjectName(_fromUtf8("xyz_button"))
         self.gridLayout.addWidget(self.xyz_button, 10, 0, 1, 2)
@@ -68,10 +59,7 @@ class Ui_xyz_dialog(object):
 
     def retranslateUi(self, xyz_dialog):
         xyz_dialog.setWindowTitle(_translate("xyz_dialog", "xyz directions", None))
-        self.pushButton_copyY.setText(_translate("xyz_dialog", "Copy to pole", None))
-        self.pushButton_copyX.setText(_translate("xyz_dialog", "Copy to pole", None))
         self.Y_label.setText(_translate("xyz_dialog", "Y", None))
-        self.pushButton_copyZ.setText(_translate("xyz_dialog", "Copy to pole", None))
         self.xyz_button.setText(_translate("xyz_dialog", "Update", None))
         self.Z_label.setText(_translate("xyz_dialog", "Z", None))
         self.X_label.setText(_translate("xyz_dialog", "X", None))

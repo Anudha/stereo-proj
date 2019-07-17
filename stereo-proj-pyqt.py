@@ -160,12 +160,14 @@ def var_carre():
 
 def crist():
     global axes,axesh,D,Dstar,V
-    a=np.float(ui.a_entry.text())
-    b=np.float(ui.b_entry.text())
-    c=np.float(ui.c_entry.text())
-    alpha=np.float(ui.alpha_entry.text())
-    beta=np.float(ui.beta_entry.text())
-    gamma=np.float(ui.gamma_entry.text())
+    abc=ui.abc_entry.text().split(",")
+    a=np.float(abc[0])
+    b=np.float(abc[1])
+    c=np.float(abc[2])
+    alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+    alpha=np.float(alphabetagamma[0])
+    beta=np.float(alphabetagamma[1])
+    gamma=np.float(alphabetagamma[2])
     e=np.int(ui.e_entry.text())
     d2=np.float(ui.d_label_var.text())
     alpha=alpha*np.pi/180;
@@ -241,18 +243,21 @@ def dp():
 def schmid_trace():
     global M,axes,axesh,T,V,D,Dstar,trP,tr_schmid,a,minx,maxx,miny,maxy,trC
     
-    pole1=np.float(ui.pole1_entry.text())
-    pole2=np.float(ui.pole2_entry.text())
-    pole3=np.float(ui.pole3_entry.text())
-        
+    pole_entry=ui.pole_entry.text().split(",")
+    pole1=np.float(pole_entry[0])
+    pole2=np.float(pole_entry[1])
+    pole3=np.float(pole_entry[2])
+            
     tr_schmid=np.vstack((tr_schmid,np.array([pole1,pole2,pole3])))
     trace()
     
 def undo_schmid_trace():
     global M,axes,axesh,T,V,D,Dstar,trP,tr_schmid,a,minx,maxx,miny,maxy,trC
-    pole1=np.float(ui.pole1_entry.text())
-    pole2=np.float(ui.pole2_entry.text())
-    pole3=np.float(ui.pole3_entry.text())
+    pole_entry=ui.pole_entry.text().split(",")
+    pole1=np.float(pole_entry[0])
+    pole2=np.float(pole_entry[1])
+    pole3=np.float(pole_entry[2])
+    
     tr_s=tr_schmid
     for i in range(1,tr_schmid.shape[0]):
 		if tr_schmid[i,0]==pole1 and tr_schmid[i,1]==pole2 and tr_schmid[i,2]==pole3:
@@ -446,9 +451,10 @@ def rotgm():
     global g,M,Dstar,a
 
     thg=-np.float(ui.rot_g_entry.text())
-    diff1=np.float(ui.diff1_entry.text())
-    diff2=np.float(ui.diff2_entry.text())
-    diff3=np.float(ui.diff3_entry.text())
+    diff=ui.diff_entry.text().split(",")
+    diff1=np.float(diff[0])
+    diff2=np.float(diff[1])
+    diff3=np.float(diff[2])
     A=np.array([diff1,diff2,diff3])
     Ad=np.dot(Dstar,A)    
     Ap=np.dot(M,Ad)/np.linalg.norm(np.dot(M,Ad))
@@ -468,9 +474,10 @@ def rotgp():
     global g,M,D
 
     thg=np.float(ui.rot_g_entry.text())
-    diff1=np.float(ui.diff1_entry.text())
-    diff2=np.float(ui.diff2_entry.text())
-    diff3=np.float(ui.diff3_entry.text())
+    diff=ui.diff_entry.text().split(",")
+    diff1=np.float(diff[0])
+    diff2=np.float(diff[1])
+    diff3=np.float(diff[2])
     A=np.array([diff1,diff2,diff3])
     Ad=np.dot(Dstar,A)    
     Ap=np.dot(M,Ad)/np.linalg.norm(np.dot(M,Ad))
@@ -597,33 +604,32 @@ def undo_pole(pole1,pole2,pole3):
     
 def d(pole1,pole2,pole3):
     global M,axes,axesh,T,V,D,Dstar
-    a=np.float(ui.a_entry.text())
-    b=np.float(ui.b_entry.text())
-    c=np.float(ui.c_entry.text())
-    alpha=np.float(ui.alpha_entry.text())
-    beta=np.float(ui.beta_entry.text())
-    gamma=np.float(ui.gamma_entry.text())
-    alpha=alpha*np.pi/180;
-    beta=beta*np.pi/180;
-    gamma=gamma*np.pi/180;
+    abc=ui.abc_entry.text().split(",")
+    a=np.float(abc[0])
+    b=np.float(abc[1])
+    c=np.float(abc[2])
+    alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+    alpha=np.float(alphabetagamma[0])*np.pi/180;
+    beta=np.float(alphabetagamma[1])*np.pi/180;
+    gamma=np.float(alphabetagamma[2])*np.pi/180;
     G=np.array([[a**2,a*b*np.cos(gamma),a*c*np.cos(beta)],[a*b*np.cos(gamma),b**2,b*c*np.cos(alpha)],[a*c*np.cos(beta),b*c*np.cos(alpha),c**2]])    
     ds=(np.sqrt(np.dot(np.array([pole1,pole2,pole3]),np.dot(np.linalg.inv(G),np.array([pole1,pole2,pole3])))))
     return ds
     
 def addpole_sym():
-    global M,axes,axesh,T,V,D,Dstar,G    
-    pole1=np.float(ui.pole1_entry.text())
-    pole2=np.float(ui.pole2_entry.text())
-    pole3=np.float(ui.pole3_entry.text())
-    a=np.float(ui.a_entry.text())
-    b=np.float(ui.b_entry.text())
-    c=np.float(ui.c_entry.text())
-    alpha=np.float(ui.alpha_entry.text())
-    beta=np.float(ui.beta_entry.text())
-    gamma=np.float(ui.gamma_entry.text())
-    alpha=alpha*np.pi/180;
-    beta=beta*np.pi/180;
-    gamma=gamma*np.pi/180;
+    global M,axes,axesh,T,V,D,Dstar,G
+    pole_entry=ui.pole_entry.text().split(",")
+    pole1=np.float(pole_entry[0])
+    pole2=np.float(pole_entry[1])
+    pole3=np.float(pole_entry[2])
+    abc=ui.abc_entry.text().split(",")
+    a=np.float(abc[0])
+    b=np.float(abc[1])
+    c=np.float(abc[2])
+    alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+    alpha=np.float(alphabetagamma[0])*np.pi/180;
+    beta=np.float(alphabetagamma[1])*np.pi/180;
+    gamma=np.float(alphabetagamma[2])*np.pi/180;
     G=np.array([[a**2,a*b*np.cos(gamma),a*c*np.cos(beta)],[a*b*np.cos(gamma),b**2,b*c*np.cos(alpha)],[a*c*np.cos(beta),b*c*np.cos(alpha),c**2]])     
     v=d(pole1,pole2,pole3)
     
@@ -693,18 +699,18 @@ def addpole_sym():
 
 def undo_sym():
     global M,axes,axesh,T,V,D,Dstar,G    
-    pole1=np.float(ui.pole1_entry.text())
-    pole2=np.float(ui.pole2_entry.text())
-    pole3=np.float(ui.pole3_entry.text())
-    a=np.float(ui.a_entry.text())
-    b=np.float(ui.b_entry.text())
-    c=np.float(ui.c_entry.text())
-    alpha=np.float(ui.alpha_entry.text())
-    beta=np.float(ui.beta_entry.text())
-    gamma=np.float(ui.gamma_entry.text())
-    alpha=alpha*np.pi/180;
-    beta=beta*np.pi/180;
-    gamma=gamma*np.pi/180;
+    pole_entry=ui.pole_entry.text().split(",")
+    pole1=np.float(pole_entry[0])
+    pole2=np.float(pole_entry[1])
+    pole3=np.float(pole_entry[2])
+    abc=ui.abc_entry.text().split(",")
+    a=np.float(abc[0])
+    b=np.float(abc[1])
+    c=np.float(abc[2])
+    alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+    alpha=np.float(alphabetagamma[0])*np.pi/180;
+    beta=np.float(alphabetagamma[1])*np.pi/180;
+    gamma=np.float(alphabetagamma[2])*np.pi/180;
     G=np.array([[a**2,a*b*np.cos(gamma),a*c*np.cos(beta)],[a*b*np.cos(gamma),b**2,b*c*np.cos(alpha)],[a*c*np.cos(beta),b*c*np.cos(alpha),c**2]])     
     v=d(pole1,pole2,pole3)
     
@@ -775,19 +781,20 @@ def undo_sym():
     
 def addpole():
     
-    pole1=np.float(ui.pole1_entry.text())
-    pole2=np.float(ui.pole2_entry.text())
-    pole3=np.float(ui.pole3_entry.text())
+    pole_entry=ui.pole_entry.text().split(",")
+    pole1=np.float(pole_entry[0])
+    pole2=np.float(pole_entry[1])
+    pole3=np.float(pole_entry[2])
     pole(pole1,pole2,pole3)
     trace()
     
 def undo_addpole():
     global M,axes,axesh,T,V,D,Dstar,trP,tr_schmid,nn,trC
-    pole1=np.float(ui.pole1_entry.text())
-    pole2=np.float(ui.pole2_entry.text())
-    pole3=np.float(ui.pole3_entry.text())
+    pole_entry=ui.pole_entry.text().split(",")
+    pole1=np.float(pole_entry[0])
+    pole2=np.float(pole_entry[1])
+    pole3=np.float(pole_entry[2])
     undo_pole(pole1,pole2,pole3)
-    
     trace()
     
 ####################################################################
@@ -804,15 +811,11 @@ def trace_plan(pole1,pole2,pole3):
     
     if var_hexa()==1:
         if var_uvw()==1:
-            pole1=2*np.float(ui.pole1_entry.text())+np.float(ui.pole2_entry.text())
-            pole2=2*np.float(ui.pole2_entry.text())+np.float(ui.pole1_entry.text())
-            pole3=np.float(ui.pole3_entry.text())
+            pole1=2*pole1+pole2
+            pole2=2*pole2+pole1
             pole_i=1
-    
-        
     trP=np.vstack((trP,np.array([pole1,pole2,pole3,pole_i,pole_c])))
     b=np.ascontiguousarray(trP).view(np.dtype((np.void, trP.dtype.itemsize * trP.shape[1])))
-    
     trP=np.unique(b).view(trP.dtype).reshape(-1, trP.shape[1])
 
 
@@ -824,28 +827,22 @@ def trace_cone(pole1,pole2,pole3):
     inc=np.float(ui.inclination_entry.text())
     if var_hexa()==1:
         if var_uvw()==1:
-            pole1=2*np.float(ui.pole1_entry.text())+np.float(ui.pole2_entry.text())
-            pole2=2*np.float(ui.pole2_entry.text())+np.float(ui.pole1_entry.text())
-            pole3=np.float(ui.pole3_entry.text())
+            pole1=2*pole1+pole2
+            pole2=2*pole2+pole1
             pole_i=1
-           
-    
-        
     trC=np.vstack((trC,np.array([pole1,pole2,pole3,pole_i,pole_c,inc])))
     b=np.ascontiguousarray(trC).view(np.dtype((np.void, trC.dtype.itemsize * trC.shape[1])))
-    
     trC=np.unique(b).view(trC.dtype).reshape(-1, trC.shape[1])
 
-  
-    
     
 def trace_addplan():
     global M,axes,axesh,T,V,D,Dstar,trP
     
-    pole1=np.float(ui.pole1_entry.text())
-    pole2=np.float(ui.pole2_entry.text())
-    pole3=np.float(ui.pole3_entry.text())
-    
+    pole_entry=ui.pole_entry.text().split(",")
+    pole1=np.float(pole_entry[0])
+    pole2=np.float(pole_entry[1])
+    pole3=np.float(pole_entry[2])
+        
     trace_plan(pole1,pole2,pole3)
     trace_plan2
     trace()
@@ -853,19 +850,21 @@ def trace_addplan():
 def trace_addcone():
     global M,axes,axesh,T,V,D,Dstar,trC
     
-    pole1=np.float(ui.pole1_entry.text())
-    pole2=np.float(ui.pole2_entry.text())
-    pole3=np.float(ui.pole3_entry.text())
-    
+    pole_entry=ui.pole_entry.text().split(",")
+    pole1=np.float(pole_entry[0])
+    pole2=np.float(pole_entry[1])
+    pole3=np.float(pole_entry[2])
+        
     trace_cone(pole1,pole2,pole3)
     trace()
     
 def undo_trace_addplan():
     global M,axes,axesh,T,V,D,Dstar,trP
     
-    pole1=np.float(ui.pole1_entry.text())
-    pole2=np.float(ui.pole2_entry.text())
-    pole3=np.float(ui.pole3_entry.text())
+    pole_entry=ui.pole_entry.text().split(",")
+    pole1=np.float(pole_entry[0])
+    pole2=np.float(pole_entry[1])
+    pole3=np.float(pole_entry[2])
     
     undo_trace_plan(pole1,pole2,pole3)
     trace()
@@ -873,10 +872,11 @@ def undo_trace_addplan():
 def undo_trace_addcone():
     global M,axes,axesh,T,V,D,Dstar,trC
     
-    pole1=np.float(ui.pole1_entry.text())
-    pole2=np.float(ui.pole2_entry.text())
-    pole3=np.float(ui.pole3_entry.text())
-    
+    pole_entry=ui.pole_entry.text().split(",")
+    pole1=np.float(pole_entry[0])
+    pole2=np.float(pole_entry[1])
+    pole3=np.float(pole_entry[2])
+        
     undo_trace_cone(pole1,pole2,pole3)
     trace()
     
@@ -908,18 +908,18 @@ def undo_trace_cone(pole1,pole2,pole3):
 
 def trace_plan_sym():
     global M,axes,axesh,T,V,D,Dstar,G    
-    pole1=np.float(ui.pole1_entry.text())
-    pole2=np.float(ui.pole2_entry.text())
-    pole3=np.float(ui.pole3_entry.text())
-    a=np.float(ui.a_entry.text())
-    b=np.float(ui.b_entry.text())
-    c=np.float(ui.c_entry.text())
-    alpha=np.float(ui.alpha_entry.text())
-    beta=np.float(ui.beta_entry.text())
-    gamma=np.float(ui.gamma_entry.text())
-    alpha=alpha*np.pi/180;
-    beta=beta*np.pi/180;
-    gamma=gamma*np.pi/180;
+    pole_entry=ui.pole_entry.text().split(",")
+    pole1=np.float(pole_entry[0])
+    pole2=np.float(pole_entry[1])
+    pole3=np.float(pole_entry[2])
+    abc=ui.abc_entry.text().split(",")
+    a=np.float(abc[0])
+    b=np.float(abc[1])
+    c=np.float(abc[2])
+    alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+    alpha=np.float(alphabetagamma[0])*np.pi/180;
+    beta=np.float(alphabetagamma[1])*np.pi/180;
+    gamma=np.float(alphabetagamma[2])*np.pi/180;
     G=np.array([[a**2,a*b*np.cos(gamma),a*c*np.cos(beta)],[a*b*np.cos(gamma),b**2,b*c*np.cos(alpha)],[a*c*np.cos(beta),b*c*np.cos(alpha),c**2]])     
     v=d(pole1,pole2,pole3)
     
@@ -989,18 +989,18 @@ def trace_plan_sym():
     
 def undo_trace_plan_sym():
     global M,axes,axesh,T,V,D,Dstar,G    
-    pole1=np.float(ui.pole1_entry.text())
-    pole2=np.float(ui.pole2_entry.text())
-    pole3=np.float(ui.pole3_entry.text())
-    a=np.float(ui.a_entry.text())
-    b=np.float(ui.b_entry.text())
-    c=np.float(ui.c_entry.text())
-    alpha=np.float(ui.alpha_entry.text())
-    beta=np.float(ui.beta_entry.text())
-    gamma=np.float(ui.gamma_entry.text())
-    alpha=alpha*np.pi/180;
-    beta=beta*np.pi/180;
-    gamma=gamma*np.pi/180;
+    pole_entry=ui.pole_entry.text().split(",")
+    pole1=np.float(pole_entry[0])
+    pole2=np.float(pole_entry[1])
+    pole3=np.float(pole_entry[2])
+    abc=ui.abc_entry.text().split(",")
+    a=np.float(abc[0])
+    b=np.float(abc[1])
+    c=np.float(abc[2])
+    alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+    alpha=np.float(alphabetagamma[0])*np.pi/180;
+    beta=np.float(alphabetagamma[1])*np.pi/180;
+    gamma=np.float(alphabetagamma[2])*np.pi/180;
     G=np.array([[a**2,a*b*np.cos(gamma),a*c*np.cos(beta)],[a*b*np.cos(gamma),b**2,b*c*np.cos(alpha)],[a*c*np.cos(beta),b*c*np.cos(alpha),c**2]])     
     v=d(pole1,pole2,pole3)
     
@@ -1263,18 +1263,18 @@ def coordinates(event):
 #######################################################
 
 def dhkl():
-    i=np.float(ui.pole1_entry.text())
-    j=np.float(ui.pole2_entry.text())
-    k=np.float(ui.pole3_entry.text())
-    a=np.float(ui.a_entry.text())
-    b=np.float(ui.b_entry.text())
-    c=np.float(ui.c_entry.text())
-    alp=np.float(ui.alpha_entry.text())
-    bet=np.float(ui.beta_entry.text())
-    gam=np.float(ui.gamma_entry.text())
-    alp=alp*np.pi/180;
-    bet=bet*np.pi/180;
-    gam=gam*np.pi/180;
+    pole_entry=ui.pole_entry.text().split(",")
+    i=np.float(pole_entry[0])
+    j=np.float(pole_entry[1])
+    k=np.float(pole_entry[2])
+    abc=ui.abc_entry.text().split(",")
+    a=np.float(abc[0])
+    b=np.float(abc[1])
+    c=np.float(abc[2])
+    alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+    alp=np.float(alphabetagamma[0])*np.pi/180;
+    bet=np.float(alphabetagamma[1])*np.pi/180;
+    gam=np.float(alphabetagamma[2])*np.pi/180;
     G=np.array([[a**2,a*b*np.cos(gam),a*c*np.cos(bet)],[a*b*np.cos(gam),b**2,b*c*np.cos(alp)],[a*c*np.cos(bet),b*c*np.cos(alp),c**2]])    
     d=np.around(1/(np.sqrt(np.dot(np.array([i,j,k]),np.dot(np.linalg.inv(G),np.array([i,j,k]))))), decimals=3)
     ui.dhkl_label.setText(str(d))
@@ -1405,10 +1405,10 @@ def princ():
     a.figure.clear()
     a = figure.add_subplot(111)
     
-    
-    diff1=np.float(ui.diff1_entry.text())
-    diff2=np.float(ui.diff2_entry.text())
-    diff3=np.float(ui.diff3_entry.text())
+    diff=ui.diff_entry.text().split(",")
+    diff1=np.float(diff[0])
+    diff2=np.float(diff[1])
+    diff3=np.float(diff[2])
     tilt=np.float(ui.tilt_entry.text())
     inclinaison=np.float(ui.inclinaison_entry.text())    
      
@@ -1513,9 +1513,10 @@ def princ2():
     a = figure.add_subplot(111)
     a.figure.clear()
     a = figure.add_subplot(111)
-    phi1=np.float(ui.phi1_entry.text())
-    phi=np.float(ui.phi_entry.text())
-    phi2=np.float(ui.phi2_entry.text())
+    phi1phiphi2=ui.phi1phiphi2_entry.text().split(",")
+    phi1=np.float(phi1phiphi2[0])
+    phi=np.float(phi1phiphi2[1])
+    phi2=np.float(phi1phiphi2[2])
     fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
     img=np.array(Image.open(fn))
     crist()    
@@ -1611,12 +1612,9 @@ def princ2():
 def structure(item):
     global x0, var_hexa, d_label_var, e_entry
     
-    ui.a_entry.setText(str(item[1]))
-    ui.b_entry.setText(str(item[2]))
-    ui.c_entry.setText(str(item[3]))
-    ui.alpha_entry.setText(str(item[4]))
-    ui.beta_entry.setText(str(item[5]))
-    ui.gamma_entry.setText(str(item[6]))
+    ui.abc_entry.setText(str(item[1])+','+str(item[2])+','+str(item[3]))
+    ui.alphabetagamma_entry.setText(str(item[4])+','+str(item[5])+','+str(item[6]))
+    
     if eval(item[4])==90 and eval(item[5])==90 and eval(item[6])==120 :
         ui.hexa_button.setChecked(True)
         ui.e_entry.setText('2')
@@ -1637,12 +1635,14 @@ def structure(item):
         
 def angle():
 	global Dstar
-	c100=np.float(ui_angle.n10.text())
-	c110=np.float(ui_angle.n11.text())
-	c120=np.float(ui_angle.n12.text())
-	c200=np.float(ui_angle.n20.text())
-	c210=np.float(ui_angle.n21.text())
-	c220=np.float(ui_angle.n22.text())
+	n1=ui_angle.n1_entry.text().split(",")
+	c100=np.float(n1[0])
+	c110=np.float(n1[1])
+	c120=np.float(n1[2])
+	n2=ui_angle.n2_entry.text().split(",")
+	c200=np.float(n2[0])
+	c210=np.float(n2[1])
+	c220=np.float(n2[2])
 	c1=np.array([c100,c110,c120])
 	c2=np.array([c200,c210,c220])
 	if ui.uvw_button.isChecked==True: 
@@ -1665,12 +1665,11 @@ def angle():
 
 def prod_scal(c1,c2):
     global M, Dstar, D
-    alp=np.float(ui.alpha_entry.text())
-    bet=np.float(ui.beta_entry.text())
-    gam=np.float(ui.gamma_entry.text())
-    alp=alp*np.pi/180;
-    bet=bet*np.pi/180;
-    gam=gam*np.pi/180;
+    alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+    alp=np.float(alphabetagamma[0])*np.pi/180;
+    bet=np.float(alphabetagamma[1])*np.pi/180;
+    gam=np.float(alphabetagamma[2])*np.pi/180;
+
     if np.abs(alp-np.pi/2)<0.001 and np.abs(bet-np.pi/2)<0.001 and np.abs(gam-2*np.pi/3)<0.001:
         c2p=np.array([0,0,0])        
         c2p[0]=2*c2[0]+c2[1]
@@ -1686,12 +1685,11 @@ def prod_scal(c1,c2):
     
 def schmid_calc(b,n, T):
     global D, Dstar,M
-    alp=np.float(ui.alpha_entry.text())
-    bet=np.float(ui.beta_entry.text())
-    gam=np.float(ui.gamma_entry.text())
-    alp=alp*np.pi/180;
-    bet=bet*np.pi/180;
-    gam=gam*np.pi/180;
+    alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+    alp=np.float(alphabetagamma[0])*np.pi/180;
+    bet=np.float(alphabetagamma[1])*np.pi/180;
+    gam=np.float(alphabetagamma[2])*np.pi/180;
+
     if np.abs(alp-np.pi/2)<0.001 and np.abs(bet-np.pi/2)<0.001 and np.abs(gam-2*np.pi/3)<0.001:
         b2=np.array([0,0,0])        
         b2[0]=2*b[0]+b[1]
@@ -1713,12 +1711,10 @@ def schmid_calc(b,n, T):
 
 def schmid_pole(pole1,pole2,pole3):
 	global M,V,D,Dstar,G
-	alp=np.float(ui.alpha_entry.text())
-        bet=np.float(ui.beta_entry.text())
-        gam=np.float(ui.gamma_entry.text())
-        alp=alp*np.pi/180;
-	bet=bet*np.pi/180;
-	gam=gam*np.pi/180;
+	alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+        alp=np.float(alphabetagamma[0])*np.pi/180;
+        bet=np.float(alphabetagamma[1])*np.pi/180;
+        gam=np.float(alphabetagamma[2])*np.pi/180;
 	v=d(pole1,pole2,pole3)
 	N=np.array([pole1,pole2,pole3])
 	if np.abs(alp-np.pi/2)<0.001 and np.abs(bet-np.pi/2)<0.001 and np.abs(gam-2*np.pi/3)<0.001:
@@ -1774,19 +1770,21 @@ def schmid_pole(pole1,pole2,pole3):
 		  
 	return N
 
-
         
 def schmid():
 	global D, Dstar,M
-	h=np.float(ui_schmid.n0.text())
-	k=np.float(ui_schmid.n1.text())
-	l=np.float(ui_schmid.n2.text())
-	u=np.float(ui_schmid.b0.text())
-	v=np.float(ui_schmid.b1.text())
-	w=np.float(ui_schmid.b2.text())
+	n=ui_schmid.n_entry.text().split(",")
+	h=np.float(n[0])
+	k=np.float(n[1])
+	l=np.float(n[2])
+	b=ui_schmid.b_entry.text().split(",")
+	u=np.float(b[0])
+	v=np.float(b[1])
+	w=np.float(b[2])
 	n=np.array([h,k,l])
 	b=np.array([u,v,w])
-	T=np.array([np.float(ui_schmid.T0.text()),np.float(ui_schmid.T1.text()),np.float(ui_schmid.T2.text())])
+	T0=ui_schmid.T_entry.text().split(",")
+	T=np.array([np.float(T0[0]),np.float(T0[1]),np.float(T0[2])])
 	s=schmid_calc(b,n,T)
 	ui_schmid.schmid_factor_label.setText(str(np.around(s,decimals=2)))
 	B=schmid_pole(u,v,w)
@@ -1847,7 +1845,8 @@ def center():
  
 def to_uvw():
 	global Dstar, D, M
-	plane=np.array([np.float( ui_hkl_uvw.h.text()),np.float( ui_hkl_uvw.k.text()),np.float( ui_hkl_uvw.l.text())])
+	hkl=ui_hkl_uvw.hkl_entry.text().split(",")
+	plane=np.array([np.float( hkl[0]),np.float(hkl[1]),np.float(hkl[2])])
 	plane=plane/np.linalg.norm(plane)
 	direction=np.dot(np.linalg.inv(D),np.dot(Dstar,plane))
 	if var_hexa()==1:
@@ -1855,11 +1854,12 @@ def to_uvw():
 		    n2a=(2*direction[1]-direction[0])/3
 		    direction[0]=na
 		    direction[1]=n2a
-	ui_hkl_uvw.uvw_entry.setText(str(np.round(100*direction[0],decimals=3))+', '+str(np.round(100*direction[1],decimals=3))+', '+str(np.round(100*direction[2],decimals=3)))
+	ui_hkl_uvw.uvw_label.setText(str(np.round(100*direction[0],decimals=3))+', '+str(np.round(100*direction[1],decimals=3))+', '+str(np.round(100*direction[2],decimals=3)))
 	
 def to_hkl():
 	global Dstar, D, M
-	direction=np.array([np.float( ui_hkl_uvw.u.text()),np.float( ui_hkl_uvw.v.text()),np.float( ui_hkl_uvw.w.text())])
+	uvw=ui_hkl_uvw.uvw_entry.text().split(",")
+	direction=np.array([np.float( uvw[0]),np.float(uvw[1]),np.float(uvw[2])])
 	if var_hexa()==1:
 	            na=2*direction[0]+direction[1]
 		    n2a=2*direction[1]+direction[0]
@@ -1867,7 +1867,7 @@ def to_hkl():
 		    direction[1]=n2a
 	direction=direction/np.linalg.norm(direction)
 	plane=np.dot(np.linalg.inv(Dstar),np.dot(D,direction))
-	ui_hkl_uvw.hkl_entry.setText(str(np.round(100*plane[0],decimals=3))+', '+str(np.round(100*plane[1],decimals=3))+', '+str(np.round(100*plane[2],decimals=3)))
+	ui_hkl_uvw.hkl_label.setText(str(np.round(100*plane[0],decimals=3))+', '+str(np.round(100*plane[1],decimals=3))+', '+str(np.round(100*plane[2],decimals=3)))
 	
 	
 ##########################################################################
@@ -1879,13 +1879,10 @@ def to_hkl():
  
 def plot_width():
 	global D, Dstar, M
-	ui_width.figure.clf()
+
 	B=np.dot(np.linalg.inv(M),np.array([0,0,1]))
-	
-	plan1=np.float(ui_width.n0.text())   
-	plan2=np.float(ui_width.n1.text())
-	plan3=np.float(ui_width.n2.text())
-	n=np.array([plan1,plan2,plan3])
+	plan=ui_width.plane_entry.text().split(",")
+	n=np.array([np.float(plan[0]),np.float(plan[1]),np.float(plan[2])])
 	nr=np.dot(Dstar,n)
 	nr=nr/np.linalg.norm(nr)
 	B=np.dot(Dstar,B)
@@ -1893,7 +1890,12 @@ def plot_width():
 	la=np.zeros((1,41))
 	la2=np.zeros((2,41))
 	k=0
-	T=np.cross(nr,B)
+	if ui_width.surface_box.isChecked():
+		s0=ui_width.foil_surface.text().split(",")
+		s=np.array([np.float(s0[0]),np.float(s0[1]),np.float(s0[2])])
+		T=np.cross(nr,s)
+	else:	
+		T=np.cross(nr,B)
 	T=T/np.linalg.norm(T)
 
 		
@@ -1909,7 +1911,7 @@ def plot_width():
 
 	    k=k+1
 
-	ax1 = ui_width.figure.add_subplot(111)
+	ax1 = figure_width.add_subplot(111)
 	ax1.set_xlabel('alpha tilt angle')
 
 	
@@ -1919,6 +1921,7 @@ def plot_width():
 		ax2.plot(range(-40,41,2),la2[1,:],'b-')
 		ax2.set_ylabel('trace angle', color='b')
 		ax2.tick_params('y', colors='b')
+		
 	if ui_width.thickness_checkBox.isChecked():
 		t=np.float(ui_width.thickness.text())
 		d=t/np.sqrt(1-np.dot(nr,B)**2)
@@ -1927,64 +1930,13 @@ def plot_width():
 	else:
 		ax1.plot(range(-40,41,2),la2[0,:],'r-')
 		ax1.set_ylabel('w/d', color='black')
-	ui_width.canvas.draw_idle()
+	ax1.figure.canvas.draw()  
 	
-####################################################
-#
-# Copy results
-#
-#######################################################
-def copy_to_pole(r):
-	if r==0:
-		A=str(ui_inter.intersection_planes.text())
-		if ui_inter.checkBox.isChecked():
-			ui.uvw_button.setChecked(True)
-		else:
-			ui.uvw_button.setChecked(False)
-	if r==1:
-		A=str(ui_inter.intersection_dir_proj.text())
-		if ui_inter.checkBox_2.isChecked():
-			ui.uvw_button.setChecked(True)
-		else:
-			ui.uvw_button.setChecked(False)
+def clear_width():
+	ax1 = figure_width.add_subplot(111)
+	ax1.figure.clf()
+	ax1.figure.canvas.draw()  
 	
-	if r=='x':
-		A=str(ui_xyz.X_text.text())
-	if r=='y':
-		A=str(ui_xyz.Y_text.text())	
-	if r=='z':
-		A=str(ui_xyz.Z_text.text())
-	if r=='c1':
-		A=str(ui_inter.intersection_cone.text())
-		if ui_inter.checkBox_3.isChecked():
-			ui.uvw_button.setChecked(True)
-		else:
-			ui.uvw_button.setChecked(False)
-	if r=='c2':
-		A=str(ui_inter.intersection_cone2.text())
-		if ui_inter.checkBox_3.isChecked():
-			ui.uvw_button.setChecked(True)
-		else:
-			ui.uvw_button.setChecked(False)
-	if r=='uvw':
-		A=str(ui_hkl_uvw.uvw_entry.text())
-		ui.uvw_button.setChecked(True)
-	if r=='hkl':
-		A=str(ui_hkl_uvw.hkl_entry.text())
-		ui.uvw_button.setChecked(False)
-		
-	result = [x.strip() for x in A.split(',')]
-	ui.pole1_entry.setText(result[0])
-	ui.pole2_entry.setText(result[1])
-	ui.pole3_entry.setText(result[2])
-
-def copy_to_euler():
-	A=str(ui.angle_euler_label.text())
-	result = [x.strip() for x in A.split(',')]
-	ui.phi1_entry.setText(result[0])
-	ui.phi_entry.setText(result[1])
-	ui.phi2_entry.setText(result[2])	
-
 ####################################################
 #
 # Intersections
@@ -2018,24 +1970,29 @@ def intersect_norm(n1,n2,d):
 	
 
 def intersections_plans():
-	n1=np.array([np.float( ui_inter.n10.text()),np.float( ui_inter.n11.text()),np.float( ui_inter.n12.text())])
-	n2=np.array([np.float( ui_inter.n20.text()),np.float( ui_inter.n21.text()),np.float( ui_inter.n22.text())])
+	n1_plan=ui_inter.n1_entry.text().split(",")
+	n1=np.array([np.float( n1_plan[0]),np.float(n1_plan[1]),np.float(n1_plan[2])])
+	n2_plan=ui_inter.n2_entry.text().split(",")
+	n2=np.array([np.float( n2_plan[0]),np.float(n2_plan[1]),np.float(n2_plan[2])])
 	n=intersect_norm(n1,n2,0)
-	ui_inter.intersection_planes.setText(str(np.round(100*n[0],decimals=3))+', '+str(np.round(100*n[1],decimals=3))+', '+str(np.round(100*n[2],decimals=3)))
+	ui_inter.n1n2_label.setText(str(np.round(100*n[0],decimals=3))+', '+str(np.round(100*n[1],decimals=3))+', '+str(np.round(100*n[2],decimals=3)))
 	           
 def intersection_dir_proj():
 	global M
-	n=np.array([np.float( ui_inter.n_proj0.text()),np.float( ui_inter.n_proj1.text()),np.float( ui_inter.n_proj2.text())])
-	angle=np.float(ui_inter.angle_proj.text())*np.pi/180
+	n_proj=ui_inter.n_proj_entry.text().split(",")
+	n=np.array([np.float( n_proj[0]),np.float(n_proj[1]),np.float(n_proj[2])])
+	angle=np.float(ui_inter.angle_proj_entry.text())*np.pi/180
 	norm_xyz=np.array([np.cos(angle),-np.sin(angle),0])
 	n_intersect=intersect_norm(n,norm_xyz,1)
-	ui_inter.intersection_dir_proj.setText(str(np.round(100*n_intersect[0],decimals=3))+', '+str(np.round(100*n_intersect[1],decimals=3))+', '+str(np.round(100*n_intersect[2],decimals=3)))
+	ui_inter.n_proj_label.setText(str(np.round(100*n_intersect[0],decimals=3))+', '+str(np.round(100*n_intersect[1],decimals=3))+', '+str(np.round(100*n_intersect[2],decimals=3)))
 		
 def intersection_cone():
 	global Dstar,D
-	n=np.array([np.float( ui_inter.n0.text()),np.float( ui_inter.n1.text()),np.float( ui_inter.n2.text())])
-	c=np.array([np.float( ui_inter.c0.text()),np.float( ui_inter.c1.text()),np.float( ui_inter.c2.text())])
-	r=np.cos(np.float(ui_inter.c_angle.text())*np.pi/180)
+	n_c=ui_inter.n_cone_entry.text().split(",")
+	n=np.array([np.float( n_c[0]),np.float(n_c[1]),np.float(n_c[2])])
+	c_c=ui_inter.cone_entry.text().split(",")
+	c=np.array([np.float( c_c[0]),np.float(c_c[1]),np.float(c_c[2])])
+	r=np.cos(np.float(ui_inter.cone_angle_entry.text())*np.pi/180)
 	n=np.dot(Dstar,n)
 	n=n/np.linalg.norm(n)
 	c=np.dot(Dstar,c)
@@ -2067,9 +2024,7 @@ def intersection_cone():
 		r1=np.dot(np.linalg.inv(Dstar),r1)
 		r2=np.dot(np.linalg.inv(Dstar),r2)
 	
-	ui_inter.intersection_cone.setText(str(np.round(100*r1[0], decimals=3))+','+str(np.round(100*r1[1], decimals=3))+','+str(np.round(100*r1[2], decimals=3)))
-	ui_inter.intersection_cone2.setText(str(np.round(100*r2[0], decimals=3))+','+str(np.round(100*r2[1], decimals=3))+','+str(np.round(100*r2[2], decimals=3)))
-	
+	ui_inter.cone_plane_label.setText(str(np.round(100*r1[0], decimals=3))+','+str(np.round(100*r1[1], decimals=3))+','+str(np.round(100*r1[2], decimals=3))+'  /  '+str(np.round(100*r2[0], decimals=3))+','+str(np.round(100*r2[1], decimals=3))+','+str(np.round(100*r2[2], decimals=3)))
 
 ##################################################
 #
@@ -2152,9 +2107,6 @@ if __name__ == "__main__":
 	ui_xyz.setupUi(Xyz)
 	Index.connect(ui.actionCalculate_xyz, QtCore.SIGNAL('triggered()'), Xyz.show)
 	ui_xyz.xyz_button.clicked.connect(center)
-	ui_xyz.pushButton_copyX.clicked.connect(lambda: copy_to_pole('x'))
-	ui_xyz.pushButton_copyY.clicked.connect(lambda: copy_to_pole('y'))
-	ui_xyz.pushButton_copyZ.clicked.connect(lambda: copy_to_pole('z'))	
 	
 	Hkl_uvw=QtGui.QDialog()
 	ui_hkl_uvw=hkl_uvwUI.Ui_hkl_uvw()
@@ -2162,8 +2114,7 @@ if __name__ == "__main__":
 	Index.connect(ui.actionHkl_uvw, QtCore.SIGNAL('triggered()'),Hkl_uvw.show)
 	ui_hkl_uvw.pushButton_to_uvw.clicked.connect(to_uvw)
 	ui_hkl_uvw.pushButton_to_hkl.clicked.connect(to_hkl)
-	ui_hkl_uvw.pushButton_copy1.clicked.connect(lambda: copy_to_pole('uvw'))
-	ui_hkl_uvw.pushButton_copy2.clicked.connect(lambda: copy_to_pole('hkl'))
+	
 	
 	Schmid=QtGui.QDialog()
 	ui_schmid=schmidUI.Ui_Schmid()
@@ -2178,6 +2129,12 @@ if __name__ == "__main__":
 	Index.connect(ui.actionCalculate_apparent_width, QtCore.SIGNAL('triggered()'), Width.show) 
 	ui_width.buttonBox.rejected.connect(Width.close)
 	ui_width.buttonBox.accepted.connect(plot_width)
+	ui_width.clear_button.clicked.connect(clear_width)
+	figure_width=plt.figure()
+	canvas_width=FigureCanvas(figure_width)
+	ui_width.mplvl.addWidget(canvas_width)
+	toolbar_width = NavigationToolbar(canvas_width, canvas_width)
+	toolbar_width.setMinimumWidth(601)
 	
 	Intersections = QtGui.QDialog()
 	ui_inter=intersectionsUI.Ui_Intersections()
@@ -2186,10 +2143,7 @@ if __name__ == "__main__":
 	ui_inter.pushButton_intersections_plans.clicked.connect(intersections_plans)            
 	ui_inter.pushButton_intersection_proj.clicked.connect(intersection_dir_proj)
 	ui_inter.pushButton_intersection_cone.clicked.connect(intersection_cone)
-	ui_inter.pushButton_copy.clicked.connect(lambda: copy_to_pole(0))
-	ui_inter.pushButton_copy2.clicked.connect(lambda: copy_to_pole(1))
-	ui_inter.pushButton_copy3.clicked.connect(lambda: copy_to_pole('c1'))
-	ui_inter.pushButton_copy4.clicked.connect(lambda: copy_to_pole('c2'))
+	
 	
 	
 	ui.button_trace2.clicked.connect(princ2)
@@ -2218,7 +2172,6 @@ if __name__ == "__main__":
 	ui.norm_button.clicked.connect(dhkl)
 	ui.dm_button.clicked.connect(dm)
 	ui.dp_button.clicked.connect(dp)
-	ui.pushButton_copy_to_euler.clicked.connect(copy_to_euler)
 	ui.reset_view_button.clicked.connect(reset_view)
 	figure.canvas.mpl_connect('motion_notify_event', coordinates)
 	figure.canvas.mpl_connect('button_press_event', click_a_pole)
@@ -2233,15 +2186,9 @@ if __name__ == "__main__":
 	ui.wulff_button.setChecked(True)
 	ui.wulff_button.setChecked(True)
 	ui.d_label_var.setText('0')
-	ui.alpha_entry.setText('90')
-	ui.beta_entry.setText('90')
-	ui.gamma_entry.setText('90')
-	ui.a_entry.setText('1')
-	ui.b_entry.setText('1')
-	ui.c_entry.setText('1')
-	ui.phi1_entry.setText('0')
-	ui.phi_entry.setText('0')
-	ui.phi2_entry.setText('0')
+	ui.abc_entry.setText('1,1,1')
+	ui.alphabetagamma_entry.setText('90,90,90')
+	ui.phi1phiphi2_entry.setText('0,0,0')
 	ui.e_entry.setText('1')
 	ui.rg_label.setText('0.0')
 	ui.angle_euler_label.setText(' ')
