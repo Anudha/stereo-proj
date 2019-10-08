@@ -202,7 +202,9 @@ def crist():
                             axesh[id,3]=1
                             axes[id,:]=np.array([i,j,k],float)
                         id=id+1
-                    
+               
+    axes=axes[~np.all(axes == 0, axis=1)]
+    axesh=axesh[~np.all(axesh[:,0:3] == 0, axis=1)]      
     return axes,axesh,D,Dstar,V
 
 ######################################################
@@ -1062,6 +1064,7 @@ def trace_plan2(B):
         pole2=B[h,1]
         pole3=B[h,2]
         Gs=np.array([pole1,pole2,pole3],float)
+        
         if B[h,3]==0:                    
             Gsh=np.dot(Dstar,Gs)/np.linalg.norm(np.dot(Dstar,Gs))
         else:
@@ -1300,7 +1303,31 @@ def wulff():
 	a.axis('off')
     	a.figure.canvas.draw()  
 	
-
+def text_label(A):
+	if np.sign(A[0])<0:
+		s0=r'$\overline{'+str(np.abs(int(A[0])))+'}$'
+	else:
+		s0=str(np.abs(int(A[0])))
+	if np.sign(A[1])<0:
+		s1=r'$\overline{'+str(np.abs(int(A[1])))+'}$'
+	else:
+		s1=str(np.abs(int(A[1])))
+	if np.sign(A[2])<0:
+		s2=r'$\overline{'+str(np.abs(int(A[2])))+'}$'
+	else:
+		s2=str(np.abs(int(A[2])))
+	s=s0+','+s1+','+s2
+	if var_hexa()==1:
+		if np.sign(-A[0]-A[1])<0:
+			s3=r'$\overline{'+str(int(np.abs(-A[0]-A[1])))+'}$'
+		else:
+			s3=str(int(np.abs(-A[0]-A[1])))
+		s=s0+','+s1+','+s3+','+s2
+	if var_uvw()==1:
+		s='['+s+']'
+	return s
+		
+		
 
  #######################################################################               
 #######################################################################
@@ -1326,14 +1353,12 @@ def trace():
     P=np.zeros((axes.shape[0],2))
     T=np.zeros((axes.shape))
     C=[]
-    
     trace_plan2(trP)
     trace_cone2(trC)			
     schmid_trace2(tr_schmid)
-    
+
     for i in range(0,axes.shape[0]):
         axeshr=np.array([axesh[i,0],axesh[i,1],axesh[i,2]])
-
         axeshr=axeshr/np.linalg.norm(axeshr)
         if axesh[i,4]==1:
             C.append('g')
@@ -1347,23 +1372,9 @@ def trace():
         P[i,:]=proj(T[i,0],T[i,1],T[i,2])*600/2
         m=np.amax([np.abs(axes[i,0]),np.abs(axes[i,1]),np.abs(axes[i,2])])
         if (np.around(axes[i,0]/m)==axes[i,0]/m) & (np.around(axes[i,1]/m)==axes[i,1]/m) & (np.around(axes[i,2]/m)==axes[i,2]/m):
-            if var_hexa()==0:
-                s=str(int(axes[i,0]/m))+str(int(axes[i,1]/m))+str(int(axes[i,2]/m))
-            if var_hexa()==1:
-                if axesh[i,3]==0:
-                    s='('+str(int(axes[i,0]/m))+str(int(axes[i,1]/m))+str(-int(axes[i,1]/m)-int(axes[i,0]/m))+str(int(axes[i,2]/m))+')'
-                if axesh[i,3]==1:
-                    s='['+str(int(2*(axes[i,0]/m)-axes[i,1]/m))+str(int(2*(axes[i,1]/m)-axes[i,0]/m))+str(-int(axes[i,1]/m)-int(axes[i,0]/m))+str(int(3*axes[i,2]/m))+']'
-                
+        	s=text_label(axes[i,:]/m)	
         else:
-            if var_hexa()==0:
-                s=str(int(axes[i,0]))+str(int(axes[i,1]))+str(int(axes[i,2]))
-            if var_hexa()==1:
-                if axesh[i,3]==0:
-                    s='('+str(int(axes[i,0]))+str(int(axes[i,1]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(axes[i,2]))+')'
-                if axesh[i,3]==1:
-                    s='['+str(int(2*(axes[i,0])-axes[i,1]))+str(int(2*(axes[i,1])-axes[i,0]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(3*axes[i,2]))+']'
-             
+         	s=text_label(axes[i,:])   
             
         a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
        
@@ -1434,22 +1445,9 @@ def princ():
             axesh[i,4]=3
         m=np.amax([np.abs(axes[i,0]),np.abs(axes[i,1]),np.abs(axes[i,2])])
         if (np.around(axes[i,0]/m)==axes[i,0]/m) & (np.around(axes[i,1]/m)==axes[i,1]/m) & (np.around(axes[i,2]/m)==axes[i,2]/m):
-            if var_hexa()==0:
-                s=str(int(axes[i,0]/m))+str(int(axes[i,1]/m))+str(int(axes[i,2]/m))
-            if var_hexa()==1:
-                if axesh[i,3]==0:
-                    s='('+str(int(axes[i,0]/m))+str(int(axes[i,1]/m))+str(-int(axes[i,1]/m)-int(axes[i,0]/m))+str(int(axes[i,2]/m))+')'
-                if axesh[i,3]==1:
-                    s='['+str(int(2*(axes[i,0]/m)-axes[i,1]/m))+str(int(2*(axes[i,1]/m)-axes[i,0]/m))+str(-int(axes[i,1]/m)-int(axes[i,0]/m))+str(int(3*axes[i,2]/m))+']'
-                
+        	s=text_label(axes[i,:]/m)	
         else:
-            if var_hexa()==0:
-                s=str(int(axes[i,0]))+str(int(axes[i,1]))+str(int(axes[i,2]))
-            if var_hexa()==1:
-                if axesh[i,3]==0:
-                    s='('+str(int(axes[i,0]))+str(int(axes[i,1]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(axes[i,2]))+')'
-                if axesh[i,3]==1:
-                    s='['+str(int(2*(axes[i,0])-axes[i,1]))+str(int(2*(axes[i,1])-axes[i,0]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(3*axes[i,2]))+']'
+         	s=text_label(axes[i,:])   
                 
              
         a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
@@ -1510,7 +1508,7 @@ def princ2():
     T=np.zeros((axes.shape))
     nn=axes.shape[0]
     C=[]    
-    
+
     for i in range(0,axes.shape[0]):
         axeshr=np.array([axesh[i,0],axesh[i,1],axesh[i,2]])
         axeshr=axeshr/np.linalg.norm(axeshr)
@@ -1529,22 +1527,9 @@ def princ2():
 
         m=np.amax([np.abs(axes[i,0]),np.abs(axes[i,1]),np.abs(axes[i,2])])
         if (np.around(axes[i,0]/m)==axes[i,0]/m) & (np.around(axes[i,1]/m)==axes[i,1]/m) & (np.around(axes[i,2]/m)==axes[i,2]/m):
-            if var_hexa()==0:
-                s=str(int(axes[i,0]/m))+str(int(axes[i,1]/m))+str(int(axes[i,2]/m))
-            if var_hexa()==1:
-                if axesh[i,3]==0:
-                    s='('+str(int(axes[i,0]/m))+str(int(axes[i,1]/m))+str(-int(axes[i,1]/m)-int(axes[i,0]/m))+str(int(axes[i,2]/m))+')'
-                if axesh[i,3]==1:
-                    s='['+str(int(2*(axes[i,0]/m)-axes[i,1]/m))+str(int(2*(axes[i,1]/m)-axes[i,0]/m))+str(-int(axes[i,1]/m)-int(axes[i,0]/m))+str(int(3*axes[i,2]/m))+']'
-                
+        	s=text_label(axes[i,:]/m)	
         else:
-            if var_hexa()==0:
-                s=str(int(axes[i,0]))+str(int(axes[i,1]))+str(int(axes[i,2]))
-            if var_hexa()==1:
-                if axesh[i,3]==0:
-                    s='('+str(int(axes[i,0]))+str(int(axes[i,1]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(axes[i,2]))+')'
-                if axesh[i,3]==1:
-                    s='['+str(int(2*(axes[i,0])-axes[i,1]))+str(int(2*(axes[i,1])-axes[i,0]))+str(-int(axes[i,1])-int(axes[i,0]))+str(int(3*axes[i,2]))+']'
+         	s=text_label(axes[i,:])   
               
         a.annotate(s,(P[i,0]+600/2,P[i,1]+600/2))
         
