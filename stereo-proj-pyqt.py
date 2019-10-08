@@ -587,18 +587,10 @@ def undo_pole(pole1,pole2,pole3):
         pole3=-pole3
 
     
-    ind=np.where((axes[:,0]==pole1) & (axes[:,1]==pole2)& (axes[:,2]==pole3))
-    indm=np.where((axes[:,0]==-pole1) & (axes[:,1]==-pole2)& (axes[:,2]==-pole3))
+    ind=np.where((axes[:,0]==pole1) & (axes[:,1]==pole2)& (axes[:,2]==pole3)|(axes[:,0]==-pole1) & (axes[:,1]==-pole2)& (axes[:,2]==-pole3))
     axes=np.delete(axes,ind,0)
-    axes=np.delete(axes,indm,0)
     T=np.delete(T,ind,0)
-    T=np.delete(T,indm,0)
-    if var_uvw()==0 :
-        axesh=np.delete(axesh,ind,0)
-        axesh=np.delete(axesh,indm,0)
-    else:
-        axesh=np.delete(axesh,ind,0)
-        axesh=np.delete(axesh,indm,0)
+    axesh=np.delete(axesh,ind,0)
     return axes,axesh,T
 
     
@@ -883,23 +875,17 @@ def undo_trace_addcone():
 def undo_trace_plan(pole1,pole2,pole3):
     global M,axes,axesh,T,V,D,Dstar,trP,tr_schmid
     
-    ind=np.where((trP[:,0]==pole1) & (trP[:,1]==pole2)& (trP[:,2]==pole3))
-    indm=np.where((trP[:,0]==-pole1) & (trP[:,1]==-pole2)& (trP[:,2]==-pole3))
+    ind=np.where((trP[:,0]==pole1) & (trP[:,1]==pole2)& (trP[:,2]==pole3)|(trP[:,0]==-pole1) & (trP[:,1]==-pole2)& (trP[:,2]==-pole3))
     
     trP=np.delete(trP,ind,0)
-    trP=np.delete(trP,indm,0)
     b=np.ascontiguousarray(trP).view(np.dtype((np.void, trP.dtype.itemsize * trP.shape[1])))
-    
     trP=np.unique(b).view(trP.dtype).reshape(-1, trP.shape[1])
     
 def undo_trace_cone(pole1,pole2,pole3):
     global M,axes,axesh,T,V,D,Dstar,trC,tr_schmid
     
-    ind=np.where((trC[:,0]==pole1) & (trC[:,1]==pole2)& (trC[:,2]==pole3))
-    indm=np.where((trC[:,0]==-pole1) & (trC[:,1]==-pole2)& (trC[:,2]==-pole3))
-    
+    ind=np.where((trC[:,0]==pole1) & (trC[:,1]==pole2)& (trC[:,2]==pole3)|(trC[:,0]==-pole1) & (trC[:,1]==-pole2)& (trC[:,2]==-pole3))
     trC=np.delete(trC,ind,0)
-    trC=np.delete(trC,indm,0)
     b=np.ascontiguousarray(trC).view(np.dtype((np.void, trC.dtype.itemsize * trC.shape[1])))
     
     trC=np.unique(b).view(trC.dtype).reshape(-1, trC.shape[1])
