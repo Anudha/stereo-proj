@@ -31,8 +31,6 @@ import xyzUI
 import hkl_uvwUI
 import widthUI
                  
-#font size on plot 
-mpl.rcParams['font.size'] = 12
 
 ################
 #       Misc
@@ -1180,38 +1178,20 @@ def click_a_pole(event):
                 X=-X
                 Y=-Y
             A=np.dot(np.linalg.inv(M),np.array([X,Y,Z]))
-            n=0
-            L=np.zeros((3,16**3))                      
-                                 
-            for i in range(-8,9,1):
-                for j in range(-8,9,1):
-                    for k in range(-8,9,1):
-                        if np.linalg.norm([i,j,k])<>0:
-                            if var_uvw()==0:
-                                Q=np.dot(Dstar,np.array([i,j,k],float))/np.linalg.norm(np.dot(Dstar,np.array([i,j,k],float)))
-                                if np.abs(Q[0]-A[0])<0.05 and np.abs(Q[1]-A[1])<0.05 and np.abs(Q[2]-A[2])<0.05:
-                                    L[:,n]=np.array([i,j,k],float)
-                                    n=n+1
-                                   
-                            else:
-                                  
-                                Q=np.dot(D,np.array([i,j,k],float))/np.linalg.norm(np.dot(D,np.array([i,j,k],float)))
-                                if np.abs(Q[0]-A[0])<0.05 and np.abs(Q[1]-A[1])<0.05 and np.abs(Q[2]-A[2])<0.05:
-                                    L[:,n]=np.array([i,j,k],float)
-                                    n=n+1
-              
-        
-            if np.linalg.norm(L[:,0])<>0:
-                if var_hexa()==1:
-                    if var_uvw()==1:
-                        La=(2*L[0,0]-L[1,0])/3
-                        Lb=(2*L[1,0]-L[0,0])/3
-                        L[0,0]=La
-                        L[1,0]=Lb
-
-                pole(L[0,0],L[1,0],L[2,0])
-                Stc=np.vstack((Stc, np.array([L[0,0],L[1,0],L[2,0]])))
-                trace()
+            if var_uvw()==0:
+		                A=10*np.dot(np.linalg.inv(Dstar),A)
+	    if var_hexa()==0 and var_uvw()==0:
+		    		A=10*np.dot(np.linalg.inv(D),A)
+            if var_hexa()==1 and var_uvw()==1:
+            			A=10*np.dot(np.linalg.inv(D),A)
+            			Aa=(2*A[0]-A[1])/3
+                        	Ab=(2*A[1]-A[0])/3
+                        	A[0]=Aa
+                        	A[1]=Ab
+         			
+            pole(A[0],A[1],A[2])
+            Stc=np.vstack((Stc, np.array([A[0],A[1],A[2]])))
+            trace()                
                 
 def undo_click_a_pole():
 	global Stc
@@ -1279,6 +1259,7 @@ def reset_view():
 	global a
 	
 	a.axis([minx,maxx,miny,maxy])
+	mpl.rcParams['font.size'] = ui.text_size_entry.text()
 	trace()
 	
 ####################################################################
@@ -2115,8 +2096,6 @@ if __name__ == "__main__":
 	ui_inter.pushButton_intersection_proj.clicked.connect(intersection_dir_proj)
 	ui_inter.pushButton_intersection_cone.clicked.connect(intersection_cone)
 	
-	
-	
 	ui.button_trace2.clicked.connect(princ2)
 	ui.button_trace.clicked.connect(princ)
 	ui.angle_alpha_buttonp.clicked.connect(rot_alpha_p)
@@ -2157,6 +2136,7 @@ if __name__ == "__main__":
 	ui.wulff_button.setChecked(True)
 	ui.wulff_button.setChecked(True)
 	ui.d_label_var.setText('0')
+	ui.text_size_entry.setText('12')
 	ui.abc_entry.setText('1,1,1')
 	ui.alphabetagamma_entry.setText('90,90,90')
 	ui.phi1phiphi2_entry.setText('0,0,0')
