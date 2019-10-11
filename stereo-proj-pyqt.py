@@ -326,7 +326,9 @@ def rot_alpha_p():
     global angle_alpha,M,a,trP,trC
 
     tha=np.float(ui.angle_alpha_entry.text())
-    M=np.dot(Rot(tha,0,1,0),M)
+    t_ang=np.float(ui.tilt_angle_entry.text())
+    t_a_y=np.dot(Rot(t_ang,0,0,1),np.array([0,1,0]))
+    M=np.dot(Rot(tha,t_a_y[0],t_a_y[1],t_a_y[2]),M)
     trace()
     phir=np.arccos(M[2,2])*180/np.pi
     phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
@@ -343,7 +345,9 @@ def rot_alpha_m():
     global angle_alpha,M,a,trP,trC
 
     tha=-np.float(ui.angle_alpha_entry.text())
-    M=np.dot(Rot(tha,0,1,0),M)
+    t_ang=np.float(ui.tilt_angle_entry.text())
+    t_a_y=np.dot(Rot(t_ang,0,0,1),np.array([0,1,0]))
+    M=np.dot(Rot(tha,t_a_y[0],t_a_y[1],t_a_y[2]),M)
     trace()
     phir=np.arccos(M[2,2])*180/np.pi
     phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
@@ -358,11 +362,13 @@ def rot_alpha_m():
     
 def rot_beta_m():
     global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock
-   
+    t_ang=np.float(ui.tilt_angle_entry.text())
+    t_a_x=np.dot(Rot(t_ang,0,0,1),np.array([1,0,0]))
+    
     if var_lock==0:
-    	AxeY=np.array([1,0,0])
+    	AxeY=t_a_x
     else:
-   	A=np.dot(np.linalg.inv(M_lock),np.array([1,0,0]))
+   	A=np.dot(np.linalg.inv(M_lock),t_a_x)
 	AxeY=np.dot(M,A)
     
     thb=-np.float(ui.angle_beta_entry.text())
@@ -379,11 +385,12 @@ def rot_beta_m():
    
 def rot_beta_p():
     global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock
-   
+    t_ang=np.float(ui.tilt_angle_entry.text())
+    t_a_x=np.dot(Rot(t_ang,0,0,1),np.array([1,0,0]))
     if var_lock==0:
-    	AxeY=np.array([1,0,0])
+    	AxeY=t_a_x
     else:
-   	A=np.dot(np.linalg.inv(M_lock),np.array([1,0,0]))
+   	A=np.dot(np.linalg.inv(M_lock),t_a_x)
 	AxeY=np.dot(M,A)
     
     thb=np.float(ui.angle_beta_entry.text())
@@ -2149,7 +2156,8 @@ if __name__ == "__main__":
 	ui.angle_beta_entry.setText('5')
 	ui.angle_z_entry.setText('5')
 	ui.angle_beta_entry.setText('5')
-	ui.angle_z_entry.setText('5')	
+	ui.angle_z_entry.setText('5')
+	ui.tilt_angle_entry.setText('90')	
 	ui.d_entry.setText('1')
 	ui.rot_g_entry.setText('5')
 	ui.inclination_entry.setText('30')
