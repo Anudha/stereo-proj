@@ -2494,7 +2494,8 @@ if __name__ == "__main__":
 	canvas_kikuchi=FigureCanvas(figure_kikuchi)
 	ui_kikuchi.mplvl.addWidget(canvas_kikuchi)
 	toolbar_kikuchi = NavigationToolbar(canvas_kikuchi, canvas_kikuchi)
-	toolbar_kikuchi.setMinimumWidth(601)
+	toolbar_kikuchi.setMinimumWidth(100)
+	toolbar_kikuchi.setStyleSheet("background-color:White;")
 
 	
 	ui.button_trace2.clicked.connect(princ2)
