@@ -1452,6 +1452,7 @@ def wulff():
 	if ui.wulff_button.isChecked():
 		fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
 		img=Image.open(fn)
+		img=img.rotate(-float(ui.tilt_angle_entry.text()), fillcolor='white')
 		img= np.array(img)
 	else:
 		img = 255*np.ones([600,600,3],dtype=np.uint8)
@@ -1583,9 +1584,12 @@ def princ():
     diff1=np.float(diff[0])
     diff2=np.float(diff[1])
     diff3=np.float(diff[2])
-    tilt=np.float(ui.tilt_entry.text())
+    tilt=ui.tilt_entry.text().split(",")
+    tilt_a=np.float(tilt[0])
+    tilt_b=np.float(tilt[1])
+    tilt_z=np.float(tilt[2])
     inclinaison=np.float(ui.inclinaison_entry.text())    
-     
+    diff_ang=float(ui.tilt_angle_entry.text())
     d0=np.array([diff1,diff2,diff3])
     if var_uvw()==0: 
        d=np.dot(Dstar,d0)
@@ -1599,7 +1603,7 @@ def princ():
         normal=np.array([-d[2],0,d[0]])
         ang=np.arccos(np.dot(d,np.array([0,1,0]))/np.linalg.norm(d))
     
-    R=np.dot(Rot(-tilt,0,1,0),np.dot(Rot(-inclinaison,0,0,1),Rot(ang*180/np.pi, normal[0],normal[1],normal[2])))    
+    R=np.dot(Rot(diff_ang,0,0,1),np.dot(Rot(-tilt_z,0,0,1),np.dot(Rot(-tilt_b,1,0,0),np.dot(Rot(-tilt_a,0,1,0),np.dot(Rot(-inclinaison,0,0,1),Rot(ang*180/np.pi, normal[0],normal[1],normal[2]))))))    
        
     P=np.zeros((axes.shape[0],2))
     T=np.zeros((axes.shape))
@@ -1679,8 +1683,6 @@ def princ2():
     phi1=np.float(phi1phiphi2[0])
     phi=np.float(phi1phiphi2[1])
     phi2=np.float(phi1phiphi2[2])
-    fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
-    img=np.array(Image.open(fn))
     dmip=0
     naxes=0 
     crist()   
