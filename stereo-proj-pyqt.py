@@ -216,7 +216,7 @@ def crist():
 			 		    Ma=np.dot(D,np.array([i,j,k],float))
 			 		    axesh[id,3]=1
 			 	
-				m=reduce(lambda x,y:GCD(x,y),[i,j,k])
+				m=np.abs(reduce(lambda x,y:GCD(x,y),[i,j,k]))
 				if (np.around(i/m)==i/m) & (np.around(j/m)==j/m) & (np.around(k/m)==k/m):
 					axes[id,:]=np.array([i,j,k])/m
 				else:
@@ -1462,6 +1462,7 @@ def wulff():
 	
 	a.imshow(img,interpolation="bicubic")
 	a.axis('off')
+	plt.tight_layout()	
     	a.figure.canvas.draw()  
 	
 def text_label(A,B):
@@ -1473,11 +1474,11 @@ def text_label(A,B):
 		Ab=(2*A[1]-A[0])/3
 		
 	
-	if np.sign(A[0])<0:
+	if np.sign(Aa)<0:
 		s0=r'$\overline{'+str(np.abs(int(Aa)))+'}$'
 	else:
 		s0=str(np.abs(int(Aa)))
-	if np.sign(A[1])<0:
+	if np.sign(Ab)<0:
 		s1=r'$\overline{'+str(np.abs(int(Ab)))+'}$'
 	else:
 		s1=str(np.abs(int(Ab)))
@@ -1686,6 +1687,7 @@ def princ2():
     dmip=0
     naxes=0 
     crist()   
+    print axes, axesh
     if ui.reciprocal_checkBox.isChecked():
     	crist_reciprocal()
         
@@ -2377,7 +2379,7 @@ if __name__ == "__main__":
 	Index = QtGui.QMainWindow()	
 	ui = stereoprojUI.Ui_StereoProj()
 	ui.setupUi(Index)
-	figure=plt.figure()
+    	figure=plt.figure()
 	canvas=FigureCanvas(figure)
 	ui.mplvl.addWidget(canvas)
 	toolbar = NavigationToolbar(canvas, canvas)
@@ -2561,7 +2563,7 @@ if __name__ == "__main__":
 	ui.rot_g_entry.setText('5')
 	ui.inclination_entry.setText('30')
 	a = figure.add_subplot(111)
-	wulff()	
+	wulff()
 	Index.show()
 	sys.exit(app.exec_())
 
