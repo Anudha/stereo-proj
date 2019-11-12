@@ -416,8 +416,12 @@ def undo_schmid_trace():
     trace()
 
 def fact(angle,r,t,n):
+	t_ang=-np.float(ui.tilt_angle_entry.text())
 	x=r*np.cos(t)/n
 	y=r*np.sin(t)/n
+	C=np.dot(Rot(t_ang,0,0,1),np.array([x,y,0]))
+	x=C[0]
+	y=C[1]
 	f=np.cos(angle)*2*y/((1+x**2+y**2))
 	return f    
 
@@ -435,7 +439,8 @@ def schmid_trace2(C):
             bpr=np.dot(Dstar,b)/np.linalg.norm(np.dot(Dstar,b))
 		  
         bpr2=np.dot(M,bpr)
-        T=np.array([0,1,0])
+        t_ang=np.float(ui.tilt_angle_entry.text())
+        T=np.dot(Rot(t_ang,0,0,1),np.array([0,1,0]))
         angleb=np.arccos(np.dot(bpr2,T)/np.linalg.norm(bpr2))
         n=300
         r=np.linspace(0,n,100)
@@ -1687,7 +1692,7 @@ def princ2():
     dmip=0
     naxes=0 
     crist()   
-    print axes, axesh
+    
     if ui.reciprocal_checkBox.isChecked():
     	crist_reciprocal()
         
@@ -1860,6 +1865,8 @@ def schmid_calc(b,n, T):
     npr2=np.dot(M,npr)
     bpr2=np.dot(M,bpr)
     T=T/np.linalg.norm(T)
+    t_ang=np.float(ui.tilt_angle_entry.text())
+    T=np.dot(Rot(t_ang,0,0,1),T)
     anglen=np.arccos(np.dot(npr2,T)/np.linalg.norm(npr2))
     angleb=np.arccos(np.dot(bpr2,T)/np.linalg.norm(bpr2))
     s=np.cos(anglen)*np.cos(angleb)
