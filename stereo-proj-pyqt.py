@@ -125,10 +125,11 @@ def rotation(phi1,phi,phi2):
 ##################################################################
 
 def Rot(th,a,b,c):
-   th=th*np.pi/180;
-   aa=a/np.linalg.norm([a,b,c]);
-   bb=b/np.linalg.norm([a,b,c]);
-   cc=c/np.linalg.norm([a,b,c]);
+   th=th*np.pi/180
+   no=np.linalg.norm([a,b,c])
+   aa=a/no
+   bb=b/no
+   cc=c/no
    c1=np.array([[1,0,0],[0,1,0],[0,0,1]],float)
    c2=np.array([[aa**2,aa*bb,aa*cc],[bb*aa,bb**2,bb*cc],[cc*aa,
                 cc*bb,cc**2]],float)
@@ -2065,7 +2066,7 @@ def plot_width():
 
 		
 	for t in range(-40,41,2):
-	    Mi=np.dot(Rot(t,0,1,0),M)
+	    Mi=np.dot(Rot(t,0,1,0),M) ##rotate taking into account angle tilt axis y direction
 	    Bi=np.dot(np.linalg.inv(Mi),np.array([0,0,1]))
 	    Bi=np.dot(Dstar,Bi)
 	    Bi=Bi/np.linalg.norm(Bi)
@@ -2566,6 +2567,7 @@ if __name__ == "__main__":
 	ui.angle_beta_entry.setText('5')
 	ui.angle_z_entry.setText('5')
 	ui.tilt_angle_entry.setText('0')	
+	ui.axes_entry.setText('y,x,z')
 	ui.d_entry.setText('1')
 	ui.rot_g_entry.setText('5')
 	ui.inclination_entry.setText('30')
