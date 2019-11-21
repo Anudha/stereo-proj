@@ -2067,6 +2067,7 @@ def plot_width():
 	la=np.zeros((1,41))
 	la2=np.zeros((2,41))
 	k=0
+	t_ang=-np.float(ui.tilt_angle_entry.text())
 	if ui_width.surface_box.isChecked():
 		s0=ui_width.foil_surface.text().split(",")
 		s=np.array([np.float(s0[0]),np.float(s0[1]),np.float(s0[2])])
@@ -2077,7 +2078,7 @@ def plot_width():
 
 		
 	for t in range(-40,41,2):
-	    Mi=np.dot(Rot(t,0,1,0),M) ##rotate taking into account angle tilt axis y direction
+	    Mi=np.dot(Rot(t,0,1,0), np.dot(Rot(t_ang,0,0,1),M)) 
 	    Bi=np.dot(np.linalg.inv(Mi),np.array([0,0,1]))
 	    Bi=np.dot(Dstar,Bi)
 	    Bi=Bi/np.linalg.norm(Bi)
@@ -2087,7 +2088,6 @@ def plot_width():
 	    la2[0,k]=np.dot(nr,Bi)/np.sqrt(1-np.dot(T,Bi)**2)
 
 	    k=k+1
-
 	ax1 = figure_width.add_subplot(111)
 	ax1.set_xlabel('alpha tilt angle')
 
