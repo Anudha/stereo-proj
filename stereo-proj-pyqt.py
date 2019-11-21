@@ -479,9 +479,9 @@ def lock():
 
 
 def rot_alpha_p():
-    global angle_alpha,M,a,trP,trC
+    global angle_alpha,M,a,trP,trC,s_a
 
-    tha=np.float(ui.angle_alpha_entry.text())
+    tha=s_a*np.float(ui.angle_alpha_entry.text())
     t_ang=np.float(ui.tilt_angle_entry.text())
     t_a_y=np.dot(Rot(t_ang,0,0,1),np.array([0,1,0]))
     M=np.dot(Rot(tha,t_a_y[0],t_a_y[1],t_a_y[2]),M)
@@ -498,9 +498,9 @@ def rot_alpha_p():
     
     
 def rot_alpha_m():
-    global angle_alpha,M,a,trP,trC
+    global angle_alpha,M,a,trP,trC,s_a
 
-    tha=-np.float(ui.angle_alpha_entry.text())
+    tha=-s_a*np.float(ui.angle_alpha_entry.text())
     t_ang=np.float(ui.tilt_angle_entry.text())
     t_a_y=np.dot(Rot(t_ang,0,0,1),np.array([0,1,0]))
     M=np.dot(Rot(tha,t_a_y[0],t_a_y[1],t_a_y[2]),M)
@@ -517,7 +517,7 @@ def rot_alpha_m():
 
     
 def rot_beta_m():
-    global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock
+    global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock,s_b
     t_ang=np.float(ui.tilt_angle_entry.text())
     t_a_x=np.dot(Rot(t_ang,0,0,1),np.array([1,0,0]))
     
@@ -527,7 +527,7 @@ def rot_beta_m():
    	A=np.dot(np.linalg.inv(M_lock),t_a_x)
 	AxeY=np.dot(M,A)
     
-    thb=-np.float(ui.angle_beta_entry.text())
+    thb=-s_b*np.float(ui.angle_beta_entry.text())
     M=np.dot(Rot(thb,AxeY[0],AxeY[1],AxeY[2]),M)
     trace()
     phir=np.arccos(M[2,2])*180/np.pi
@@ -540,7 +540,7 @@ def rot_beta_m():
     return angle_beta,M   
    
 def rot_beta_p():
-    global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock
+    global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock,s_b
     t_ang=np.float(ui.tilt_angle_entry.text())
     t_a_x=np.dot(Rot(t_ang,0,0,1),np.array([1,0,0]))
     if var_lock==0:
@@ -549,7 +549,7 @@ def rot_beta_p():
    	A=np.dot(np.linalg.inv(M_lock),t_a_x)
 	AxeY=np.dot(M,A)
     
-    thb=np.float(ui.angle_beta_entry.text())
+    thb=s_b*np.float(ui.angle_beta_entry.text())
     M=np.dot(Rot(thb,AxeY[0],AxeY[1],AxeY[2]),M)
     trace()
     phir=np.arccos(M[2,2])*180/np.pi
@@ -562,7 +562,7 @@ def rot_beta_p():
     return angle_beta,M   
 
 def rot_z_m():
-    global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock
+    global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock,s_z
    
     if var_lock==0:
     	AxeZ=np.array([0,0,1])
@@ -570,7 +570,7 @@ def rot_z_m():
    	A=np.dot(np.linalg.inv(M_lock),np.array([0,0,1]))
 	AxeZ=np.dot(M,A)
     
-    thz=-np.float(ui.angle_z_entry.text())
+    thz=-s_z*np.float(ui.angle_z_entry.text())
     M=np.dot(Rot(thz,AxeZ[0],AxeZ[1],AxeZ[2]),M)
     trace()
     phir=np.arccos(M[2,2])*180/np.pi
@@ -583,7 +583,7 @@ def rot_z_m():
     return angle_z,M      
    
 def rot_z_p():
-    global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock
+    global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock,s_z
    
     if var_lock==0:
     	AxeZ=np.array([0,0,1])
@@ -591,7 +591,7 @@ def rot_z_p():
    	A=np.dot(np.linalg.inv(M_lock),np.array([0,0,1]))
 	AxeZ=np.dot(M,A)
 	
-    thz=np.float(ui.angle_z_entry.text())
+    thz=s_z*np.float(ui.angle_z_entry.text())
     M=np.dot(Rot(thz,AxeZ[0],AxeZ[1],AxeZ[2]),M)
     trace()
     phir=np.arccos(M[2,2])*180/np.pi
@@ -1436,7 +1436,7 @@ def dhkl():
 
 ####################################################################
 #
-# Reset view after zoom
+# Reset view after zoom/update axes/angles
 #
 #################################################################### 
 
@@ -1446,6 +1446,17 @@ def reset_view():
 	a.axis([minx,maxx,miny,maxy])
 	mpl.rcParams['font.size'] = ui.text_size_entry.text()
 	trace()
+
+def tilt_axes():
+	global s_a,s_b,s_z
+	s_a,s_b,s_z=1,1,1
+	if ui.alpha_signBox.isChecked():
+		s_a=-1
+	if ui.beta_signBox.isChecked():
+		s_b=-1
+	if ui.theta_signBox.isChecked():
+    		s_b=-1
+        return s_a,s_b,s_z
 	
 ####################################################################
 #
@@ -1520,7 +1531,7 @@ def text_label(A,B):
 ####################################################################
 
 def trace():
-    global T,x,y,z,axes,axesh,M,trP,a,trC
+    global T,x,y,z,axes,axesh,M,trP,a,trC,s_a,s_b,s_z
     minx,maxx=a.get_xlim()
     miny,maxy=a.get_ylim()
     a = figure.add_subplot(111) 
@@ -1532,7 +1543,7 @@ def trace():
     trace_plan2(trP)
     trace_cone2(trC)			
     schmid_trace2(tr_schmid)
-
+    tilt_axes()
     for i in range(0,axes.shape[0]):
     	if axesh[i,6]==1:
 		axeshr=np.array([axesh[i,0],axesh[i,1],axesh[i,2]])
@@ -1572,7 +1583,7 @@ def trace():
  ####################################
  
 def princ():
-    global T,angle_alpha, angle_beta, angle_z,M,Dstar,D,g,M0,trP,axeshr,nn,a,minx,maxx,miny,maxy,trC,Stc, naxes,dmip,tr_schmid
+    global T,angle_alpha, angle_beta, angle_z,M,Dstar,D,g,M0,trP,axeshr,nn,a,minx,maxx,miny,maxy,trC,Stc, naxes,dmip,tr_schmid,s_a,s_b,s_z
     trP=np.zeros((1,5))
     trC=np.zeros((1,6))
     Stc=np.zeros((1,3))
@@ -1580,7 +1591,7 @@ def princ():
     dmip=0
     naxes=0
     crist() 
-    
+    tilt_axes()
     if ui.reciprocal_checkBox.isChecked():
     	crist_reciprocal()
     a = figure.add_subplot(111)
@@ -1610,7 +1621,7 @@ def princ():
         normal=np.array([-d[2],0,d[0]])
         ang=np.arccos(np.dot(d,np.array([0,1,0]))/np.linalg.norm(d))
     
-    R=np.dot(Rot(diff_ang,0,0,1),np.dot(Rot(-tilt_z,0,0,1),np.dot(Rot(-tilt_b,1,0,0),np.dot(Rot(-tilt_a,0,1,0),np.dot(Rot(-inclinaison,0,0,1),Rot(ang*180/np.pi, normal[0],normal[1],normal[2]))))))    
+    R=np.dot(Rot(diff_ang,0,0,1),np.dot(Rot(-s_z*tilt_z,0,0,1),np.dot(Rot(-s_b*tilt_b,1,0,0),np.dot(Rot(-s_a*tilt_a,0,1,0),np.dot(Rot(-inclinaison,0,0,1),Rot(ang*180/np.pi, normal[0],normal[1],normal[2]))))))    
        
     P=np.zeros((axes.shape[0],2))
     T=np.zeros((axes.shape))
@@ -1677,7 +1688,7 @@ def princ():
 ##################################################"
 
 def princ2():
-    global T,angle_alpha,angle_beta,angle_z,M,Dstar,D,g,M0,trP,a,axeshr,nn,minx,maxx,miny,maxy,trC,Stc,naxes,dmip,tr_schmid
+    global T,angle_alpha,angle_beta,angle_z,M,Dstar,D,g,M0,trP,a,axeshr,nn,minx,maxx,miny,maxy,trC,Stc,naxes,dmip,tr_schmid,s_a,s_b,s_c
     
     trP=np.zeros((1,5))
     trC=np.zeros((1,6))
@@ -1693,7 +1704,7 @@ def princ2():
     dmip=0
     naxes=0 
     crist()   
-    
+    tilt_axes()
     if ui.reciprocal_checkBox.isChecked():
     	crist_reciprocal()
         
@@ -2567,11 +2578,11 @@ if __name__ == "__main__":
 	ui.angle_beta_entry.setText('5')
 	ui.angle_z_entry.setText('5')
 	ui.tilt_angle_entry.setText('0')	
-	ui.axes_entry.setText('y,x,z')
 	ui.d_entry.setText('1')
 	ui.rot_g_entry.setText('5')
 	ui.inclination_entry.setText('30')
 	a = figure.add_subplot(111)
+	tilt_axes()
 	wulff()
 	Index.show()
 	sys.exit(app.exec_())
