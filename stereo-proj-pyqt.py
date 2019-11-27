@@ -1783,7 +1783,7 @@ def princ2():
 
 def structure(item):
     global x0, var_hexa, d_label_var, e_entry
-    
+    item= x0[item-1]
     ui.abc_entry.setText(str(item[1])+','+str(item[2])+','+str(item[3]))
     ui.alphabetagamma_entry.setText(str(item[4])+','+str(item[5])+','+str(item[6]))
     
@@ -1796,6 +1796,23 @@ def structure(item):
     else:
         ui.d_entry.setText('1')
         ui.e_entry.setText('1')
+
+def structure2(item):
+    global x0, var_hexa, d_label_var, e_entry
+    item= x0[item-1]
+    ui.abc2_entry.setText(str(item[1])+','+str(item[2])+','+str(item[3]))
+    ui.alphabetagamma2_entry.setText(str(item[4])+','+str(item[5])+','+str(item[6]))
+    
+    ii=ui.space_group2_Box.findText(str(item[7]))
+    ui.space_group2_Box.setCurrentIndex(ii)
+    if eval(item[4])==90 and eval(item[5])==90 and eval(item[6])==120 :
+        ui.hexa_button.setChecked(True)
+        ui.e_entry.setText('2')
+        ui.d_label_var.setText('3')
+    else:
+        ui.d_entry.setText('1')
+        ui.e_entry.setText('1')
+    
     
  
 
@@ -2355,6 +2372,16 @@ def plot_kikuchi():
 			
 	a_k.figure.canvas.draw() 
 	
+################################
+#
+# crystal 2
+#
+#################################
+
+def crystal2(b):
+ 	ui.crystal2_box.setEnabled(False)
+	if ui.crystal2_checkBox.isChecked():
+		ui.crystal2_box.setEnabled(True)
  	
 
 ##################################################
@@ -2411,11 +2438,17 @@ if __name__ == "__main__":
 	for line in file_struct:
 	    x0.append(map(str, line.split()))
 	i=0
-	file_struct.close()            
+	file_struct.close()         
+	ui.structure_box.addItem(' ')
+	ui.structure2_box.addItem(' ')      
 	for item in x0:
-	    entry = ui.menuStructure.addAction(item[0])
-	    Index.connect(entry,QtCore.SIGNAL('triggered()'), lambda item=item: structure(item))
+	    ui.structure_box.addItem(item[0])
+	    ui.structure2_box.addItem(item[0])
+	    #Index.connect(entry,QtCore.SIGNAL('triggered()'), lambda item=item: structure(item))
 	    i=i+1
+	
+	ui.structure_box.currentIndexChanged.connect(structure)
+	ui.structure2_box.currentIndexChanged.connect(structure)
 
 # Read space_group file
 	f_space=open(os.path.join(os.path.dirname(__file__), 'space_group.txt'),"r")
@@ -2551,7 +2584,7 @@ if __name__ == "__main__":
 	ui.reset_view_button.clicked.connect(reset_view)
 	figure.canvas.mpl_connect('motion_notify_event', coordinates)
 	figure.canvas.mpl_connect('button_press_event', click_a_pole)
-
+	ui.crystal2_checkBox.stateChanged.connect(lambda:crystal2(ui.crystal2_checkBox))
 # Initialize variables
 	
 	dmip=0
@@ -2584,6 +2617,7 @@ if __name__ == "__main__":
 	a = figure.add_subplot(111)
 	tilt_axes()
 	wulff()
+	crystal2(ui.crystal2_checkBox)
 	Index.show()
 	sys.exit(app.exec_())
 
