@@ -417,7 +417,7 @@ def undo_schmid_trace():
     trace()
 
 def fact(angle,r,t,n):
-	t_ang=-np.float(ui.tilt_angle_entry.text())
+	t_ang=np.float(ui.tilt_angle_entry.text())
 	x=r*np.cos(t)/n
 	y=r*np.sin(t)/n
 	C=np.dot(Rot(t_ang,0,0,1),np.array([x,y,0]))
@@ -440,7 +440,7 @@ def schmid_trace2(C):
             bpr=np.dot(Dstar,b)/np.linalg.norm(np.dot(Dstar,b))
 		  
         bpr2=np.dot(M,bpr)
-        t_ang=np.float(ui.tilt_angle_entry.text())
+        t_ang=-np.float(ui.tilt_angle_entry.text())
         T=np.dot(Rot(t_ang,0,0,1),np.array([0,1,0]))
         angleb=np.arccos(np.dot(bpr2,T)/np.linalg.norm(bpr2))
         n=300
@@ -482,7 +482,7 @@ def rot_alpha_p():
     global angle_alpha,M,a,trP,trC,s_a
 
     tha=s_a*np.float(ui.angle_alpha_entry.text())
-    t_ang=np.float(ui.tilt_angle_entry.text())
+    t_ang=-np.float(ui.tilt_angle_entry.text())
     t_a_y=np.dot(Rot(t_ang,0,0,1),np.array([0,1,0]))
     M=np.dot(Rot(tha,t_a_y[0],t_a_y[1],t_a_y[2]),M)
     trace()
@@ -501,7 +501,7 @@ def rot_alpha_m():
     global angle_alpha,M,a,trP,trC,s_a
 
     tha=-s_a*np.float(ui.angle_alpha_entry.text())
-    t_ang=np.float(ui.tilt_angle_entry.text())
+    t_ang=-np.float(ui.tilt_angle_entry.text())
     t_a_y=np.dot(Rot(t_ang,0,0,1),np.array([0,1,0]))
     M=np.dot(Rot(tha,t_a_y[0],t_a_y[1],t_a_y[2]),M)
     trace()
@@ -518,7 +518,7 @@ def rot_alpha_m():
     
 def rot_beta_m():
     global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock,s_b
-    t_ang=np.float(ui.tilt_angle_entry.text())
+    t_ang=-np.float(ui.tilt_angle_entry.text())
     t_a_x=np.dot(Rot(t_ang,0,0,1),np.array([1,0,0]))
     
     if var_lock==0:
@@ -541,7 +541,7 @@ def rot_beta_m():
    
 def rot_beta_p():
     global angle_beta,M,angle_alpha, angle_z, var_lock, M_lock,s_b
-    t_ang=np.float(ui.tilt_angle_entry.text())
+    t_ang=-np.float(ui.tilt_angle_entry.text())
     t_a_x=np.dot(Rot(t_ang,0,0,1),np.array([1,0,0]))
     if var_lock==0:
     	AxeY=t_a_x
@@ -1469,7 +1469,7 @@ def wulff():
 	if ui.wulff_button.isChecked():
 		fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
 		img=Image.open(fn)
-		img=img.rotate(-float(ui.tilt_angle_entry.text()), fillcolor='white')
+		img=img.rotate(float(ui.tilt_angle_entry.text()), fillcolor='white')
 		img= np.array(img)
 	else:
 		img = 255*np.ones([600,600,3],dtype=np.uint8)
@@ -1607,7 +1607,7 @@ def princ():
     tilt_b=np.float(tilt[1])
     tilt_z=np.float(tilt[2])
     inclinaison=np.float(ui.inclinaison_entry.text())    
-    diff_ang=float(ui.tilt_angle_entry.text())
+    diff_ang=-float(ui.tilt_angle_entry.text())
     d0=np.array([diff1,diff2,diff3])
     if var_uvw()==0: 
        d=np.dot(Dstar,d0)
@@ -1877,7 +1877,7 @@ def schmid_calc(b,n, T):
     npr2=np.dot(M,npr)
     bpr2=np.dot(M,bpr)
     T=T/np.linalg.norm(T)
-    t_ang=np.float(ui.tilt_angle_entry.text())
+    t_ang=-np.float(ui.tilt_angle_entry.text())
     T=np.dot(Rot(t_ang,0,0,1),T)
     anglen=np.arccos(np.dot(npr2,T)/np.linalg.norm(npr2))
     angleb=np.arccos(np.dot(bpr2,T)/np.linalg.norm(bpr2))
@@ -2067,7 +2067,7 @@ def plot_width():
 	la=np.zeros((1,41))
 	la2=np.zeros((2,41))
 	k=0
-	t_ang=-np.float(ui.tilt_angle_entry.text())
+	t_ang=np.float(ui.tilt_angle_entry.text())
 	if ui_width.surface_box.isChecked():
 		s0=ui_width.foil_surface.text().split(",")
 		s=np.array([np.float(s0[0]),np.float(s0[1]),np.float(s0[2])])
