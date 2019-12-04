@@ -6,778 +6,821 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1227</width>
-    <height>921</height>
+    <width>1200</width>
+    <height>804</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Stereo-Proj</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_11">
-    <item row="0" column="0">
-     <widget class="QTabWidget" name="tabWidget">
-      <property name="currentIndex">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>9</y>
+      <width>1200</width>
+      <height>749</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="settings">
+     <attribute name="title">
+      <string>settings</string>
+     </attribute>
+     <layout class="QGridLayout" name="gridLayout_13">
+      <item row="0" column="0">
+       <widget class="QGroupBox" name="groupBox_7">
+        <property name="title">
+         <string>Settings</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_12">
+         <item row="3" column="0">
+          <widget class="QLabel" name="image_tilt_y_label">
+           <property name="text">
+            <string>Image α-tilt/y angle</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="tilt_angle_entry"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="crystal2_checkBox">
+           <property name="text">
+            <string>crystal 2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="image_angle_entry"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="tilt_angle_label">
+           <property name="text">
+            <string>Diffraction α-tilt/y angle</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="2">
+          <widget class="QCheckBox" name="overlay_checkBox">
+           <property name="text">
+            <string>crystals 1 and 2 overlay</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QCheckBox" name="real_space_checkBox">
+           <property name="text">
+            <string>work in real space</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QGroupBox" name="crystal2_box">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title">
+         <string>Crystal 2</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <property name="margin">
+          <number>5</number>
+         </property>
+         <property name="spacing">
+          <number>5</number>
+         </property>
+         <item row="1" column="0">
+          <widget class="QLabel" name="abc_label_2">
+           <property name="text">
+            <string>a,b,c</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="alphabetagamma_label_2">
+           <property name="text">
+            <string>&lt;p&gt;&amp;alpha;, &amp;beta;, &amp;gamma;&lt;/p&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="0">
+          <widget class="QLabel" name="d_label_2">
+           <property name="text">
+            <string>d</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" colspan="4">
+          <widget class="QLabel" name="e_label_2">
+           <property name="text">
+            <string>max indices</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0" colspan="7">
+          <widget class="QComboBox" name="space_group_Box_2"/>
+         </item>
+         <item row="7" column="0" colspan="7">
+          <widget class="QCheckBox" name="hexa_button_2">
+           <property name="text">
+            <string>hexa</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QRadioButton" name="color_trace_bleu_2">
+           <property name="text">
+            <string>blue</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="6">
+          <widget class="QLineEdit" name="abc_entry_2"/>
+         </item>
+         <item row="9" column="0" colspan="7">
+          <widget class="QCheckBox" name="style_box_2">
+           <property name="text">
+            <string>open/filled</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="7">
+          <widget class="QComboBox" name="structure2_box"/>
+         </item>
+         <item row="14" column="5" colspan="2">
+          <widget class="QLabel" name="d_label_var_2">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" colspan="7">
+          <widget class="QCheckBox" name="reciprocal_checkBox_2">
+           <property name="text">
+            <string>Reciprocal indices</string>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="4">
+          <widget class="QPushButton" name="dp_button_2">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="1">
+          <widget class="QPushButton" name="dm_button_2">
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="2">
+          <widget class="QLineEdit" name="d_entry_2"/>
+         </item>
+         <item row="5" column="4" colspan="3">
+          <widget class="QLineEdit" name="e_entry_2"/>
+         </item>
+         <item row="3" column="1" colspan="6">
+          <widget class="QLineEdit" name="alphabetagamma_entry_2"/>
+         </item>
+         <item row="8" column="1">
+          <widget class="QRadioButton" name="color_trace_vert_2">
+           <property name="text">
+            <string>green</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="2">
+          <widget class="QRadioButton" name="color_trace_rouge_2">
+           <property name="text">
+            <string>red</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QGroupBox" name="groupBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title">
+         <string>Crystal</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="2" column="0">
+          <widget class="QLabel" name="alphabetagamma_label">
+           <property name="text">
+            <string>&lt;p&gt;&amp;alpha;, &amp;beta;, &amp;gamma;&lt;/p&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="6">
+          <widget class="QComboBox" name="structure_box"/>
+         </item>
+         <item row="1" column="1" colspan="5">
+          <widget class="QLineEdit" name="abc_entry"/>
+         </item>
+         <item row="5" column="0" colspan="6">
+          <widget class="QCheckBox" name="hexa_button">
+           <property name="text">
+            <string>hexa</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" colspan="5">
+          <widget class="QLineEdit" name="alphabetagamma_entry"/>
+         </item>
+         <item row="9" column="0" colspan="6">
+          <widget class="QComboBox" name="space_group_Box"/>
+         </item>
+         <item row="7" column="0" colspan="6">
+          <widget class="QCheckBox" name="style_box">
+           <property name="text">
+            <string>open/filled</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="abc_label">
+           <property name="text">
+            <string>a,b,c</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QRadioButton" name="color_trace_bleu">
+           <property name="text">
+            <string>blue</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0">
+          <widget class="QLabel" name="d_label">
+           <property name="text">
+            <string>d</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QRadioButton" name="color_trace_vert">
+           <property name="text">
+            <string>green</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="6">
+          <widget class="QCheckBox" name="reciprocal_checkBox">
+           <property name="text">
+            <string>Reciprocal indices</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="2">
+          <widget class="QLineEdit" name="d_entry"/>
+         </item>
+         <item row="10" column="1">
+          <widget class="QPushButton" name="dm_button">
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QLabel" name="e_label">
+           <property name="text">
+            <string>max indices</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="3">
+          <widget class="QPushButton" name="dp_button">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="4" colspan="2">
+          <widget class="QLabel" name="d_label_var">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="3" colspan="3">
+          <widget class="QLineEdit" name="e_entry"/>
+         </item>
+         <item row="6" column="2">
+          <widget class="QRadioButton" name="color_trace_rouge">
+           <property name="text">
+            <string>red</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>stereo-proj</string>
+     </attribute>
+     <layout class="QGridLayout" name="gridLayout_10">
+      <property name="margin">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="settings">
-       <attribute name="title">
-        <string>settings</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_13">
-        <item row="0" column="4">
-         <widget class="QGroupBox" name="crystal2_box">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="title">
-           <string>Crystal 2</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_4">
-           <property name="margin">
-            <number>5</number>
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="mplvl"/>
+      </item>
+      <item row="0" column="1">
+       <widget class="QGroupBox" name="groupBox_6">
+        <property name="maximumSize">
+         <size>
+          <width>360</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item row="2" column="0">
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="enabled">
+            <bool>true</bool>
            </property>
-           <property name="spacing">
-            <number>5</number>
+           <property name="title">
+            <string>Axis/Rotation</string>
            </property>
-           <item row="11" column="0">
-            <widget class="QLabel" name="d_label_2">
-             <property name="text">
-              <string>d</string>
-             </property>
-            </widget>
-           </item>
-           <item row="11" column="6">
-            <widget class="QLabel" name="d_label_var_2">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="11" column="4">
-            <widget class="QLineEdit" name="d_entry_2"/>
-           </item>
-           <item row="6" column="0" colspan="5">
-            <widget class="QCheckBox" name="reciprocal_checkBox_2">
-             <property name="text">
-              <string>Reciprocal indices</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="4">
-            <widget class="QLineEdit" name="e_entry_2"/>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="alphabetagamma_label_2">
-             <property name="text">
-              <string>&lt;p&gt;&amp;alpha;, &amp;beta;, &amp;gamma;&lt;/p&gt;</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="abc_label_2">
-             <property name="text">
-              <string>a,b,c</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0" colspan="4">
-            <widget class="QLabel" name="e_label_2">
-             <property name="text">
-              <string>max indices</string>
-             </property>
-            </widget>
-           </item>
-           <item row="8" column="0" colspan="6">
-            <widget class="QComboBox" name="space_group_Box_2"/>
-           </item>
-           <item row="11" column="2">
-            <widget class="QPushButton" name="dm_button_2">
-             <property name="text">
-              <string>-</string>
-             </property>
-            </widget>
-           </item>
-           <item row="11" column="5">
-            <widget class="QPushButton" name="dp_button_2">
-             <property name="text">
-              <string>+</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0" colspan="6">
-            <widget class="QComboBox" name="structure2_box"/>
-           </item>
-           <item row="1" column="2" colspan="4">
-            <widget class="QLineEdit" name="abc_entry_2"/>
-           </item>
-           <item row="3" column="2" colspan="4">
-            <widget class="QLineEdit" name="alphabetagamma_entry_2"/>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QGroupBox" name="groupBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="title">
-           <string>Crystal</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_2">
-           <property name="margin">
-            <number>5</number>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="1" column="0" colspan="3">
+             <widget class="QLineEdit" name="diff_entry"/>
+            </item>
+            <item row="18" column="0">
+             <widget class="QPushButton" name="rot_gm_button">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="18" column="2">
+             <widget class="QPushButton" name="rot_gp_button">
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item row="18" column="1">
+             <widget class="QLineEdit" name="rot_g_entry"/>
+            </item>
+            <item row="16" column="0" colspan="2">
+             <widget class="QLabel" name="rot_diff_label">
+              <property name="text">
+               <string>Rot. around g</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0" colspan="2">
+             <widget class="QLabel" name="inclination_label">
+              <property name="text">
+               <string>Inclination</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="2">
+             <widget class="QLineEdit" name="inclinaison_entry"/>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <widget class="QLabel" name="tilt_label">
+              <property name="text">
+               <string>Tilt α,β,z</string>
+              </property>
+             </widget>
+            </item>
+            <item row="16" column="2">
+             <widget class="QLabel" name="rg_label">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="2">
+             <widget class="QLabel" name="diff_label">
+              <property name="text">
+               <string>g-vector</string>
+              </property>
+             </widget>
+            </item>
+            <item row="11" column="0" colspan="2">
+             <widget class="QCheckBox" name="uvw_button">
+              <property name="text">
+               <string>uvw</string>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="0" colspan="3">
+             <widget class="QPushButton" name="button_trace">
+              <property name="text">
+               <string>PLOT</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="3">
+             <widget class="QLineEdit" name="tilt_entry"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QGroupBox" name="groupBox_9">
+           <property name="title">
+            <string>Layout</string>
            </property>
-           <property name="spacing">
-            <number>5</number>
+           <layout class="QGridLayout" name="gridLayout_8">
+            <item row="7" column="0" colspan="3">
+             <widget class="QPushButton" name="reset_view_button">
+              <property name="text">
+               <string>Update/Reset view</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="2">
+             <widget class="QLineEdit" name="text_size_entry"/>
+            </item>
+            <item row="2" column="0" colspan="3">
+             <widget class="QCheckBox" name="wulff_button">
+              <property name="text">
+               <string>Wulff net</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="2">
+             <widget class="QLineEdit" name="size_var"/>
+            </item>
+            <item row="5" column="0" colspan="2">
+             <widget class="QLabel" name="size_var_label">
+              <property name="text">
+               <string>Marker size</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0" colspan="2">
+             <widget class="QLabel" name="text_size_label">
+              <property name="text">
+               <string>Text size</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QGroupBox" name="groupBox_4">
+           <property name="title">
+            <string>Pole/Direction</string>
            </property>
-           <item row="12" column="0">
-            <widget class="QLabel" name="d_label">
-             <property name="text">
-              <string>d</string>
-             </property>
-            </widget>
-           </item>
-           <item row="12" column="6">
-            <widget class="QLabel" name="d_label_var">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="12" column="4">
-            <widget class="QLineEdit" name="d_entry"/>
-           </item>
-           <item row="7" column="0" colspan="5">
-            <widget class="QCheckBox" name="reciprocal_checkBox">
-             <property name="text">
-              <string>Reciprocal indices</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="4">
-            <widget class="QLineEdit" name="e_entry"/>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="alphabetagamma_label">
-             <property name="text">
-              <string>&lt;p&gt;&amp;alpha;, &amp;beta;, &amp;gamma;&lt;/p&gt;</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="abc_label">
-             <property name="text">
-              <string>a,b,c</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0" colspan="4">
-            <widget class="QLabel" name="e_label">
-             <property name="text">
-              <string>max indices</string>
-             </property>
-            </widget>
-           </item>
-           <item row="9" column="0" colspan="6">
-            <widget class="QComboBox" name="space_group_Box"/>
-           </item>
-           <item row="12" column="2">
-            <widget class="QPushButton" name="dm_button">
-             <property name="text">
-              <string>-</string>
-             </property>
-            </widget>
-           </item>
-           <item row="12" column="5">
-            <widget class="QPushButton" name="dp_button">
-             <property name="text">
-              <string>+</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0" colspan="6">
-            <widget class="QComboBox" name="structure_box"/>
-           </item>
-           <item row="1" column="2" colspan="4">
-            <widget class="QLineEdit" name="abc_entry"/>
-           </item>
-           <item row="4" column="2" colspan="4">
-            <widget class="QLineEdit" name="alphabetagamma_entry"/>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QGroupBox" name="groupBox_7">
-          <property name="title">
-           <string>Settings</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_12">
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="tilt_angle_entry"/>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="image_tilt_y_label">
-             <property name="text">
-              <string>Image α-tilt/y angle</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="crystal2_checkBox">
-             <property name="text">
-              <string>crystal 2</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="image_tilt_y_label_entry"/>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="tilt_angle_label">
-             <property name="text">
-              <string>Diffraction α-tilt/y angle</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_2">
-       <attribute name="title">
-        <string>stereo-proj</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="mplvl"/>
-        </item>
-        <item row="0" column="1">
-         <layout class="QGridLayout" name="gridLayout_9">
-          <item row="1" column="1">
-           <widget class="QGroupBox" name="groupBox_2">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>230</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="title">
-             <string>Axis/Rotation</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_3">
-             <property name="margin">
-              <number>5</number>
-             </property>
-             <property name="spacing">
-              <number>5</number>
-             </property>
-             <item row="5" column="0" colspan="2">
-              <widget class="QPushButton" name="button_trace">
-               <property name="text">
-                <string>PLOT</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="tilt_label">
-               <property name="text">
-                <string>Tilt (α,β,z)</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="inclination_label">
-               <property name="text">
-                <string>Inclination</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="0" colspan="3">
-              <widget class="QLabel" name="rot_diff_label">
-               <property name="text">
-                <string>Rotation along g</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0" colspan="2">
-              <widget class="QCheckBox" name="uvw_button">
-               <property name="text">
-                <string>uvw</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="2">
-              <widget class="QPushButton" name="rot_gp_button">
-               <property name="text">
-                <string>+</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0">
-              <widget class="QPushButton" name="rot_gm_button">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0" colspan="2">
-              <widget class="QCheckBox" name="hexa_button">
-               <property name="text">
-                <string>hexa</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="diff_label">
-               <property name="text">
-                <string>g-vector</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="1">
-              <widget class="QLineEdit" name="rot_g_entry"/>
-             </item>
-             <item row="10" column="1">
-              <widget class="QLabel" name="rg_label">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLineEdit" name="inclinaison_entry"/>
-             </item>
-             <item row="0" column="1" colspan="2">
-              <widget class="QLineEdit" name="diff_entry"/>
-             </item>
-             <item row="1" column="1" colspan="2">
-              <widget class="QLineEdit" name="tilt_entry"/>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QGroupBox" name="groupBox_9">
-            <property name="maximumSize">
-             <size>
-              <width>230</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="title">
-             <string>Layout</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_10">
-             <item row="5" column="0" colspan="2">
-              <widget class="QLabel" name="text_size_label">
-               <property name="text">
-                <string>Text size</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="3">
-              <widget class="QLineEdit" name="text_size_entry"/>
-             </item>
-             <item row="4" column="0" colspan="3">
-              <widget class="QLabel" name="size_var_label">
-               <property name="text">
-                <string>Marker size</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="3">
-              <widget class="QLineEdit" name="size_var"/>
-             </item>
-             <item row="0" column="0">
-              <widget class="QRadioButton" name="color_trace_bleu">
-               <property name="text">
-                <string>blue</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0" colspan="3">
-              <widget class="QPushButton" name="reset_view_button">
-               <property name="text">
-                <string>Update/Reset view</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="3">
-              <widget class="QRadioButton" name="color_trace_rouge">
-               <property name="text">
-                <string>red</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1" colspan="2">
-              <widget class="QRadioButton" name="color_trace_vert">
-               <property name="text">
-                <string>green</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0" colspan="2">
-              <widget class="QCheckBox" name="style_box">
-               <property name="text">
-                <string>open/filled</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2" colspan="3">
-              <widget class="QCheckBox" name="wulff_button">
-               <property name="text">
-                <string>Wulff net</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QGroupBox" name="groupBox_3">
-            <property name="maximumSize">
-             <size>
-              <width>200</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="title">
-             <string>Rotation</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_8">
-             <item row="0" column="0" colspan="3">
-              <widget class="QCheckBox" name="lock_checkButton">
-               <property name="text">
-                <string>Lock Axes</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="4">
-              <widget class="QLabel" name="label">
-               <property name="text">
-                <string>AC</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="angle_alpha_label">
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;α&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QPushButton" name="angle_alpha_buttonm">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QLineEdit" name="angle_alpha_entry"/>
-             </item>
-             <item row="1" column="3">
-              <widget class="QPushButton" name="angle_alpha_buttonp">
-               <property name="text">
-                <string>+</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="4">
-              <widget class="QCheckBox" name="alpha_signBox">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="5">
-              <widget class="QLabel" name="angle_alpha_label_2">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="angle_beta_label">
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;β&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QPushButton" name="angle_beta_buttonm">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2">
-              <widget class="QLineEdit" name="angle_beta_entry"/>
-             </item>
-             <item row="2" column="3">
-              <widget class="QPushButton" name="angle_beta_buttonp">
-               <property name="text">
-                <string>+</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="4">
-              <widget class="QCheckBox" name="beta_signBox">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="5">
-              <widget class="QLabel" name="angle_beta_label_2">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="angle_z_label">
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;θ&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QPushButton" name="angle_z_buttonm">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="2">
-              <widget class="QLineEdit" name="angle_z_entry"/>
-             </item>
-             <item row="3" column="3">
-              <widget class="QPushButton" name="angle_z_buttonp">
-               <property name="text">
-                <string>+</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="4">
-              <widget class="QCheckBox" name="theta_signBox">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="5">
-              <widget class="QLabel" name="angle_z_label_2">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QGroupBox" name="groupBox_5">
-            <property name="maximumSize">
-             <size>
-              <width>200</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="title">
-             <string>Euler Angles</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_6">
-             <item row="4" column="0" colspan="3">
-              <widget class="QLabel" name="lab_coord">
-               <property name="text">
-                <string>Tilt, Inclination</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0" colspan="2">
-              <widget class="QLabel" name="coord_label">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0" colspan="3">
-              <widget class="QLabel" name="angle_euler_label">
-               <property name="text">
-                <string/>
-               </property>
-               <property name="textInteractionFlags">
-                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0" colspan="3">
-              <widget class="QLabel" name="lab_euler2">
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;φ&lt;span style=&quot; vertical-align:sub;&quot;&gt; 1&lt;/span&gt; , Φ , φ&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="3">
-              <widget class="QPushButton" name="button_trace2">
-               <property name="text">
-                <string>PLOT</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" colspan="3">
-              <widget class="QLineEdit" name="phi1phiphi2_entry"/>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QGroupBox" name="groupBox_4">
-            <property name="maximumSize">
-             <size>
-              <width>200</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="title">
-             <string>Pole/Plane</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_5">
-             <item row="5" column="3">
-              <widget class="QPushButton" name="undo_trace_schmid">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0">
-              <widget class="QPushButton" name="norm_button">
-               <property name="text">
-                <string>dhkl</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="3">
-              <widget class="QPushButton" name="undo_sym_button">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0" colspan="3">
-              <widget class="QPushButton" name="trace_schmid_button">
-               <property name="text">
-                <string>Schmid</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="3">
-              <widget class="QPushButton" name="addpole_button">
-               <property name="text">
-                <string>Add</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="2" colspan="2">
-              <widget class="QLabel" name="dhkl_label">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0" colspan="3">
-              <widget class="QPushButton" name="trace_plan_button">
-               <property name="text">
-                <string> Plane</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="3">
-              <widget class="QPushButton" name="undo_trace_plan_sym_button">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0" colspan="3">
-              <widget class="QPushButton" name="trace_plan_sym_button">
-               <property name="text">
-                <string>Sym Plane</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0" colspan="3">
-              <widget class="QPushButton" name="sym_button">
-               <property name="text">
-                <string>Symmetry</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="3">
-              <widget class="QPushButton" name="undo_trace_plan_button">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="3">
-              <widget class="QPushButton" name="undo_addpole_button">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="3">
-              <widget class="QPushButton" name="undo_trace_cone_button">
-               <property name="text">
-                <string>-</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="2">
-              <widget class="QLineEdit" name="inclination_entry"/>
-             </item>
-             <item row="6" column="0" colspan="2">
-              <widget class="QPushButton" name="trace_cone_button">
-               <property name="text">
-                <string>Cone</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" colspan="4">
-              <widget class="QLineEdit" name="pole_entry"/>
-             </item>
-            </layout>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-    </item>
-   </layout>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="5" column="2">
+             <widget class="QPushButton" name="undo_trace_schmid">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QPushButton" name="addpole_button">
+              <property name="text">
+               <string>Add</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QPushButton" name="undo_addpole_button">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QPushButton" name="undo_sym_button">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <widget class="QPushButton" name="sym_button">
+              <property name="text">
+               <string>Symmetry</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="3">
+             <widget class="QLineEdit" name="pole_entry"/>
+            </item>
+            <item row="4" column="2">
+             <widget class="QPushButton" name="undo_trace_plan_sym_button">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="2">
+             <widget class="QPushButton" name="trace_plan_sym_button">
+              <property name="text">
+               <string>Sym Plane</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" colspan="2">
+             <widget class="QPushButton" name="trace_schmid_button">
+              <property name="text">
+               <string>Schmid</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0">
+             <widget class="QPushButton" name="trace_cone_button">
+              <property name="text">
+               <string>Cone</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <widget class="QPushButton" name="trace_plan_button">
+              <property name="text">
+               <string> Plane</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="2">
+             <widget class="QPushButton" name="undo_trace_cone_button">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0">
+             <widget class="QPushButton" name="norm_button">
+              <property name="text">
+               <string>dhkl</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QPushButton" name="undo_trace_plan_button">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="1">
+             <widget class="QLabel" name="dhkl_label">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QLineEdit" name="inclination_entry"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QGroupBox" name="groupBox_3">
+           <property name="title">
+            <string>Rotation</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_9">
+            <item row="2" column="3">
+             <widget class="QLabel" name="angle_alpha_label_2">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="3">
+             <widget class="QLabel" name="angle_beta_label_2">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="3">
+             <widget class="QLabel" name="angle_z_label_2">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="2">
+             <widget class="QPushButton" name="angle_z_buttonp">
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QLineEdit" name="angle_z_entry"/>
+            </item>
+            <item row="6" column="0">
+             <widget class="QPushButton" name="angle_z_buttonm">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="2">
+             <widget class="QCheckBox" name="theta_signBox">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2">
+             <widget class="QPushButton" name="angle_beta_buttonp">
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QLineEdit" name="angle_beta_entry"/>
+            </item>
+            <item row="4" column="0">
+             <widget class="QPushButton" name="angle_beta_buttonm">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QCheckBox" name="beta_signBox">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QCheckBox" name="alpha_signBox">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QPushButton" name="angle_alpha_buttonp">
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="angle_alpha_entry"/>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <widget class="QLabel" name="angle_beta_label">
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;β (AC)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QPushButton" name="angle_alpha_buttonm">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QLabel" name="angle_alpha_label">
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;α (AC)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="3">
+             <widget class="QCheckBox" name="lock_checkButton">
+              <property name="text">
+               <string>Lock Axes</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" colspan="2">
+             <widget class="QLabel" name="angle_z_label">
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;θ (AC)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="title">
+            <string>Euler Angles</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="0" column="0" colspan="2">
+             <widget class="QLineEdit" name="phi1phiphi2_entry"/>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLabel" name="lab_coord">
+              <property name="text">
+               <string>Tilt, Inclin.</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QLabel" name="coord_label">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="lab_euler2">
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;φ&lt;span style=&quot; vertical-align:sub;&quot;&gt; 1&lt;/span&gt; , Φ , φ&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QLabel" name="angle_euler_label">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QPushButton" name="button_trace2">
+              <property name="text">
+               <string>PLOT</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="4">
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1227</width>
+     <width>1200</width>
      <height>23</height>
     </rect>
    </property>
@@ -890,43 +933,48 @@
   </action>
  </widget>
  <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>crystal2_checkBox</tabstop>
+  <tabstop>tilt_angle_entry</tabstop>
+  <tabstop>image_angle_entry</tabstop>
+  <tabstop>structure_box</tabstop>
   <tabstop>abc_entry</tabstop>
   <tabstop>alphabetagamma_entry</tabstop>
   <tabstop>e_entry</tabstop>
   <tabstop>reciprocal_checkBox</tabstop>
   <tabstop>space_group_Box</tabstop>
   <tabstop>dm_button</tabstop>
-  <tabstop>d_entry</tabstop>
-  <tabstop>dp_button</tabstop>
+  <tabstop>structure2_box</tabstop>
+  <tabstop>abc_entry_2</tabstop>
+  <tabstop>alphabetagamma_entry_2</tabstop>
+  <tabstop>e_entry_2</tabstop>
+  <tabstop>reciprocal_checkBox_2</tabstop>
+  <tabstop>space_group_Box_2</tabstop>
+  <tabstop>lock_checkButton</tabstop>
+  <tabstop>alpha_signBox</tabstop>
+  <tabstop>angle_alpha_buttonm</tabstop>
+  <tabstop>angle_alpha_entry</tabstop>
+  <tabstop>angle_alpha_buttonp</tabstop>
+  <tabstop>beta_signBox</tabstop>
+  <tabstop>angle_beta_buttonm</tabstop>
+  <tabstop>angle_beta_entry</tabstop>
+  <tabstop>angle_beta_buttonp</tabstop>
+  <tabstop>theta_signBox</tabstop>
+  <tabstop>angle_z_buttonm</tabstop>
+  <tabstop>angle_z_entry</tabstop>
+  <tabstop>angle_z_buttonp</tabstop>
+  <tabstop>wulff_button</tabstop>
+  <tabstop>size_var</tabstop>
+  <tabstop>text_size_entry</tabstop>
+  <tabstop>reset_view_button</tabstop>
   <tabstop>diff_entry</tabstop>
   <tabstop>tilt_entry</tabstop>
   <tabstop>inclinaison_entry</tabstop>
   <tabstop>button_trace</tabstop>
   <tabstop>uvw_button</tabstop>
-  <tabstop>hexa_button</tabstop>
   <tabstop>rot_gm_button</tabstop>
   <tabstop>rot_g_entry</tabstop>
   <tabstop>rot_gp_button</tabstop>
-  <tabstop>color_trace_bleu</tabstop>
-  <tabstop>color_trace_vert</tabstop>
-  <tabstop>style_box</tabstop>
-  <tabstop>wulff_button</tabstop>
-  <tabstop>size_var</tabstop>
-  <tabstop>text_size_entry</tabstop>
-  <tabstop>reset_view_button</tabstop>
-  <tabstop>lock_checkButton</tabstop>
-  <tabstop>angle_alpha_buttonm</tabstop>
-  <tabstop>angle_alpha_entry</tabstop>
-  <tabstop>angle_alpha_buttonp</tabstop>
-  <tabstop>alpha_signBox</tabstop>
-  <tabstop>angle_beta_buttonm</tabstop>
-  <tabstop>angle_beta_entry</tabstop>
-  <tabstop>angle_beta_buttonp</tabstop>
-  <tabstop>beta_signBox</tabstop>
-  <tabstop>angle_z_buttonm</tabstop>
-  <tabstop>angle_z_entry</tabstop>
-  <tabstop>angle_z_buttonp</tabstop>
-  <tabstop>theta_signBox</tabstop>
   <tabstop>pole_entry</tabstop>
   <tabstop>addpole_button</tabstop>
   <tabstop>undo_addpole_button</tabstop>
