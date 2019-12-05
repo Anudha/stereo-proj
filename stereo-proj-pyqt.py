@@ -1408,9 +1408,14 @@ def coordinates(event):
             if X<0:
             	lat=-lat
             longi=-np.arctan2(Z,X)*180/np.pi
-            
-	    if longi>90:
-	     longi=longi-180
+            if ui.alpha_signBox.isChecked():
+            	longi=-longi
+	    if np.abs(longi)>90:
+	     	if longi>0:
+	     		longi=longi-180
+	     	else:
+	     		longi=longi+180
+	
 	    c=str(np.around(longi,decimals=1))+str(',')+str(np.around(lat,decimals=1))
 	    ui.coord_label.setText(str(c))
 
