@@ -196,29 +196,23 @@ def var_carre():
 ##################################################################
 
 def crist():
-    global i_c,axes,axesh,D,Dstar,V,G
+    global i_c,axes,axesh,D,Dstar,V,G,id
         
     if i_c==2:
     	abc=ui.abc_entry_2.text().split(",")
     	alphabetagamma=ui.alphabetagamma_entry_2.text().split(",")
 	e=np.int(ui.e_entry_2.text())
 	d2=np.float(ui.d_label_var_2.text())
-	
-	
+		
     if i_c==1:
     	abc=ui.abc_entry.text().split(",")
     	alphabetagamma=ui.alphabetagamma_entry.text().split(",")
 	e=np.int(ui.e_entry.text())
 	d2=np.float(ui.d_label_var.text())
-
-	
-    axes=np.zeros(((2*e+1)**3-1,4))
-    axesh=np.zeros(((2*e+1)**3-1,10))
-    axesh[:,4]=color_trace()
-    axesh[:,8]=var_hexa()
-    axesh[:,9]=var_carre()
-    axesh[:,7]=i_c
-    axes[:,3]=i_c
+    overlay()	
+#    axes=np.zeros(((2*e+1)**3-1,4))
+#    axesh=np.zeros(((2*e+1)**3-1,10))
+    
     a=np.float(abc[0])*1e-10
     b=np.float(abc[1])*1e-10
     c=np.float(abc[2])*1e-10
@@ -233,30 +227,29 @@ def crist():
     Dstar=np.transpose(np.linalg.inv(D))
     G=np.array([[a**2,a*b*np.cos(gamma),a*c*np.cos(beta)],[a*b*np.cos(gamma),b**2,b*c*np.cos(alpha)],[a*c*np.cos(beta),b*c*np.cos(alpha),c**2]])    
     
-    id=0
     for i in range(-e,e+1):
         for j in range(-e,e+1):
             for k in range(-e,e+1):
-                if (i,j,k)!=(0,0,0):
-                    d=1/(np.sqrt(np.dot(np.array([i,j,k]),np.dot(np.linalg.inv(G),np.array([i,j,k])))))
-                    if d>d2*0.1*np.amax([a,b,c]):
-				if var_uvw()==0:                    
-				            Ma=np.dot(Dstar,np.array([i,j,k],float))
-				            axesh[id,3]=0
-				else:
-			 		    Ma=np.dot(D,np.array([i,j,k],float))
-			 		    axesh[id,3]=1
-			 	
-				m=np.abs(reduce(lambda x,y:GCD(x,y),[i,j,k]))
-				if (np.around(i/m)==i/m) & (np.around(j/m)==j/m) & (np.around(k/m)==k/m):
-					axes[id,0:3]=np.array([i,j,k])/m
-				else:
-					axes[id,0:3]=np.array([i,j,k])
-				axesh[id,0:3]=Ma/np.linalg.norm(Ma)
-				axesh[id,5]=1
-				axesh[id,6]=1
-			       	id=id+1
-    
+  		        if (i,j,k)!=(0,0,0):
+  		        	d=1/(np.sqrt(np.dot(np.array([i,j,k]),np.dot(np.linalg.inv(G),np.array([i,j,k])))))
+				if d>d2*0.1*np.amax([a,b,c]):
+					if var_uvw()==0:                    
+						    Ma=np.dot(Dstar,np.array([i,j,k],float))
+						    axesh[id,3]=0
+					else:
+				 		    Ma=np.dot(D,np.array([i,j,k],float))
+				 		    axesh[id,3]=1
+					 	
+					m=np.abs(reduce(lambda x,y:GCD(x,y),[i,j,k]))
+					if (np.around(i/m)==i/m) & (np.around(j/m)==j/m) & (np.around(k/m)==k/m):
+						axes[id,0:3]=np.array([i,j,k])/m
+					else:
+						axes[id,0:3]=np.array([i,j,k])
+					axesh[id,0:3]=Ma/np.linalg.norm(Ma)
+					axesh[id,5]=1
+					axesh[id,6]=1
+					id=id+1
+	    
     axesh=axesh[~np.all(axesh[:,0:3]==0, axis=1)]
     axes=axes[~np.all(axes[:,0:3]==0, axis=1)]
     
@@ -1498,8 +1491,47 @@ def crystal_switch():
 		else:
 			i_c=1
 			crist()		
+def overlay():
+	global axes,axesh,i_c,id
+	if i_c==2:
+		e=np.int(ui.e_entry_2.text())
+	if i_c==1:
+		e=np.int(ui.e_entry.text())
 	
-
+	if ui.overlay_checkBox.isChecked():
+		i_c=1
+		e1=np.int(ui.e_entry.text())
+		axes=np.vstack((axes,np.zeros(((2*e1+1)**3-1,4))))
+		axesh=np.vstack((axesh,np.zeros(((2*e1+1)**3-1,10))))
+		axesh[:,4]=color_trace()
+    		axesh[:,8]=var_hexa()
+    		axesh[:,9]=var_carre()
+    		axesh[:,7]=i_c
+    		axes[:,3]=i_c
+    		i_c=2
+		e2=np.int(ui.e_entry_2.text())
+		axes2=np.zeros(((2*e2+1)**3-1,4))
+		axesh2=np.zeros(((2*e2+1)**3-1,10))
+		axesh2[:,4]=color_trace()
+    		axesh2[:,8]=var_hexa()
+    		axesh2[:,9]=var_carre()
+    		axesh2[:,7]=i_c
+    		axes2[:,3]=i_c
+    		id=axes.shape[0]
+    		axes=np.vstack((axes,axes2))
+		axesh=np.vstack((axesh,axesh2))
+		
+	else:
+		axes=np.zeros(((2*e+1)**3-1,4))
+    		axesh=np.zeros(((2*e+1)**3-1,10))
+    		axesh[:,4]=color_trace()
+    		axesh[:,8]=var_hexa()
+    		axesh[:,9]=var_carre()
+    		axesh[:,7]=i_c
+    		axes[:,3]=i_c
+    		id=0
+		
+	
 def reset_view():
 	global a,i_c
 	
@@ -1768,7 +1800,6 @@ def princ2():
     if ui.crystal2_checkBox.isChecked():
     	i_c=2
     crist()
-    	
     tilt_axes()
     
     if ui.reciprocal_checkBox.isChecked():
