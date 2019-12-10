@@ -633,28 +633,6 @@ def rotgp():
     ui.rg_label.setText(str(g))
     return g,M
 
-###################################################
-#
-# Mirror the sample
-#
-#############################################
-
-#def mirror():
-#    global M,a,trP,trC
-##    a = figure.add_subplot(111)     
-##    a.figure.clear()
-#    
-#    M_r=np.array([[1,0,0],[0,1,0],[0,0,-1]])
-#    M=np.dot(M_r,M)
-#    trace()
-#    phir=np.arccos(M[2,2])*180/np.pi
-#    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-#    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-#    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-#    
-#    ui.angle_euler_label.setText(t)
-#    
-#    return M
 
 
 ####################################################################
@@ -1477,8 +1455,9 @@ def wulff():
 		a.plot(300,300,'+',markersize=10,mew=3,color='black')
 	
 	a.imshow(img,interpolation="bicubic")
-	a.axis('off')
+	#a.axis('off')
 	plt.tight_layout()	
+	figure.subplots_adjust(left=0.1,right=0.9, bottom=0.05,top=0.95, hspace=0.2,wspace=0.2)
     	a.figure.canvas.draw()  
 	
 def text_label(A,B):
@@ -1672,12 +1651,7 @@ def princ():
     ui.rg_label.setText('0.0')
     M=R
     M0=R
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
+    euler_label()
     return T,angle_alpha,angle_beta,angle_z,g,M,M0
     
 ##############################################"
