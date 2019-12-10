@@ -465,7 +465,20 @@ def schmid_trace2(C):
 # or  tilt-rotation holder  (rotation of alpha along fixed # x and rotation of z along the z-rotation moving axis).
 #
 ##########################################################################
-
+def euler_label():
+	global M
+	if np.abs(M[2,2]-1)<0.0001:
+		phir=0
+		phi1r=0
+		phi2r=np.arctan2(M[1,0],M[0,0])*180/np.pi
+	else:
+		phir=np.arccos(M[2,2])*180/np.pi
+		phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
+		phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
+	    
+        t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
+        ui.angle_euler_label.setText(t)
+        
 def lock():
 	global M, var_lock,M_lock
         
@@ -486,12 +499,7 @@ def rot_alpha_p():
     t_a_y=np.dot(Rot(t_ang,0,0,1),np.array([0,1,0]))
     M=np.dot(Rot(tha,t_a_y[0],t_a_y[1],t_a_y[2]),M)
     trace()
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
+    euler_label()
     angle_alpha=angle_alpha+np.float(ui.angle_alpha_entry.text())
     ui.angle_alpha_label_2.setText(str(angle_alpha))
     return angle_alpha,M
@@ -505,12 +513,7 @@ def rot_alpha_m():
     t_a_y=np.dot(Rot(t_ang,0,0,1),np.array([0,1,0]))
     M=np.dot(Rot(tha,t_a_y[0],t_a_y[1],t_a_y[2]),M)
     trace()
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
+    euler_label()
     angle_alpha=angle_alpha-np.float(ui.angle_alpha_entry.text())
     ui.angle_alpha_label_2.setText(str(angle_alpha))
     return angle_alpha,M
@@ -530,11 +533,7 @@ def rot_beta_m():
     thb=-s_b*np.float(ui.angle_beta_entry.text())
     M=np.dot(Rot(thb,AxeY[0],AxeY[1],AxeY[2]),M)
     trace()
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    ui.angle_euler_label.setText(t)
+    euler_label()
     angle_beta=angle_beta-np.float(ui.angle_beta_entry.text())
     ui.angle_beta_label_2.setText(str(angle_beta))
     return angle_beta,M   
@@ -552,11 +551,7 @@ def rot_beta_p():
     thb=s_b*np.float(ui.angle_beta_entry.text())
     M=np.dot(Rot(thb,AxeY[0],AxeY[1],AxeY[2]),M)
     trace()
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    ui.angle_euler_label.setText(t)
+    euler_label()
     angle_beta=angle_beta+np.float(ui.angle_beta_entry.text())
     ui.angle_beta_label_2.setText(str(angle_beta))
     return angle_beta,M   
@@ -573,11 +568,7 @@ def rot_z_m():
     thz=-s_z*np.float(ui.angle_z_entry.text())
     M=np.dot(Rot(thz,AxeZ[0],AxeZ[1],AxeZ[2]),M)
     trace()
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    ui.angle_euler_label.setText(t)
+    euler_label()
     angle_z=angle_z-np.float(ui.angle_z_entry.text())
     ui.angle_z_label_2.setText(str(angle_z))
     return angle_z,M      
@@ -594,11 +585,7 @@ def rot_z_p():
     thz=s_z*np.float(ui.angle_z_entry.text())
     M=np.dot(Rot(thz,AxeZ[0],AxeZ[1],AxeZ[2]),M)
     trace()
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    ui.angle_euler_label.setText(t)
+    euler_label()
     angle_z=angle_z+np.float(ui.angle_z_entry.text())
     ui.angle_z_label_2.setText(str(angle_z))
     return angle_z,M      
@@ -623,12 +610,7 @@ def rotgm():
     Ap=np.dot(M,Ad)/np.linalg.norm(np.dot(M,Ad))
     M=np.dot(Rot(thg,Ap[0],Ap[1],Ap[2]),M)
     trace()    
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
+    euler_label()
     g=g-np.float(ui.rot_g_entry.text())
     ui.rg_label.setText(str(g))
     return g,M
@@ -646,12 +628,7 @@ def rotgp():
     Ap=np.dot(M,Ad)/np.linalg.norm(np.dot(M,Ad))
     M=np.dot(Rot(thg,Ap[0],Ap[1],Ap[2]),M)
     trace()    
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
+    euler_label()
     g=g+np.float(ui.rot_g_entry.text())
     ui.rg_label.setText(str(g))
     return g,M
